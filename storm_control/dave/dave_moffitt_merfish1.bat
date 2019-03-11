@@ -1,0 +1,1 @@
+cmd /k C:\Users\MERFISH1\AppData\Local\conda\conda\envs\myenv\python C:\Users\MERFISH1\Code\storm-control\storm_control\dave\dave.py
