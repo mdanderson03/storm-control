@@ -357,7 +357,7 @@
 	  <sum_minimum type="float">50.0</sum_minimum>
 	  <sum_warning_low type="float">10000.0</sum_warning_low>
 	</parameters>
-	<use_storm_analysis type="boolean">True</use_storm_analysis>
+	<use_storm_analysis type="boolean">False</use_storm_analysis>
 	<background type="int">50000</background>
 	<camera_id type="int">1</camera_id>
 	<ini_file type="string">uc480_settings.ini</ini_file>
