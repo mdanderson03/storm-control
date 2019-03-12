@@ -129,7 +129,7 @@
 		  <default_min type="int">100</default_min>
 		  <flip_horizontal type="boolean">False</flip_horizontal>
 		  <flip_vertical type="boolean">False</flip_vertical>
-		  <transpose type="boolean">False</transpose>
+		  <transpose type="boolean">True</transpose>
 
 		  <!-- These can be changed / editted. -->
 
@@ -328,7 +328,7 @@
       <class_name type="string">Stage</class_name>
       <module_name type="string">storm_control.hal4000.stage.stage</module_name>
       <configuration>
-	<stage_functionality type="string">marzhauser_stage</stage_functionality>
+		<stage_functionality type="string">marzhauser_stage</stage_functionality>
       </configuration>
     </stage>
 
