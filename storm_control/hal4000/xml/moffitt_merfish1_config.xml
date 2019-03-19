@@ -44,8 +44,8 @@
       <module_name type="string">storm_control.hal4000.display.display</module_name>
       <parameters>
 
-	<!-- The default color table. Other options are in hal4000/colorTables/all_tables -->
-	<colortable type="string">ramp_sat.ctbl</colortable>
+		<!-- The default color table. Other options are in hal4000/colorTables/all_tables -->
+		<colortable type="string">ramp_sat.ctbl</colortable>
 	
       </parameters>
     </display>
@@ -63,7 +63,7 @@
 
       <!-- Film parameters specific to this setup go here. -->
       <parameters>
-	<extension desc="Movie file name extension" type="string" values=",Red,Green,Blue"></extension>
+		<extension desc="Movie file name extension" type="string" values=",Red,Green,Blue"></extension>
       </parameters>
     </film>
 
@@ -78,7 +78,7 @@
 		<flip_vertical desc="Flip image vertical (mosaic)" type="boolean">False</flip_vertical>
 		<transpose desc="Transpose image (mosaic)" type="boolean">True</transpose>
 
-		<objective desc="Current objective" type="string" values="obj1,obj2,obj3">obj1</objective>
+		<objective desc="Current objective" type="string" values="obj1,obj2">obj1</objective>
 		<obj1 desc="Objective 1" type="custom">60x,0.1092,0.0,0.0</obj1>
 		<obj2 desc="Objective 2" type="custom">10x,0.650,0.0,0.0</obj2>
       </parameters>
@@ -95,7 +95,7 @@
       <class_name type="string">Timing</class_name>
       <module_name type="string">storm_control.hal4000.timing.timing</module_name>
       <parameters>
-	<time_base type="string">camera1</time_base>
+		<time_base type="string">camera1</time_base>
       </parameters>
     </timing>
   
@@ -168,33 +168,46 @@
 	
 			<ilm750>
 			  <do_task>
-				<source type="string">/Dev1/port0/line0</source>
+				<source type="string">/Dev1/port0/line7</source>
 			  </do_task>
 			</ilm750>
 
-			<ilm650>
+			<ilm635>
 			  <do_task>
-				<source type="string">/Dev1/port0/line1</source>
+				<source type="string">/Dev1/port0/line6</source>
 			  </do_task>
-			</ilm650>
+			</ilm635>
 
-			<ilm560>
+			<ilm545>
 			  <do_task>
-				<source type="string">/Dev1/port0/line2</source>
+				<source type="string">/Dev1/port0/line5</source>
 			  </do_task>
-			</ilm560>
+			</ilm545>
 
-			<ilm488>
-			  <do_task>
-				<source type="string">/Dev1/port0/line3</source>
-			  </do_task>
-			</ilm488>
-
-			<ilm405>
+			<ilm518>
 			  <do_task>
 				<source type="string">/Dev1/port0/line4</source>
 			  </do_task>
+			</ilm518>
+
+			<ilm473>
+			  <do_task>
+				<source type="string">/Dev1/port0/line2</source>
+			  </do_task>
+			</ilm473>
+
+			<ilm445>
+			  <do_task>
+				<source type="string">/Dev1/port0/line1</source>
+			  </do_task>
+			</ilm445>
+
+			<ilm405>
+			  <do_task>
+				<source type="string">/Dev1/port0/line0</source>
+			  </do_task>
 			</ilm405>
+
 
 			<ir_laser>
 			  <ct_task>
@@ -241,46 +254,62 @@
       <module_name type="string">storm_control.hal4000.illumination.illumination</module_name>
       <configuration>
 
-	<!-- Note: The name of the channel is the gui_name.
-	     XML tags cannot start with numbers. -->
-	<ch1>
-	  <gui_name type="string">750</gui_name>
-	  <color type="string">200,0,0</color>
-	  <digital_modulation>
-	    <hw_fn_name type="string">daq.ilm750.do_task</hw_fn_name>
-	  </digital_modulation>
-	</ch1>
-	<ch2>
-	  <gui_name type="string">650</gui_name>
-	  <color type="string">255,0,0</color>
-	  <digital_modulation>
-	    <hw_fn_name type="string">daq.ilm650.do_task</hw_fn_name>
-	  </digital_modulation>
-	</ch2>
-	<ch3>
-	  <gui_name type="string">560</gui_name>
-	  <color type="string">255,255,0</color>
-	  <digital_modulation>
-	    <hw_fn_name type="string">daq.ilm560.do_task</hw_fn_name>
-	  </digital_modulation>
-	</ch3>
-	<ch4>
-	  <gui_name type="string">488</gui_name>
-	  <color type="string">0,255,255</color>
-	  <digital_modulation>
-	    <hw_fn_name type="string">daq.ilm488.do_task</hw_fn_name>
-	  </digital_modulation>
-	</ch4>
-	<ch5>
-	  <gui_name type="string">405</gui_name>
-	  <color type="string">255,0,255</color>
-	  
-	  <digital_modulation>
-	    <hw_fn_name type="string">daq.ilm405.do_task</hw_fn_name>
-	  </digital_modulation>
-	</ch5>
-      </configuration>
-    </illumination>
+		<!-- Note: The name of the channel is the gui_name.
+			 XML tags cannot start with numbers. -->
+			<ch1>
+			  <gui_name type="string">750</gui_name>
+			  <color type="string">128,0,0</color>
+			  <digital_modulation>
+				<hw_fn_name type="string">daq.ilm750.do_task</hw_fn_name>
+			  </digital_modulation>
+			</ch1>
+			<ch2>
+			  <gui_name type="string">635</gui_name>
+			  <color type="string">255,0,0</color>
+			  <digital_modulation>
+				<hw_fn_name type="string">daq.ilm635.do_task</hw_fn_name>
+			  </digital_modulation>
+			</ch2>
+			<ch3>
+			  <gui_name type="string">545</gui_name>
+			  <color type="string">0,128,0</color>
+			  <digital_modulation>
+				<hw_fn_name type="string">daq.ilm545.do_task</hw_fn_name>
+			  </digital_modulation>
+			</ch3>
+			<ch4>
+			  <gui_name type="string">518</gui_name>
+			  <color type="string">0,128,128</color>
+			  <digital_modulation>
+				<hw_fn_name type="string">daq.ilm518.do_task</hw_fn_name>
+			  </digital_modulation>
+			</ch4>
+			<ch5>
+			  <gui_name type="string">473</gui_name>
+			  <color type="string">0,128,255</color>
+			  
+			  <digital_modulation>
+				<hw_fn_name type="string">daq.ilm473.do_task</hw_fn_name>
+			  </digital_modulation>
+			</ch5>
+			<ch6>
+			  <gui_name type="string">445</gui_name>
+			  <color type="string">0,0,255</color>
+			  
+			  <digital_modulation>
+				<hw_fn_name type="string">daq.ilm445.do_task</hw_fn_name>
+			  </digital_modulation>
+			</ch6>
+			<ch7>
+			  <gui_name type="string">405</gui_name>
+			  <color type="string">255,0,255</color>
+			  
+			  <digital_modulation>
+				<hw_fn_name type="string">daq.ilm405.do_task</hw_fn_name>
+			  </digital_modulation>
+			</ch7>
+		</configuration>
+	</illumination>
 
     <!-- Thorlabs LDC control -->
     <ldc_irlaser>
