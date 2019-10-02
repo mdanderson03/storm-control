@@ -241,8 +241,8 @@
 		  </find_sum>
 		  <locked>
 			<buffer_length type="int">5</buffer_length>
-			<offset_threshold type="float">300</offset_threshold>
-			<lock_gain type="float">0.1</lock_gain>
+			<offset_threshold type="float">4000</offset_threshold>
+			<lock_gain type="float">-0.01</lock_gain>
 		  </locked>
 		  <jump_size type="float">0.1</jump_size>
 		</parameters>
@@ -394,8 +394,8 @@
 		<offset_file type="string">C:\Users\MERFISH1\Code\storm-control\storm_control\hal4000\cam_offsets_moffitt_merfish1.txt</offset_file>
 		<sigma type="float">3.0</sigma>
 		<uc480_dll type="string">c:/windows/system32/uc480_64.dll</uc480_dll>
-		<x_width type="int">500</x_width>
-		<y_width type="int">30</y_width>
+		<x_width type="int">1000</x_width>
+		<y_width type="int">250</y_width>
 		<units_to_microns type="float">-1.0</units_to_microns>
 	  </configuration>
     </uc480_camera>
