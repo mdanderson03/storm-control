@@ -75,7 +75,7 @@
       <!-- List objectives available on this setup here. -->
       <parameters>
 		<flip_horizontal desc="Flip image horizontal (mosaic)" type="boolean">False</flip_horizontal>
-		<flip_vertical desc="Flip image vertical (mosaic)" type="boolean">False</flip_vertical>
+		<flip_vertical desc="Flip image vertical (mosaic)" type="boolean">True</flip_vertical>
 		<transpose desc="Transpose image (mosaic)" type="boolean">True</transpose>
 
 		<objective desc="Current objective" type="string" values="obj1,obj2">obj1</objective>
@@ -128,7 +128,7 @@
 		  <default_max type="int">2000</default_max> 
 		  <default_min type="int">100</default_min>
 		  <flip_horizontal type="boolean">False</flip_horizontal>
-		  <flip_vertical type="boolean">False</flip_vertical>
+		  <flip_vertical type="boolean">True</flip_vertical>
 		  <transpose type="boolean">True</transpose>
 
 		  <!-- These can be changed / editted. -->
