@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<settings><!-- Default kilroy settings for MERFISH3 at BWH adapted from Moffit Lab MERFISH1 and MERFISH3 -->
+<settings><!-- Default kilroy settings for jfocal -->
   <!-- Valve parameters -->
   <valves_com_port type="string">COM3</valves_com_port>	<!-- COM port of serial connection to valves -->  
   <num_simulated_valves type="int">0</num_simulated_valves><!-- Number of valves to simulate (Defaults to 0) -->
-  <valve_type type="string">Hamilton</valve_type><!-- Type of valves: Simulated, Hamilton, or Titan -->
-	
+
   <!-- Pump parameters -->
   <pump_class type="string">pumps.gilson_mp3</pump_class><!-- Control class for pump -->
   <pump_com_port type="string">COM4</pump_com_port><!-- COM port of serial connection to pump -->
