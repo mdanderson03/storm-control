@@ -95,41 +95,62 @@ class RemoteHardwareClientModule(hardwareModule.HardwareModule):
         
         else:
             # Get message with responses (if any).
-            response = self.socket.recv_zipped_pickle()
+            r_message = self.socket.recv_zipped_pickle()
 
             # Add responses to message. Note that response will be
             # of type RemoteMessage().
             #
-            for elt in response.responses:
+            for elt in r_message.responses:
                 message.addResponse(elt)
 
 
-class RemoteHardwareServerModule(object):
+class RemoteHardwareServer(QtCore.QThread):
     """
-    The base server class module, this is the remote side of the communication.
+    QThread for the remote side of the communication.
     """
-    def __init__(self, ip_address = None, **kwds):
+    def __init__(self, ip_address = None, module = None, **kwds):
         super().__init__(**kwds)
 
-        self.ip_address = ip_address
-        
         self.context = SerializingContext()
         self.socket = self.context.socket(zmq.PAIR)
+        self.socket.bind(ip_address)
 
-    def bind(self):
-        self.socket.bind(self.ip_address)
-
-    def nextMessage(self):
-        return self.socket.recv_zipped_pickle()
-
-    def sendResponse(self, message):
-        self.socket.send_zipped_pickle(message)
+        self.module = module
+        self.module.sendResponse.connect(self.handleSendResponse)
+        self.module.sendWait.connect(self.handleSendWait)
+            
+        self.start(QtCore.QThread.NormalPriority)
         
-    def sendWait(self, wait):
+    def handleSendResponse(self, r_message):
+        self.socket.send_zipped_pickle(r_message)
+        
+    def handleSendWait(self, wait):
         if wait:
             self.socket.send_string("wait")
         else:
             self.socket.send_string("done")
+        
+    def run(self):
+        while True:
+            r_message = self.socket.recv_zipped_pickle()
+            self.module.processMessage(r_message)
+
+    
+class RemoteHardwareServerModule(QtCore.QObject):
+    """
+    The base server class module. 
+
+    Remote hardware should sub-class this and override processMessage().
+    """
+    sendResponse = QtCore.pyqtSignal(object)
+    sendWait = QtCore.pyqtSignal(bool)
+    
+    def __init__(self, **kwds):
+        super().__init__(**kwds)
+
+    def processMessage(self, r_message):
+        self.sendWait.emit(False)
+        self.sendResponse.emit(r_message)
 
 
 class RemoteMessage(object):
