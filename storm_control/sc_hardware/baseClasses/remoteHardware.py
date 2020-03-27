@@ -78,6 +78,9 @@ class RemoteHardwareClientModule(hardwareModule.HardwareModule):
         print(">", module_params.get("configuration").get("ip_address"))
         self.socket.connect(module_params.get("configuration").get("ip_address"))
 
+    def cleanUp(self, qt_settings):
+        self.socket.send_zipped_pickle("close event")
+
     def processMessage(self, message):
         
         r_message = RemoteMessage(hal_message = message)
@@ -133,7 +136,7 @@ class RemoteHardwareServer(QtCore.QThread):
     def run(self):
         while True:
             r_message = self.socket.recv_zipped_pickle()
-            self.module.processMessage(r_message)
+            self.module.newMessage(r_message)
 
     
 class RemoteHardwareServerModule(QtCore.QObject):
@@ -148,6 +151,16 @@ class RemoteHardwareServerModule(QtCore.QObject):
     def __init__(self, **kwds):
         super().__init__(**kwds)
 
+    def cleanUp(self):
+        print("close event")
+
+    def newMessage(self, r_message):
+        if isinstance(r_message, str):
+            if (r_message == "close event"):
+                self.cleanUp()
+        else:
+            self.processMessage(r_message)
+                
     def processMessage(self, r_message):
         self.sendWait.emit(False)
         self.sendResponse.emit(r_message)
