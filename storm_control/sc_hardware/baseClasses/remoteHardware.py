@@ -75,7 +75,6 @@ class RemoteHardwareClientModule(hardwareModule.HardwareModule):
         
         self.context = SerializingContext()
         self.socket = self.context.socket(zmq.PAIR)
-        print(">", module_params.get("configuration").get("ip_address"))
         self.socket.connect(module_params.get("configuration").get("ip_address"))
 
     def cleanUp(self, qt_settings):
