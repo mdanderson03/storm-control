@@ -122,7 +122,7 @@ class HalModule(QtCore.QObject):
 
     Incoming messages are stored in queue and passed to processMessage() in
     the order they were received. If a worker is started the next message 
-    will get passed to processMessage() until the worker finishes.
+    will not get passed to processMessage() until the worker finishes.
 
     Conventions:
        1. self.view is the GUI view, if any that is associated with this module.
