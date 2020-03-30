@@ -18,6 +18,7 @@ import storm_control.hal4000.halLib.halMessage as halMessage
 
 class NoneRemoteHardwareModule(remoteHardware.RemoteHardwareModule):
     def remoteMessage(self, r_message):
+        super().remoteMessage(r_message)
         print("Received", r_message)
 
 
@@ -28,8 +29,14 @@ class NoneHardwareServerModule(remoteHardware.RemoteHardwareServerModule):
     def __init__(self, **kwds):
         super().__init__(**kwds)
 
-        self.module_name = "remote"
+        self.module_name = "none_remote"
+        self.r_message = None
 
+        self.delay_timer = QtCore.QTimer(self)
+        self.delay_timer.setInterval(500)
+        self.delay_timer.setSingleShot(True)
+        self.delay_timer.timeout.connect(self.handleDelayTimer)
+        
         self.message_count = 0
         self.message_timer = QtCore.QTimer(self)
         self.message_timer.setInterval(1000)
@@ -44,6 +51,11 @@ class NoneHardwareServerModule(remoteHardware.RemoteHardwareServerModule):
     def cleanUp(self):
         super().cleanUp()
         self.message_timer.stop()
+
+    def handleDelayTimer(self):
+        assert (self.r_message is not None)
+        self.sendMessage.emit(self.r_message)
+        self.r_message = None
         
     def handleMessageTimer(self):
         self.message_count += 1
@@ -66,10 +78,16 @@ class NoneHardwareServerModule(remoteHardware.RemoteHardwareServerModule):
             print("New mode is:", self.parameters.get("mode"))
             
         elif r_message.isType("start"):
+            self.r_message = r_message
+            self.delay_timer.start()
+            
             self.message_count = 0
             self.message_timer.start()
 
-        self.sendResponse.emit(r_message)
+        if self.r_message is None:
+            self.sendResponse.emit(r_message)
+        else:
+            self.sendResponse.emit("wait")
 
 
 if (__name__ == "__main__"):
