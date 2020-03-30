@@ -66,11 +66,8 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
     """
     This is the HAL side of the communication.
     """
-    def __init__(self, module_params = None, qt_settings = None, **kwds):
-
+    def __init__(self, module_params = None, **kwds):
         super().__init__(**kwds)
-
-        print("RHM", self.module_name)
         
         self.hal_message = None
 
@@ -256,14 +253,22 @@ class RemoteHardwareServerModule(QtCore.QObject):
         if isinstance(r_message, str):
             if (r_message == "close event"):
                 self.cleanUp()
-        else:
+        elif isinstance(r_message, RemoteHALMessage):
             self.processMessage(r_message)
+        else:
+            self.processMessageOther(r_message)
 
     def processMessage(self, r_message):
         """
-        Override this to process messages from HAL.
+        Override this to process HAL messages.
         """
         self.sendResponse.emit(r_message)
+
+    def processMessageOther(self, r_message):
+        """
+        Override this to other kinds of messages from the client.
+        """
+        pass
 
 
 class RemoteHALMessage(object):
