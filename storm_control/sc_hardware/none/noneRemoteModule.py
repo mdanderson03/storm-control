@@ -17,6 +17,11 @@ import storm_control.hal4000.halLib.halMessage as halMessage
 
 
 class NoneRemoteHardwareModule(remoteHardware.RemoteHardwareModule):
+    
+    def __init__(self, module_params = None, qt_settings = None, **kwds):
+        kwds["module_params"] = module_params
+        super().__init__(**kwds)
+
     def remoteMessage(self, r_message):
         super().remoteMessage(r_message)
         print(">> Received", r_message)
