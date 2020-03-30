@@ -70,6 +70,10 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
 
         super().__init__(**kwds)
 
+        print("RHM", self.module_name)
+        
+        self.hal_message = None
+
         # This socket is used for sending messages from HAL to the remote hardware.
         #
         self.context_remote = SerializingContext()
@@ -96,6 +100,21 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
 
     def cleanUp(self, qt_settings):
         self.socket_remote.send_zipped_pickle("close event")
+
+    def cleanUpRemote(self, r_message):
+        """
+        Call this if r_message is delayed response to a HAL message. This
+        is similar to handleWorkerDone() and cleanUpWorker()
+        """
+        for elt in r_message.responses:
+            self.hal_message.addResponse(elt)
+        self.hal_message.decRefCount(name = self.module_name)
+        self.hal_message = None
+        self.worker = None
+            
+        # Start the timer if we still have messages left.
+        if (len(self.queued_messages) > 0):
+            self.queued_messages_timer.start()        
 
     def handleCheckMessageTimer(self):
         """
@@ -125,7 +144,7 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
         #
         # Create a remote message from a HAL message.
         #
-        r_message = RemoteMessage(hal_message = message)
+        r_message = RemoteHALMessage(hal_message = message)
         
         # Send the message.
         #
@@ -137,20 +156,37 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
         #
         resp = self.socket_remote.recv_zipped_pickle()
 
-        if isinstance(resp, RemoteMessage):
+        if isinstance(resp, RemoteHALMessage):
             for elt in resp.responses:
                 message.addResponse(elt)
 
         else:
-            # TODO, handle waits.
-            pass
+
+            # Increment message reference count and keep a reference to
+            # the message.
+            message.incRefCount()
+            self.hal_message = message
+        
+            # Pretend we are doing something.
+            assert (self.worker is None)
+            self.worker = True
 
     def remoteMessage(self, r_message):
         """
         These come from the remote process.
         """
-        pass
-    
+        # Check if this is a delayed response to a message.
+        #
+        if isinstance(r_message, RemoteHALMessage):
+            for elt in r_message.responses:
+                self.hal_message.addResponse(elt)
+            self.hal_message.decRefCount()
+            self.hal_message = None
+            self.worker = None
+            
+            # Start the timer if we still have messages left.
+            if (len(self.queued_messages) > 0):
+                self.queued_messages_timer.start()
 
 class RemoteHardwareServer(QtCore.QObject):
     """
@@ -230,7 +266,7 @@ class RemoteHardwareServerModule(QtCore.QObject):
         self.sendResponse.emit(r_message)
 
 
-class RemoteMessage(object):
+class RemoteHALMessage(object):
     """
     This is a HalMessage stripped down to the point where it can be 
     passed through a TCP/IP socket. Basically this means no Qt
