@@ -188,6 +188,7 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
             if (len(self.queued_messages) > 0):
                 self.queued_messages_timer.start()
 
+
 class RemoteHardwareServer(QtCore.QObject):
     """
     QObject for the remote side of the communication.
@@ -232,7 +233,6 @@ class RemoteHardwareServer(QtCore.QObject):
             self.module.newMessage(r_message)
 
     def handleSendMessage(self, message):
-        print("hSM", message)
         self.socket_hal.send_zipped_pickle(message)
 
     def handleSendResponse(self, r_message):

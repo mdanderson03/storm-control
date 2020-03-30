@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-A remote HAL module emulator.
+A simple remote HAL module emulator.
 
 Hazen 03/20
 """
@@ -19,7 +19,7 @@ import storm_control.hal4000.halLib.halMessage as halMessage
 class NoneRemoteHardwareModule(remoteHardware.RemoteHardwareModule):
     def remoteMessage(self, r_message):
         super().remoteMessage(r_message)
-        print("Received", r_message)
+        print(">> Received", r_message)
 
 
 class NoneHardwareServerModule(remoteHardware.RemoteHardwareServerModule):
