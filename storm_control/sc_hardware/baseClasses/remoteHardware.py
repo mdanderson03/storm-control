@@ -5,8 +5,6 @@ using HAL. Communication is done using zmq PAIR sockets.
 
 Note: 
 1. This uses pickle so it isn't safe.
-2. There is no support for remote modules being able to
-   send messages to HAL.
 
 Hazen 03/20
 """
@@ -64,88 +62,153 @@ class SerializingContext(zmq.Context):
     _socket_class = SerializingSocket
 
 
-class RemoteHardwareClientModule(hardwareModule.HardwareModule):
+class RemoteHardwareModule(hardwareModule.HardwareModule):
     """
-    The base client class, this is the HAL side of the communication. Each
-    piece of remote hardware functions as a server.
+    This is the HAL side of the communication.
     """
     def __init__(self, module_params = None, qt_settings = None, **kwds):
 
         super().__init__(**kwds)
+
+        # This socket is used for sending messages from HAL to the remote hardware.
+        #
+        self.context_remote = SerializingContext()
+        self.socket_remote = self.context_remote.socket(zmq.PAIR)
+        self.socket_remote.connect(module_params.get("configuration").get("ip_address_remote"))
+
+        # This socket is queried for messages from the remote hardware.
+        #
+        self.context_hal = SerializingContext()
+        self.socket_hal = self.context_hal.socket(zmq.PAIR)
+        self.socket_hal.bind(module_params.get("configuration").get("ip_address_hal"))
+
+        # The poller and timer are used to periodically check for messages
+        # from the remote hardware. Using QTimer so that we don't consume
+        # threads unnecessarily.
+        #
+        self.poller = zmq.Poller()
+        self.poller.register(self.socket_hal, zmq.POLLIN)
         
-        self.context = SerializingContext()
-        self.socket = self.context.socket(zmq.PAIR)
-        self.socket.connect(module_params.get("configuration").get("ip_address"))
+        self.check_message_timer = QtCore.QTimer(self)
+        self.check_message_timer.setInterval(50)
+        self.check_message_timer.timeout.connect(self.handleCheckMessageTimer)
+        self.check_message_timer.start()
 
     def cleanUp(self, qt_settings):
-        self.socket.send_zipped_pickle("close event")
+        self.socket_remote.send_zipped_pickle("close event")
 
+    def handleCheckMessageTimer(self):
+        """
+        Check for messages from the remote process. We'll process all of
+        them at once in the order that they are received.
+        """
+        messages = True
+        r_messages = []
+
+        while messages:
+            socks = dict(self.poller.poll(1))
+            if (self.socket_hal in socks) and (socks[self.socket_hal] == zmq.POLLIN):
+                r_messages.append(self.socket_hal.recv_zipped_pickle())
+            else:
+                messages = False
+
+        for r_message in r_messages:
+            self.remoteMessage(r_message)
+        
     def processMessage(self, message):
-        
+        """
+        This passes a reduced version of the message from HAL to the 
+        remote hardware.
+        """
+        # The problem is that we can't pass Qt objects so we have to reduce
+        # them to pure Python objects first.
+        #
+        # Create a remote message from a HAL message.
+        #
         r_message = RemoteMessage(hal_message = message)
-
-        # Send message.
-        self.socket.send_zipped_pickle(r_message)
-
-        # Remote worker responds with whether or not it can process
-        # the message immediately or we need to wait.
-        resp = self.socket.recv()
-
-        if (resp == "wait"):
-            # TODO, handle waits.
-            pass
         
-        else:
-            # Get message with responses (if any).
-            r_message = self.socket.recv_zipped_pickle()
+        # Send the message.
+        #
+        self.socket_remote.send_zipped_pickle(r_message)
 
-            # Add responses to message. Note that response will be
-            # of type RemoteMessage().
-            #
-            for elt in r_message.responses:
+        # Remote worker responds with updated r_message if it can process
+        # the message immediately. Otherwise it responds with something
+        # else, usually the string "wait".
+        #
+        resp = self.socket_remote.recv_zipped_pickle()
+
+        if isinstance(resp, RemoteMessage):
+            for elt in resp.responses:
                 message.addResponse(elt)
 
+        else:
+            # TODO, handle waits.
+            pass
 
-class RemoteHardwareServer(QtCore.QThread):
+    def remoteMessage(self, r_message):
+        """
+        These come from the remote process.
+        """
+        pass
+    
+
+class RemoteHardwareServer(QtCore.QObject):
     """
-    QThread for the remote side of the communication.
+    QObject for the remote side of the communication.
     """
-    def __init__(self, ip_address = None, module = None, **kwds):
+    def __init__(self, ip_address_hal = None, ip_address_remote = None, module = None, **kwds):
         super().__init__(**kwds)
 
-        self.context = SerializingContext()
-        self.socket = self.context.socket(zmq.PAIR)
-        self.socket.bind(ip_address)
+        # This socket is used to send messages to HAL.
+        #
+        self.context_hal = SerializingContext()
+        self.socket_hal = self.context_hal.socket(zmq.PAIR)
+        self.socket_hal.connect(ip_address_hal)
+
+        # This socket is used to receive messages from HAL.
+        #
+        self.context_remote = SerializingContext()
+        self.socket_remote = self.context_remote.socket(zmq.PAIR)
+        self.socket_remote.bind(ip_address_remote)
+
+        # The poller and timer are used to periodically check for messages
+        # from HAL.
+        #
+        self.poller = zmq.Poller()
+        self.poller.register(self.socket_remote, zmq.POLLIN)
+        
+        self.check_message_timer = QtCore.QTimer(self)
+        self.check_message_timer.setInterval(10)
+        self.check_message_timer.timeout.connect(self.handleCheckMessageTimer)
+        self.check_message_timer.start()
 
         self.module = module
+        self.module.sendMessage.connect(self.handleSendMessage)
         self.module.sendResponse.connect(self.handleSendResponse)
-        self.module.sendWait.connect(self.handleSendWait)
-            
-        self.start(QtCore.QThread.NormalPriority)
         
-    def handleSendResponse(self, r_message):
-        self.socket.send_zipped_pickle(r_message)
-        
-    def handleSendWait(self, wait):
-        if wait:
-            self.socket.send_string("wait")
-        else:
-            self.socket.send_string("done")
-        
-    def run(self):
-        while True:
-            r_message = self.socket.recv_zipped_pickle()
+    def handleCheckMessageTimer(self):
+        """
+        Check for messages from HAL. These will only come in one at a time.
+        """
+        socks = dict(self.poller.poll(1))
+        if (self.socket_remote in socks) and (socks[self.socket_remote] == zmq.POLLIN):
+            r_message = self.socket_remote.recv_zipped_pickle()
             self.module.newMessage(r_message)
+
+    def handleSendMessage(self, message):
+        print("hSM", message)
+        self.socket_hal.send_zipped_pickle(message)
+
+    def handleSendResponse(self, r_message):
+        self.socket_remote.send_zipped_pickle(r_message)
 
     
 class RemoteHardwareServerModule(QtCore.QObject):
     """
-    The base server class module. 
-
-    Remote hardware should sub-class this and override processMessage().
+    HALModule like object for remote hardware.
     """
+    sendMessage = QtCore.pyqtSignal(object)
     sendResponse = QtCore.pyqtSignal(object)
-    sendWait = QtCore.pyqtSignal(bool)
     
     def __init__(self, **kwds):
         super().__init__(**kwds)
@@ -159,9 +222,11 @@ class RemoteHardwareServerModule(QtCore.QObject):
                 self.cleanUp()
         else:
             self.processMessage(r_message)
-                
+
     def processMessage(self, r_message):
-        self.sendWait.emit(False)
+        """
+        Override this to process messages from HAL.
+        """
         self.sendResponse.emit(r_message)
 
 
