@@ -146,7 +146,7 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
         message. It also fixes the source module name, which might
         not be set correctly depending on the remote module.
         """
-        for elt in r_message.responses:
+        for elt in r_message.getResponses():
             elt.source = self.module_name
             hal_message.addResponse(elt)
 
@@ -366,6 +366,9 @@ class RemoteHALMessage(object):
                     
     def getData(self):
         return self.data
+
+    def getResponses(self):
+        return self.responses
 
     def getSourceName(self):
         return self.source_name
