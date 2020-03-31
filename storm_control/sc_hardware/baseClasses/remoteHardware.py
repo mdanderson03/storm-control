@@ -3,6 +3,10 @@
 The core functionality for controlling remote hardware
 using HAL. Communication is done using zmq PAIR sockets.
 
+Examples:
+1. sc_hardware/none/noneRemoteModule.
+2. sc_hardware/baseClasses/remoteCamera.
+
 Note: 
 1. This uses pickle so it isn't safe.
 
@@ -14,7 +18,23 @@ import zmq
 
 from PyQt5 import QtCore
 
+import storm_control.hal4000.halLib.halMessage as halMessage
+
 import storm_control.sc_hardware.baseClasses.hardwareModule as hardwareModule
+
+
+def sanitizeData(new_data, old_data):
+    """
+    Create new_data from old_data recursively removing QObjects.
+    """
+    for key in old_data:
+        val = old_data[key]
+        if isinstance(val, dict):
+            new_data[key] = {}
+            sanitizeData(new_data[key], old_data[key])
+        else:
+            if not isinstance(val, QtCore.QObject):
+                new_data[key] = val
 
 
 #
@@ -111,7 +131,24 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
             
         # Start the timer if we still have messages left.
         if (len(self.queued_messages) > 0):
-            self.queued_messages_timer.start()        
+            self.queued_messages_timer.start()
+
+    def createRemoteMessage(self, message):
+        """
+        Use this to change default conversion from HalMessage
+        to RemoteHALMessage.
+        """
+        return RemoteHALMessage(hal_message = message)
+
+    def copyResponses(self, r_message, hal_message):
+        """
+        This copies the responses from the remote message to the HAL 
+        message. It also fixes the source module name, which might
+        not be set correctly depending on the remote module.
+        """
+        for elt in r_message.responses:
+            elt.source = self.module_name
+            hal_message.addResponse(elt)
 
     def handleCheckMessageTimer(self):
         """
@@ -134,14 +171,16 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
     def processMessage(self, message):
         """
         This passes a reduced version of the message from HAL to the 
-        remote hardware.
+        remote hardware. You probably don't want to change this. You
+        can use createRemoteMessage() to change how (local) HAL messages
+        are converted into messages that are TCP/IP compatible.
         """
         # The problem is that we can't pass Qt objects so we have to reduce
         # them to pure Python objects first.
         #
         # Create a remote message from a HAL message.
         #
-        r_message = RemoteHALMessage(hal_message = message)
+        r_message = self.createRemoteMessage(message)
         
         # Send the message.
         #
@@ -154,8 +193,7 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
         resp = self.socket_remote.recv_zipped_pickle()
 
         if isinstance(resp, RemoteHALMessage):
-            for elt in resp.responses:
-                message.addResponse(elt)
+            self.copyResponses(resp, message)
 
         else:
 
@@ -172,11 +210,11 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
         """
         These come from the remote process.
         """
-        # Check if this is a delayed response to a message.
+        # Check if this is a delayed response to a HAL message.
         #
         if isinstance(r_message, RemoteHALMessage):
-            for elt in r_message.responses:
-                self.hal_message.addResponse(elt)
+            self.copyResponses(r_message, self.hal_message)
+
             self.hal_message.decRefCount()
             self.hal_message = None
             self.worker = None
@@ -184,6 +222,15 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
             # Start the timer if we still have messages left.
             if (len(self.queued_messages) > 0):
                 self.queued_messages_timer.start()
+
+        # All other messages are ["name", data]
+        elif isinstance(r_message, list):
+
+            # Handle 'sendMessage' from remote hardware.
+            if (r_message[0] == 'sendMessage'):
+                msg = halMessage.HalMessage(m_type = r_message[1].m_type,
+                                            data = r_message[1].data)
+                self.sendMessage(msg)
 
 
 class RemoteHardwareServer(QtCore.QObject):
@@ -230,9 +277,15 @@ class RemoteHardwareServer(QtCore.QObject):
             self.module.newMessage(r_message)
 
     def handleSendMessage(self, message):
+        """
+        Out of cycle messages to HAL, these should not be RemoteHALMessage objects.
+        """
         self.socket_hal.send_zipped_pickle(message)
 
     def handleSendResponse(self, r_message):
+        """
+        Response to HAL message, r_message is either 'wait' or a RemoteHALMessage.
+        """
         self.socket_remote.send_zipped_pickle(r_message)
 
     
@@ -246,8 +299,20 @@ class RemoteHardwareServerModule(QtCore.QObject):
     def __init__(self, **kwds):
         super().__init__(**kwds)
 
+        self.r_message = None
+
     def cleanUp(self):
         print("close event")
+        
+    def holdMessage(self, r_message):
+        """
+        Hold a HAL message for processing, pair calls to this
+        with calls to releaseMessageHold()
+        """
+        assert (self.r_message is None)
+        
+        self.r_message = r_message
+        self.sendResponse.emit("wait")
 
     def newMessage(self, r_message):
         if isinstance(r_message, str):
@@ -270,6 +335,14 @@ class RemoteHardwareServerModule(QtCore.QObject):
         """
         pass
 
+    def releaseMessageHold(self):
+        """
+        Release (remote) HAL message. Use sendMessage signal because
+        this is now technically 'out of cycle'.
+        """
+        self.sendMessage.emit(self.r_message)
+        self.r_message = None
+
 
 class RemoteHALMessage(object):
     """
@@ -281,10 +354,7 @@ class RemoteHALMessage(object):
 
         self.data = {}
         if hal_message.data is not None:
-            for key in hal_message.data:
-                val = hal_message.data[key]
-                if not isinstance(val, QtCore.QObject):
-                    self.data[key] = val
+            sanitizeData(self.data, hal_message.data)
 
         self.m_id = hal_message.m_id
         self.m_type = hal_message.m_type
@@ -304,4 +374,4 @@ class RemoteHALMessage(object):
         return (self.m_type == m_type)
 
     def sourceIs(self, source_name):
-        return (source_name == self.source.module_name)
+        return (source_name == self.source_name)
