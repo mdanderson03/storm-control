@@ -60,21 +60,10 @@ class RemoteCamera(remoteHardware.RemoteHardwareModule):
         return r_message
 
     def processMessage(self, message):
-
-        # Partial pick off of 'configure1', need to do this because the response from
-        # the remote module doesn't arrive until after 'configure2' which is too late.
-        #
-        if message.isType('configure1'):
-            # Send 'configuration' message with information about this camera.
-            p_dict = {"module name" : self.module_name,
-                      "is camera" : True,
-                      "is master" : self.camera_functionality.isMaster()}
-            self.sendMessage(halMessage.HalMessage(m_type = "configuration",
-                                                   data = {"properties" : p_dict}))
         
-        # Pick off camera functionality request.
+        # Pick off camera functionality request and return local version.
         #
-        elif message.isType("get functionality"):
+        if message.isType("get functionality"):
             # This message comes from display.cameraDisplay among others.
             if (message.getData()["name"] == self.module_name):
                 message.addResponse(halMessage.HalMessageResponse(source = self.module_name,
@@ -88,7 +77,15 @@ class RemoteCamera(remoteHardware.RemoteHardwareModule):
         # Default handling first.
         super().remoteMessage(r_message)
 
-        if isinstance(r_message, list):
+        # Look for updated parameters in the camera responses.
+        if isinstance(r_message, remoteHardware.RemoteHALMessage) and r_message.isType("new parameters"):
+            for elt in r_message.getResponses():
+                data = elt.getData()
+                if ('new parameters' in data):
+                    self.camera_functionality.parameters = data['new parameters']
+
+        # Additional handling of 'other' messages.
+        elif isinstance(r_message, list):
 
             # Camera functionality information.
             if (r_message[0] == "camera_functionality"):
@@ -102,6 +99,7 @@ class RemoteCamera(remoteHardware.RemoteHardwareModule):
                 self.camera_functionality.newFrame.emit(r_message[1])
 
             elif (r_message[0] == "parametersChanged"):
+                print("parameters changed")
                 self.camera_functionality.parametersChanged.emit()
 
             elif (r_message[0] == "shutter"):
@@ -167,6 +165,12 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
 
         elif r_message.isType("configure1"):
 
+            # Hold message and the release so that the above two messages get
+            # sent by the HAL client module *before* it finishes processing
+            # this message.
+            #
+            self.holdMessage(r_message)
+            
             # Broadcast initial parameters.
             msg = halMessage.HalMessage(m_type = "initial parameters",
                                         source = self,
@@ -174,17 +178,17 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
             r_msg = remoteHardware.RemoteHALMessage(hal_message = msg)
             self.sendMessage.emit(["sendMessage", r_msg])
 
-            ## Send 'configuration' message with information about this camera.
-            #p_dict = {"module name" : self.module_name,
-            #          "is camera" : True,
-            #          "is master" : self.is_master}
-            #msg = halMessage.HalMessage(m_type = "configuration",
-            #                            source = self,
-            #                            data = {"properties" : p_dict})
-            #r_msg = remoteHardware.RemoteHALMessage(hal_message = msg)
-            #self.sendMessage.emit(["sendMessage", r_msg])
+            # Send 'configuration' message with information about this camera.
+            p_dict = {"module name" : self.module_name,
+                      "is camera" : True,
+                      "is master" : self.is_master}
+            msg = halMessage.HalMessage(m_type = "configuration",
+                                        source = self,
+                                        data = {"properties" : p_dict})
+            r_msg = remoteHardware.RemoteHALMessage(hal_message = msg)
+            self.sendMessage.emit(["sendMessage", r_msg])
 
-            self.sendResponse.emit(r_message)
+            self.releaseMessageHold()
 
         elif r_message.isType("current parameters"):
             r_message.addResponse(halMessage.HalMessageResponse(source = self.module_name,
