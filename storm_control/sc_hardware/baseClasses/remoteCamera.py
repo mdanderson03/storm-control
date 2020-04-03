@@ -17,6 +17,65 @@ import storm_control.hal4000.camera.cameraFunctionality as cameraFunctionality
 import storm_control.sc_hardware.baseClasses.remoteHardware as remoteHardware
 
 
+class SignalCounter(QtCore.QObject):
+    """
+    This keeps track of how many unique slots are connected to this signal.
+    
+    We're using a dictionary here because some objects will call 
+    disconnect() even when they are not currently connected.
+    """
+    connected = QtCore.pyqtSignal(bool)
+    
+    def __init__(self, signal, **kwds):
+        super().__init__(**kwds)
+
+        self.connections = {}
+        self.signal = signal
+
+    def connect(self, slot):
+        notify = (len(self.connections) == 0)
+        
+        # We want the ID of the object, not the bound method (or slot).
+        self.connections[id(slot.__self__)] = True
+        self.signal.connect(slot)
+
+        # Only send 'connected' signal if the slot was previously not
+        # connected to anything.
+        #
+        if notify:
+            self.connected.emit(True)
+            
+    def disconnect(self, slot):
+        notify = (len(self.connections) > 0)
+        
+        self.connections.pop(id(slot.__self__), None)
+        self.signal.disconnect(slot)
+
+        # Need both checks as slot.__self__ may not have been in our
+        # dictionary of connections in the first place.
+        #
+        if notify and (len(self.connections) == 0):
+            self.connected.emit(False)
+
+    def emit(self, *vals):
+        self.signal.emit(*vals)
+
+
+class RemoteCameraFunctionality(cameraFunctionality.CameraFunctionality):
+    """
+    A version of CameraFunctionality that keeps track of the number of
+    connections to the 'newFrame' signal. Sending frames over the wire
+    can be expensive so we don't want to that unless they are being 
+    used.
+    """
+    _newFrame = QtCore.pyqtSignal(object)
+
+    def __init__(self, **kwds):
+        super().__init__(**kwds)
+        
+        self.newFrame = SignalCounter(self._newFrame)
+        
+
 class RemoteTimingFunctionality(object):
     """
     A remote version of timing functionality that only provides what
@@ -59,6 +118,9 @@ class RemoteCamera(remoteHardware.RemoteHardwareModule):
 
         return r_message
 
+    def handleConnected(self, connected):
+        self.socket_remote.send_zipped_pickle(['connected', {"connected" : connected}])
+        
     def processMessage(self, message):
         
         # Pick off camera functionality request and return local version.
@@ -89,7 +151,8 @@ class RemoteCamera(remoteHardware.RemoteHardwareModule):
 
             # Camera functionality information.
             if (r_message[0] == "camera_functionality"):
-                self.camera_functionality = cameraFunctionality.CameraFunctionality(**r_message[1])
+                self.camera_functionality = RemoteCameraFunctionality(**r_message[1])
+                self.camera_functionality.newFrame.connected.connect(self.handleConnected)
 
             # These are signals from the remote camera functionality.
             elif (r_message[0] == "emccdGain"):
@@ -123,19 +186,22 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
         super().__init__(**kwds)
 
         self.camera_control = None
+        self.connected = False
         self.film_settings = None
         self.is_master = None
         self.module_name = None
 
     def cleanUp(self):
         print("closing camera")
+        self.connected = False
         self.camera_control.cleanUp()
 
     def handleEMCCDGain(self, gain):
         self.sendMessage.emit(["emccdGain", gain])
 
     def handleNewFrame(self, frame):
-        self.sendMessage.emit(["newFrame", frame])
+        if self.connected:
+            self.sendMessage.emit(["newFrame", frame])
 
     def handleParametersChanged(self):
         self.sendMessage.emit(["parametersChanged", None])
@@ -274,6 +340,9 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
             cam_fn.started.connect(self.handleStarted)
             cam_fn.stopped.connect(self.handleStopped)
             cam_fn.temperature.connect(self.handleTemperature)
+
+        elif (m_type == "connected"):
+            self.connected = m_dict["connected"]
 
     def startCamera(self):
         self.camera_control.startCamera()
