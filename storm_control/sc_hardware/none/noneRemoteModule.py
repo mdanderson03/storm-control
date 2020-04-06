@@ -103,7 +103,7 @@ if (__name__ == "__main__"):
     app = QtWidgets.QApplication(sys.argv)
 
     nhsm = NoneHardwareServerModule()
-    rhs = remoteHardware.RemoteHardwareServer(ip_address_hal = "tcp://localhost:5557",
+    rhs = remoteHardware.RemoteHardwareServer(ip_address_hal = "tcp://*:5557",
                                               ip_address_remote = "tcp://*:5556",
                                               module = nhsm)
 

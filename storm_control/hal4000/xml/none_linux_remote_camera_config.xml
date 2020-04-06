@@ -151,7 +151,7 @@
       <module_name type="string">storm_control.sc_hardware.baseClasses.remoteCamera</module_name>
       
       <configuration>
-	<ip_address_hal type="string">tcp://*:5557</ip_address_hal>
+	<ip_address_hal type="string">tcp://localhost:5557</ip_address_hal>
 	<ip_address_remote type="string">tcp://localhost:5556</ip_address_remote>
 	<remote_save type="boolean">True</remote_save>
       </configuration>

@@ -102,7 +102,7 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
         #
         self.context_hal = SerializingContext()
         self.socket_hal = self.context_hal.socket(zmq.PAIR)
-        self.socket_hal.bind(module_params.get("configuration").get("ip_address_hal"))
+        self.socket_hal.connect(module_params.get("configuration").get("ip_address_hal"))
 
         # The poller and timer are used to periodically check for messages
         # from the remote hardware. Using QTimer so that we don't consume
@@ -176,7 +176,7 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
     def processMessage(self, message):
         """
         This passes a reduced version of the message from HAL to the 
-        remote hardware. You probably don't want to change this. You
+        remote hardware. You probably don't want to override this. You
         can use createRemoteMessage() to change how (local) HAL messages
         are converted into messages that are TCP/IP compatible.
         """
@@ -213,7 +213,9 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
 
     def remoteMessage(self, r_message):
         """
-        These come from the remote process.
+        These come from the remote process. In a sub-class you'd call
+        this for standard message handling, then add your own additional 
+        message handling.
         """
         # Check if this is a delayed response to a HAL message.
         #
@@ -245,13 +247,16 @@ class RemoteHardwareServer(QtCore.QObject):
     def __init__(self, ip_address_hal = None, ip_address_remote = None, module = None, **kwds):
         super().__init__(**kwds)
 
-        # This socket is used to send messages to HAL.
+        # This socket is used to send messages to HAL. HAL does not
+        # send messages using this socket.
         #
         self.context_hal = SerializingContext()
         self.socket_hal = self.context_hal.socket(zmq.PAIR)
-        self.socket_hal.connect(ip_address_hal)
+        self.socket_hal.bind(ip_address_hal)
 
-        # This socket is used to receive messages from HAL.
+        # This socket is used to receive messages from HAL. These messages
+        # can be RemoteHALMessage objects or something else. All messages
+        # from the HAL side come on through this socket.
         #
         self.context_remote = SerializingContext()
         self.socket_remote = self.context_remote.socket(zmq.PAIR)
@@ -283,13 +288,13 @@ class RemoteHardwareServer(QtCore.QObject):
 
     def handleSendMessage(self, message):
         """
-        Out of cycle messages to HAL, these should not be RemoteHALMessage objects.
+        For 'out of cycle' messages to HAL.
         """
         self.socket_hal.send_zipped_pickle(message)
 
     def handleSendResponse(self, r_message):
         """
-        Response to HAL message, r_message is either 'wait' or a RemoteHALMessage.
+        For immediate response to HAL message, r_message is either 'wait' or a RemoteHALMessage.
         """
         self.socket_remote.send_zipped_pickle(r_message)
 

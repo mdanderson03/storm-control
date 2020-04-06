@@ -418,11 +418,11 @@
       <class_name type="string">NoneRemoteHardwareModule</class_name>
 
       <configuration>
-	<ip_address_hal type="string">tcp://*:5557</ip_address_hal>
+	<ip_address_hal type="string">tcp://localhost:5557</ip_address_hal>
 	<ip_address_remote type="string">tcp://localhost:5556</ip_address_remote>
       </configuration>
     </none_remote>
-    
+
     <none_wheel1>
       <module_name type="string">storm_control.sc_hardware.none.noneFilterWheelModule</module_name>
       <class_name type="string">NoneFilterWheelModule</class_name>
