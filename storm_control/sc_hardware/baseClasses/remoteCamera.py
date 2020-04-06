@@ -5,12 +5,16 @@ The core functionality for controlling remote camera.
 Hazen 03/20
 """
 import importlib
+import os
 import signal
 import sys
 
 from PyQt5 import QtCore, QtWidgets
 
+import storm_control.sc_library.parameters as params
+
 import storm_control.hal4000.halLib.halMessage as halMessage
+import storm_control.hal4000.halLib.imagewriters as imagewriters
 
 import storm_control.hal4000.camera.cameraFunctionality as cameraFunctionality
 
@@ -67,14 +71,29 @@ class RemoteCameraFunctionality(cameraFunctionality.CameraFunctionality):
     connections to the 'newFrame' signal. Sending frames over the wire
     can be expensive so we don't want to that unless they are being 
     used.
+
+    We also override the isSaved() function so that this will report
+    the correct thing depending on if the camera is configured for
+    'remote_save'.
     """
     _newFrame = QtCore.pyqtSignal(object)
 
     def __init__(self, **kwds):
         super().__init__(**kwds)
+
+        self.remote_save = False
         
         self.newFrame = SignalCounter(self._newFrame)
-        
+
+    def isSaved(self):
+        if self.remote_save:
+            return False
+        else:
+            return super().isSaved()
+
+    def setRemoteSave(self, remote_save):
+        self.remote_save = remote_save
+    
 
 class RemoteTimingFunctionality(object):
     """
@@ -98,11 +117,14 @@ class RemoteCamera(remoteHardware.RemoteHardwareModule):
         kwds["module_params"] = module_params
         super().__init__(**kwds)
 
+        self.remote_save = module_params.get("configuration").get("remote_save")
+        
         self.camera_functionality = None
 
         # Send camera parameters to remote
         cam_dict = {"camera_params" : module_params.get("camera"),
-                    "camera_name" : self.module_name}
+                    "camera_name" : self.module_name,
+                    "remote_save" : self.remote_save}
         self.socket_remote.send_zipped_pickle(["init", cam_dict])
 
     def createRemoteMessage(self, message):
@@ -153,6 +175,7 @@ class RemoteCamera(remoteHardware.RemoteHardwareModule):
             if (r_message[0] == "camera_functionality"):
                 self.camera_functionality = RemoteCameraFunctionality(**r_message[1])
                 self.camera_functionality.newFrame.connected.connect(self.handleConnected)
+                self.camera_functionality.setRemoteSave(self.remote_save)
 
             # These are signals from the remote camera functionality.
             elif (r_message[0] == "emccdGain"):
@@ -160,6 +183,7 @@ class RemoteCamera(remoteHardware.RemoteHardwareModule):
 
             elif (r_message[0] == "newFrame"):
                 self.camera_functionality.newFrame.emit(r_message[1])
+                self.socket_remote.send_zipped_pickle(['received', {"received" : True}])
 
             elif (r_message[0] == "parametersChanged"):
                 print("parameters changed")
@@ -187,13 +211,26 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
 
         self.camera_control = None
         self.connected = False
+        
         self.film_settings = None
         self.is_master = None
         self.module_name = None
+        self.n_sent = 0
+        self.remote_save = None
+        self.writer = None
+        
+        self.writer_stopped_timer = QtCore.QTimer(self)
+        self.writer_stopped_timer.setSingleShot(True)
+        self.writer_stopped_timer.setInterval(10)
+        self.writer_stopped_timer.timeout.connect(self.handleStopWriter)
 
     def cleanUp(self):
         print("closing camera")
         self.connected = False
+        self.n_sent = 0
+        self.remote_save = None
+        self.writer = None
+        
         self.camera_control.cleanUp()
 
     def handleEMCCDGain(self, gain):
@@ -201,7 +238,11 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
 
     def handleNewFrame(self, frame):
         if self.connected:
-            self.sendMessage.emit(["newFrame", frame])
+            if (self.n_sent == 0):
+                self.n_sent += 1
+                self.sendMessage.emit(["newFrame", frame])
+            else:
+                print("Current back log", self.n_sent)
 
     def handleParametersChanged(self):
         self.sendMessage.emit(["parametersChanged", None])
@@ -214,6 +255,17 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
 
     def handleStopped(self):
         self.sendMessage.emit(["stopped", None])
+
+    def handleStopWriter(self):
+        # Keep checking self.writer until it is stopped, then close and
+        # tell HAL that we are done.
+        #
+        if self.writer.isStopped():
+            self.writer.closeWriter()
+            self.writer = None
+            self.releaseMessageHold()
+        else:
+            self.writer_stopped_timer.start()
 
     def handleTemperature(self, temperature):
         self.sendMessage.emit(["temperature", temperature])
@@ -283,6 +335,7 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
             # but don't actually do anything until we get a 'configuration'
             # message from timing.timing.
             self.film_settings = r_message.getData()["film settings"]
+
             self.sendResponse.emit(r_message)
 
         elif r_message.isType("stop camera"):
@@ -311,6 +364,8 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
         if (m_type == "init"):
             self.module_name = m_dict["camera_name"]
 
+            self.remote_save = m_dict["remote_save"]
+            
             print("creating camera")
             camera_params = m_dict["camera_params"]
             a_module = importlib.import_module(camera_params.get("module_name"))
@@ -320,8 +375,18 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
                                           is_master = camera_params.get("master"))
             self.is_master = self.camera_control.getCameraFunctionality().isMaster()
 
+            # Add remote_save_dir parameter in remote_save mode.
+            #
+            if self.remote_save:
+                self.camera_control.parameters.add(params.ParameterString(description = "Remove save directory",
+                                                                          name = "remote_save_dir",
+                                                                          value = ""))
+                self.camera_control.parameters.set("remote_save_dir",
+                                                   camera_params.get("parameters").get("remote_save_dir"))
+                
             # Send some information back to the client which it can use to create
             # a local version of the remote camera functionality.
+            #
             cam_fn = self.camera_control.getCameraFunctionality()
             cam_fn_dict = {"camera_name" : cam_fn.getCameraName(),
                            "have_emccd" : cam_fn.hasEMCCD(),
@@ -333,6 +398,7 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
             self.sendMessage.emit(["camera_functionality", cam_fn_dict])
 
             # Connect signal to TCP/IP messages.
+            #
             cam_fn.emccdGain.connect(self.handleEMCCDGain)
             cam_fn.newFrame.connect(self.handleNewFrame)
             cam_fn.parametersChanged.connect(self.handleParametersChanged)
@@ -344,11 +410,31 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
         elif (m_type == "connected"):
             self.connected = m_dict["connected"]
 
+        elif (m_type == "received"):
+            self.n_sent -= 1
+
     def startCamera(self):
         self.camera_control.startCamera()
         self.releaseMessageHold()
 
     def startFilm(self, is_time_base):
+        
+        # Change where to save if we're saving remotely and create image writer.
+        #
+        if self.remote_save:
+
+            # Get movie name from film settings.
+            movie_name = os.path.basename(self.film_settings.basename)
+
+            # Combine with local directory setting.
+            cam_fn = self.camera_control.getCameraFunctionality()
+            basename = os.path.join(cam_fn.getParameter("remote_save_dir"), movie_name)
+            print("  recording", basename)
+
+            # Update film settings basename and create file writer.
+            self.film_settings.basename = basename
+            self.writer = imagewriters.createFileWriter(cam_fn, self.film_settings)
+
         self.camera_control.startFilm(self.film_settings, is_time_base)
         self.releaseMessageHold()
         
@@ -358,7 +444,11 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
 
     def stopFilm(self):
         self.camera_control.stopFilm()
-        self.releaseMessageHold()
+
+        if self.remote_save:
+            self.writer_stopped_timer.start()
+        else:
+            self.releaseMessageHold()
 
     def toggleShutter(self):
         self.camera_control.toggleShutter()

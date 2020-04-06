@@ -153,6 +153,7 @@
       <configuration>
 	<ip_address_hal type="string">tcp://*:5557</ip_address_hal>
 	<ip_address_remote type="string">tcp://localhost:5556</ip_address_remote>
+	<remote_save type="boolean">True</remote_save>
       </configuration>
 
       <camera>
@@ -167,18 +168,22 @@
 
           <!-- These should be specified for every camera, and cannot be changed
 	       in HAL when running. -->
+	  
 	  <!-- These are the display defaults, not the camera range. -->
 	  <default_max type="int">300</default_max> 
 	  <default_min type="int">0</default_min>
 	  <flip_horizontal type="boolean">False</flip_horizontal>
 	  <flip_vertical type="boolean">False</flip_vertical>
 	  <transpose type="boolean">False</transpose>
-
+	  
 	  <!-- These can be changed / editted. -->
 
 	  <!-- This is the extension to use (if any) when saving data from this camera. -->
 	  <extension type="string">c2</extension>
-	  
+
+	  <!-- Directory to save data in when remote_save is True. -->
+	  <remote_save_dir type="string">/home/hbabcock/Data/storm_control/remote</remote_save_dir>
+
 	  <!-- Whether or not data from this camera is saved during filming. -->
 	  <saved type="boolean">True</saved>
 
