@@ -690,7 +690,7 @@ class Film(halModule.HalModule):
         self.writers = []
         if self.film_settings.isSaved():
             for camera in self.camera_functionalities:
-                if camera.getParameter("saved"):
+                if camera.isSaved():
                     self.writers.append(imagewriters.createFileWriter(camera, self.film_settings))
         if (len(self.writers) == 0):
             self.view.updateSize(0.0)
