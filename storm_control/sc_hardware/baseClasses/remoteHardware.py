@@ -13,6 +13,7 @@ Note:
 Hazen 03/20
 """
 import pickle
+import traceback
 import zlib
 import zmq
 
@@ -133,22 +134,26 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
         if (len(self.queued_messages) > 0):
             self.queued_messages_timer.start()
 
+    def copyResponses(self, r_message, hal_message):
+        """
+        This copies the responses and errors from the remote message 
+        to the HAL message. It also fixes the source module name, which 
+        might not be set correctly depending on the remote module.
+        """
+        for elt in r_message.getResponses():
+            elt.source = self.module_name
+            hal_message.addResponse(elt)
+            
+        for elt in r_message.getErrors():
+            elt.source = self.module_name
+            hal_message.addError(elt)
+
     def createRemoteMessage(self, message):
         """
         Use this to change default conversion from HalMessage
         to RemoteHALMessage.
         """
         return RemoteHALMessage(hal_message = message)
-
-    def copyResponses(self, r_message, hal_message):
-        """
-        This copies the responses from the remote message to the HAL 
-        message. It also fixes the source module name, which might
-        not be set correctly depending on the remote module.
-        """
-        for elt in r_message.getResponses():
-            elt.source = self.module_name
-            hal_message.addResponse(elt)
 
     def handleCheckMessageTimer(self):
         """
@@ -315,13 +320,22 @@ class RemoteHardwareServerModule(QtCore.QObject):
         self.sendResponse.emit("wait")
 
     def newMessage(self, r_message):
-        if isinstance(r_message, str):
-            if (r_message == "close event"):
-                self.cleanUp()
-        elif isinstance(r_message, RemoteHALMessage):
-            self.processMessage(r_message)
-        else:
-            self.processMessageOther(r_message)
+        try:
+            if isinstance(r_message, str):
+                if (r_message == "close event"):
+                    self.cleanUp()
+
+            elif isinstance(r_message, RemoteHALMessage):
+                self.processMessage(r_message)
+            else:
+                self.processMessageOther(r_message)
+                
+        except Exception as exception:
+            r_message.addError(halMessage.HalMessageError(source = "na",
+                                                          message = str(exception),
+                                                          m_exception = exception,
+                                                          stack_trace = traceback.format_exc()))
+            self.sendResponse.emit(r_message)
 
     def processMessage(self, r_message):
         """
@@ -356,16 +370,23 @@ class RemoteHALMessage(object):
         if hal_message.data is not None:
             sanitizeData(self.data, hal_message.data)
 
+        self.m_errors = []
         self.m_id = hal_message.m_id
         self.m_type = hal_message.m_type
         self.responses = []
         self.source_name = hal_message.source.module_name
 
+    def addError(self, hal_message_error):
+        self.m_errors.append(hal_message_error)
+        
     def addResponse(self, hal_message_response):
         self.responses.append(hal_message_response)
                     
     def getData(self):
         return self.data
+
+    def getErrors(self):
+        return self.m_errors
 
     def getResponses(self):
         return self.responses

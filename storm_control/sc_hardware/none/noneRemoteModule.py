@@ -89,6 +89,9 @@ class NoneHardwareServerModule(remoteHardware.RemoteHardwareServerModule):
             self.message_count = 0
             self.message_timer.start()
 
+#        elif r_message.isType("start film"):
+#            assert False, "Can't start film."
+
         if self.r_message is None:
             self.sendResponse.emit(r_message)
         else:
