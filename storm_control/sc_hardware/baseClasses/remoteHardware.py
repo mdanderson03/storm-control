@@ -117,10 +117,16 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
         self.check_message_timer.start()
 
     def cleanUp(self, qt_settings):
+        self.check_message_timer.stop()
+        
         self.socket_remote.send_zipped_pickle("close event")
-        self.socket_remote.close(linger = 0)
-        self.socket_hal.close(linger = 0)
+        resp = self.socket_remote.recv_zipped_pickle()
 
+        self.socket_remote.close()
+        self.socket_hal.close()
+        self.context_remote.term()
+        self.context_hal.term()
+        
     def cleanUpRemote(self, r_message):
         """
         Call this if r_message is delayed response to a HAL message. This
@@ -259,7 +265,7 @@ class RemoteHardwareServer(QtCore.QObject):
         self.poller = None
 
         # Create sockets.
-        self.handleResetSockets()
+        self.createSockets()
 
         # Timer for polling socket_remote.
         self.check_message_timer = QtCore.QTimer(self)
@@ -270,22 +276,12 @@ class RemoteHardwareServer(QtCore.QObject):
         self.module = module
 
         # Connect module signals.
-        self.module.resetSockets.connect(self.handleResetSockets)
         self.module.sendMessage.connect(self.handleSendMessage)
         self.module.sendResponse.connect(self.handleSendResponse)
 
-    def handleCheckMessageTimer(self):
+    def createSockets(self):
         """
-        Check for messages from HAL. These will only come in one at a time.
-        """
-        socks = dict(self.poller.poll(1))
-        if (self.socket_remote in socks) and (socks[self.socket_remote] == zmq.POLLIN):
-            r_message = self.socket_remote.recv_zipped_pickle()
-            self.module.newMessage(r_message)
-
-    def handleResetSockets(self):
-        """
-        Close and reset sockets.
+        Create new contexts and sockets.
         """
         # Close existing sockets, if any.
         #
@@ -320,6 +316,22 @@ class RemoteHardwareServer(QtCore.QObject):
         self.poller = zmq.Poller()
         self.poller.register(self.socket_remote, zmq.POLLIN)
 
+    def handleCheckMessageTimer(self):
+        """
+        Check for messages from HAL. These will only come in one at a time.
+        """
+        socks = dict(self.poller.poll(1))
+        if (self.socket_remote in socks) and (socks[self.socket_remote] == zmq.POLLIN):
+            r_message = self.socket_remote.recv_zipped_pickle()
+            
+            # Special handling of 'close event' message
+            if isinstance(r_message, str) and (r_message == "close event"):
+                self.socket_remote.send_zipped_pickle("ack")
+                self.module.cleanUp()
+                self.createSockets()
+            else:
+                self.module.newMessage(r_message)
+
     def handleSendMessage(self, message):
         """
         For 'out of cycle' messages to HAL.
@@ -337,7 +349,6 @@ class RemoteHardwareServerModule(QtCore.QObject):
     """
     HALModule like object for remote hardware.
     """
-    resetSockets = QtCore.pyqtSignal()
     sendMessage = QtCore.pyqtSignal(object)
     sendResponse = QtCore.pyqtSignal(object)
     
@@ -348,7 +359,6 @@ class RemoteHardwareServerModule(QtCore.QObject):
 
     def cleanUp(self):
         print("close event")
-        self.resetSockets.emit()
         
     def holdMessage(self, r_message):
         """
@@ -365,11 +375,7 @@ class RemoteHardwareServerModule(QtCore.QObject):
         Don't override this.
         """
         try:
-            if isinstance(r_message, str):
-                if (r_message == "close event"):
-                    self.cleanUp()
-
-            elif isinstance(r_message, RemoteHALMessage):
+            if isinstance(r_message, RemoteHALMessage):
                 self.processMessage(r_message)
             else:
                 self.processMessageOther(r_message)
