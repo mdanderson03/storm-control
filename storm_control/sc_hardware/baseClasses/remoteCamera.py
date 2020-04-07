@@ -215,6 +215,7 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
         self.film_settings = None
         self.is_master = None
         self.module_name = None
+        self.n_lost = 0
         self.n_sent = 0
         self.remote_save = None
         self.writer = None
@@ -225,13 +226,25 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
         self.writer_stopped_timer.timeout.connect(self.handleStopWriter)
 
     def cleanUp(self):
-        print("closing camera")
         self.connected = False
         self.n_sent = 0
         self.remote_save = None
         self.writer = None
-        
+
+        # Disconnect camera.
+        cam_fn = self.camera_control.getCameraFunctionality()
+        cam_fn.emccdGain.disconnect(self.handleEMCCDGain)
+        cam_fn.newFrame.disconnect(self.handleNewFrame)
+        cam_fn.parametersChanged.disconnect(self.handleParametersChanged)
+        cam_fn.shutter.disconnect(self.handleShutter)
+        cam_fn.started.disconnect(self.handleStarted)
+        cam_fn.stopped.disconnect(self.handleStopped)
+        cam_fn.temperature.disconnect(self.handleTemperature)
+
+        # Clean up camera.
         self.camera_control.cleanUp()
+        
+        super().cleanUp()
 
     def handleEMCCDGain(self, gain):
         self.sendMessage.emit(["emccdGain", gain])
@@ -242,7 +255,7 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
                 self.n_sent += 1
                 self.sendMessage.emit(["newFrame", frame])
             else:
-                print("Current back log", self.n_sent)
+                self.n_lost += 1
 
     def handleParametersChanged(self):
         self.sendMessage.emit(["parametersChanged", None])
@@ -409,11 +422,16 @@ class RemoteCameraServer(remoteHardware.RemoteHardwareServerModule):
 
         elif (m_type == "connected"):
             self.connected = m_dict["connected"]
+            if not self.connected:
+                if (self.n_lost > 0):
+                    print(">>", self.n_lost, "frames lost")
+                    self.n_lost = 0
 
         elif (m_type == "received"):
             self.n_sent -= 1
 
     def startCamera(self):
+        self.n_lost = 0
         self.camera_control.startCamera()
         self.releaseMessageHold()
 
