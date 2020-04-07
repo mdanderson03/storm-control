@@ -118,8 +118,8 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
 
     def cleanUp(self, qt_settings):
         self.socket_remote.send_zipped_pickle("close event")
-        self.socket_remote.close()
-        self.socket_hal.close()
+        self.socket_remote.close(linger = 0)
+        self.socket_hal.close(linger = 0)
 
     def cleanUpRemote(self, r_message):
         """
@@ -290,6 +290,8 @@ class RemoteHardwareServer(QtCore.QObject):
         # Close existing sockets, if any.
         #
         if self.context_hal is not None:
+            print("socket reset")
+            print()
             self.socket_hal.close(linger = 0)
             self.context_hal.term()
             self.socket_remote.close(linger = 0)
