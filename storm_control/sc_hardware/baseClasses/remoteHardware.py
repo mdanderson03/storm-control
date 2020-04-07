@@ -118,6 +118,8 @@ class RemoteHardwareModule(hardwareModule.HardwareModule):
 
     def cleanUp(self, qt_settings):
         self.socket_remote.send_zipped_pickle("close event")
+        self.socket_remote.close()
+        self.socket_hal.close()
 
     def cleanUpRemote(self, r_message):
         """
@@ -247,36 +249,31 @@ class RemoteHardwareServer(QtCore.QObject):
     def __init__(self, ip_address_hal = None, ip_address_remote = None, module = None, **kwds):
         super().__init__(**kwds)
 
-        # This socket is used to send messages to HAL. HAL does not
-        # send messages using this socket.
-        #
-        self.context_hal = SerializingContext()
-        self.socket_hal = self.context_hal.socket(zmq.PAIR)
-        self.socket_hal.bind(ip_address_hal)
+        self.ip_address_hal = ip_address_hal
+        self.ip_address_remote = ip_address_remote
 
-        # This socket is used to receive messages from HAL. These messages
-        # can be RemoteHALMessage objects or something else. All messages
-        # from the HAL side come on through this socket.
-        #
-        self.context_remote = SerializingContext()
-        self.socket_remote = self.context_remote.socket(zmq.PAIR)
-        self.socket_remote.bind(ip_address_remote)
+        self.context_hal = None
+        self.context_remote = None
+        self.socket_hal = None
+        self.socket_remote = None
+        self.poller = None
 
-        # The poller and timer are used to periodically check for messages
-        # from HAL.
-        #
-        self.poller = zmq.Poller()
-        self.poller.register(self.socket_remote, zmq.POLLIN)
-        
+        # Create sockets.
+        self.handleResetSockets()
+
+        # Timer for polling socket_remote.
         self.check_message_timer = QtCore.QTimer(self)
         self.check_message_timer.setInterval(10)
         self.check_message_timer.timeout.connect(self.handleCheckMessageTimer)
         self.check_message_timer.start()
 
         self.module = module
+
+        # Connect module signals.
+        self.module.resetSockets.connect(self.handleResetSockets)
         self.module.sendMessage.connect(self.handleSendMessage)
         self.module.sendResponse.connect(self.handleSendResponse)
-        
+
     def handleCheckMessageTimer(self):
         """
         Check for messages from HAL. These will only come in one at a time.
@@ -285,6 +282,41 @@ class RemoteHardwareServer(QtCore.QObject):
         if (self.socket_remote in socks) and (socks[self.socket_remote] == zmq.POLLIN):
             r_message = self.socket_remote.recv_zipped_pickle()
             self.module.newMessage(r_message)
+
+    def handleResetSockets(self):
+        """
+        Close and reset sockets.
+        """
+        # Close existing sockets, if any.
+        #
+        if self.context_hal is not None:
+            self.socket_hal.close(linger = 0)
+            self.context_hal.term()
+            self.socket_remote.close(linger = 0)
+            self.context_remote.term()
+
+        # Create new sockets.
+        #
+        # This socket is used to send messages to HAL. HAL does not
+        # send messages using this socket.
+        #
+        self.context_hal = SerializingContext()
+        self.socket_hal = self.context_hal.socket(zmq.PAIR)
+        self.socket_hal.bind(self.ip_address_hal)
+
+        # This socket is used to receive messages from HAL. These messages
+        # can be RemoteHALMessage objects or something else. All messages
+        # from the HAL side come on through this socket.
+        #
+        self.context_remote = SerializingContext()        
+        self.socket_remote = self.context_remote.socket(zmq.PAIR)
+        self.socket_remote.bind(self.ip_address_remote)
+
+        # The poller and timer are used to periodically check for messages
+        # from HAL.
+        #
+        self.poller = zmq.Poller()
+        self.poller.register(self.socket_remote, zmq.POLLIN)
 
     def handleSendMessage(self, message):
         """
@@ -303,6 +335,7 @@ class RemoteHardwareServerModule(QtCore.QObject):
     """
     HALModule like object for remote hardware.
     """
+    resetSockets = QtCore.pyqtSignal()
     sendMessage = QtCore.pyqtSignal(object)
     sendResponse = QtCore.pyqtSignal(object)
     
@@ -313,6 +346,7 @@ class RemoteHardwareServerModule(QtCore.QObject):
 
     def cleanUp(self):
         print("close event")
+        self.resetSockets.emit()
         
     def holdMessage(self, r_message):
         """
@@ -325,6 +359,9 @@ class RemoteHardwareServerModule(QtCore.QObject):
         self.sendResponse.emit("wait")
 
     def newMessage(self, r_message):
+        """
+        Don't override this.
+        """
         try:
             if isinstance(r_message, str):
                 if (r_message == "close event"):

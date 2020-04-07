@@ -61,7 +61,7 @@ class NoneHardwareServerModule(remoteHardware.RemoteHardwareServerModule):
         assert (self.r_message is not None)
         self.sendMessage.emit(self.r_message)
         self.r_message = None
-        
+                
     def handleMessageTimer(self):
         self.message_count += 1
         self.sendMessage.emit("message {0:d}".format(self.message_count))
