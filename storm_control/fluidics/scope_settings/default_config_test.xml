@@ -25,9 +25,6 @@
     <valve_cmd name = "Set Hyb 4">
       <valve_pos valve_ID = "2" port_ID = "4"></valve_pos>
     </valve_cmd>
-	<valve_cmd name = "Test">
-	  <valve_pos valve_ID = "3" port_ID = "7"></valve_pos>
-	</valve_cmd>
   </valve_commands>
 
   <pump_commands>
