@@ -82,13 +82,14 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
             self.camera.setProperty("TriggerMode", "Off")
 
             # This line is connected to the DAQ.
-            self.camera.setProperty("LineSelector", "Line1")
-            self.camera.setProperty("LineSource", "ExposureActive")
-
-            # This line is connected to the other cameras.
             self.camera.setProperty("LineSelector", "Line2")
             self.camera.setProperty("LineMode", "Output")
             self.camera.setProperty("LineSource", "ExposureActive")
+
+            # This line is connected to the other cameras.
+            #self.camera.setProperty("LineSelector", "Line2")
+            #self.camera.setProperty("LineMode", "Output")
+            #self.camera.setProperty("LineSource", "ExposureActive")
 
         # Configure 'slave' cameras to use triggering.
         # We are following: http://www.ptgrey.com/KB/11052
@@ -100,9 +101,10 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
         #
         else:
             self.camera.setProperty("TriggerMode", "On")
-            self.camera.setProperty("TriggerSource", "Line3")
+            self.camera.setProperty("TriggerSource", config.get("trigger_source", "Line3"))
             self.camera.setProperty("TriggerOverlap", "ReadOut")
             self.camera.setProperty("TriggerActivation", config.get("trigger_activation", "FallingEdge"))
+            print("... external trigger on " + str(config.get("trigger_source", "Line3")))
 
         #
         # Dictionary of Point Grey specific camera parameters.
@@ -297,8 +299,9 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
 
             # For master cameras, set the exposure time to be the maximum given the current frame rate.
             if self.is_master:
-                #self.camera.setProperty("ExposureTime", self.camera.getProperty("ExposureTime").getMaximum())
-                #self.parameters.setv("exposure_time", 1.0e-6 * self.camera.getProperty("ExposureTime").getValue())
+                #Previously both lines below commented out
+                self.camera.setProperty("ExposureTime", self.camera.getProperty("ExposureTime").getMaximum())
+                self.parameters.setv("exposure_time", 1.0e-6 * self.camera.getProperty("ExposureTime").getValue())
                                 
                                 
                 # Update the frame rate
