@@ -80,11 +80,14 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
         self.camera.getProperty("TriggerMode")
         if self.is_master:
             self.camera.setProperty("TriggerMode", "Off")
+            self.camera.setProperty("UserOutputSelector", "UserOutput0")
+            self.camera.setProperty("UserOutputValue", False)
 
             # This line is connected to the DAQ.
             self.camera.setProperty("LineSelector", "Line2")
             self.camera.setProperty("LineMode", "Output")
             self.camera.setProperty("LineSource", "ExposureActive")
+            self.camera.setProperty("LineInverter", False)
 
             # This line is connected to the other cameras.
             #self.camera.setProperty("LineSelector", "Line2")
@@ -229,7 +232,7 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
         parameters.setv("y_end", parameters.get("OffsetY") + parameters.get("Height") - 1)
         parameters.setv("y_pixels", parameters.get("Height"))
         parameters.setv("y_start", parameters.get("OffsetY") + 1)
-
+        
         # Super class performs some simple checks & update some things.
         super().newParameters(parameters)
 
@@ -351,17 +354,23 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
         # when the camera stops.
         #
         if self.is_master:
-            self.camera.setProperty("LineSelector", "Line1")
+            self.camera.setProperty("LineSelector", "Line2")
+            self.camera.setProperty("LineMode", "Output")
             self.camera.setProperty("LineSource", "ExposureActive")
+            self.camera.setProperty("LineInverter", False)
 
     def stopCamera(self):
         super().stopCamera()
         if self.is_master:
-            self.camera.setProperty("LineSelector", "Line1")
+            self.camera.setProperty("LineSelector", "Line2")
             if self.camera.hasProperty("VideoMode"):
                 self.camera.setProperty("LineSource", "ExternalTriggerActive")
             else:
-                self.camera.setProperty("LineSource", "ExposureActive")
+                self.camera.setProperty("LineMode", "Output")
+                self.camera.setProperty("LineSource", "UserOutput0")
+                self.camera.setProperty("UserOutputSelector", "UserOutput0")
+                self.camera.setProperty("UserOutputValue", False)
+                
 
 #
 # The MIT License

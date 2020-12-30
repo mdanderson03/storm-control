@@ -76,11 +76,11 @@
       <parameters>
 		<flip_horizontal desc="Flip image horizontal (mosaic)" type="boolean">False</flip_horizontal>
 		<flip_vertical desc="Flip image vertical (mosaic)" type="boolean">False</flip_vertical>
-		<transpose desc="Transpose image (mosaic)" type="boolean">True</transpose>
+		<transpose desc="Transpose image (mosaic)" type="boolean">False</transpose>
 
 		<objective desc="Current objective" type="string" values="obj1,obj2">obj1</objective>
-		<obj1 desc="Objective 1" type="custom">60x,0.1092,0.0,0.0</obj1>
-		<obj2 desc="Objective 2" type="custom">10x,0.650,0.0,0.0</obj2>
+		<obj1 desc="Objective 1" type="custom">60x,0.1028,0.0,0.0</obj1>
+		<obj2 desc="Objective 2" type="custom">10x,0.617,0.0,0.0</obj2>
       </parameters>
     </mosaic>
 
@@ -158,7 +158,7 @@
 			<default_min type="int">30</default_min>
 			<flip_horizontal type="boolean">False</flip_horizontal>
 			<flip_vertical type="boolean">False</flip_vertical>
-			<transpose type="boolean">True</transpose>
+			<transpose type="boolean">False</transpose>
 			
 			<!--
 					  What value to use for Trigger Activation, 'RisingEdge' or
