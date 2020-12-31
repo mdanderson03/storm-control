@@ -8,6 +8,7 @@ import importlib
 import os
 import signal
 import sys
+import argparse
 
 from PyQt5 import QtCore, QtWidgets
 
@@ -486,10 +487,29 @@ if (__name__ == "__main__"):
 
     app = QtWidgets.QApplication(sys.argv)
 
+    # Parse input
+    parser = argparse.ArgumentParser(description="Create a remote camera server")
+    parser.add_argument("-r", "--remote",
+                        metavar="remote",
+                        default="tcp://*:5556",                    
+                        type=str, 
+                        help="remote server IP address")
+    parser.add_argument("-l", "--local", 
+                        metavar="local",
+                        default="tcp://*:5557",
+                        type=str, 
+                        help="hal IP address")
+     
+
+    input = parser.parse_args(sys.argv[1:])
+
+    # Create camera and hardware server
     rcs = RemoteCameraServer()
-    rhs = remoteHardware.RemoteHardwareServer(ip_address_hal = "tcp://*:5557",
-                                              ip_address_remote = "tcp://*:5556",
+    rhs = remoteHardware.RemoteHardwareServer(ip_address_hal = input.local,
+                                              ip_address_remote = input.remote,
                                               module = rcs)
+    print("Creating a local camera server at " + rhs.ip_address_remote)
+    print("...communicating with hal at " + rhs.ip_address_hal)
 
     # Need this so that CTRL-C works.
     signal.signal(signal.SIGINT, signal.SIG_DFL)
