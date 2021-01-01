@@ -210,6 +210,9 @@
 
 					<!-- Whether or not data from this camera is saved during filming. -->
 					<saved type="boolean">True</saved>
+					
+					<!-- Directory to save data in when remote_save is True. -->
+					<remote_save_dir type="string">/mnt/scratch</remote_save_dir>
 
 				</parameters>
 			</camera>
@@ -287,6 +290,9 @@
 
 					<!-- Whether or not data from this camera is saved during filming. -->
 					<saved type="boolean">True</saved>
+					
+					<!-- Directory to save data in when remote_save is True. -->
+					<remote_save_dir type="string">/mnt/scratch</remote_save_dir>
 
 				</parameters>
 			</camera>
@@ -363,6 +369,9 @@
 
 					<!-- Whether or not data from this camera is saved during filming. -->
 					<saved type="boolean">True</saved>
+					
+					<!-- Directory to save data in when remote_save is True. -->
+					<remote_save_dir type="string">/mnt/scratch</remote_save_dir>
 
 				</parameters>
 			</camera>
@@ -440,6 +449,9 @@
 					<!-- Whether or not data from this camera is saved during filming. -->
 					<saved type="boolean">True</saved>
 
+					<!-- Directory to save data in when remote_save is True. -->
+					<remote_save_dir type="string">/mnt/scratch</remote_save_dir>
+
 				</parameters>
 			</camera>
 		</camera5>
@@ -515,6 +527,9 @@
 
 					<!-- Whether or not data from this camera is saved during filming. -->
 					<saved type="boolean">True</saved>
+					
+					<!-- Directory to save data in when remote_save is True. -->
+					<remote_save_dir type="string">/mnt/scratch</remote_save_dir>
 
 				</parameters>
 			</camera>
@@ -591,6 +606,9 @@
 
 					<!-- Whether or not data from this camera is saved during filming. -->
 					<saved type="boolean">True</saved>
+					
+					<!-- Directory to save data in when remote_save is True. -->
+					<remote_save_dir type="string">/mnt/scratch</remote_save_dir>
 
 				</parameters>
 			</camera>
@@ -667,6 +685,9 @@
 
 					<!-- Whether or not data from this camera is saved during filming. -->
 					<saved type="boolean">True</saved>
+					
+					<!-- Directory to save data in when remote_save is True. -->
+					<remote_save_dir type="string">/mnt/scratch</remote_save_dir>
 
 				</parameters>
 			</camera>
@@ -743,6 +764,9 @@
 
 					<!-- Whether or not data from this camera is saved during filming. -->
 					<saved type="boolean">True</saved>
+					
+					<!-- Directory to save data in when remote_save is True. -->
+					<remote_save_dir type="string">/mnt/scratch</remote_save_dir>
 
 				</parameters>
 			</camera>

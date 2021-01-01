@@ -96,6 +96,7 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
         else:
             print("No presets provided for spinnaker camera: " + str(config.get("camera_id")))
         
+        print("Completed presets")
         # Verify that we have turned off some of these 'features'.
         ## REMOVED THIS BLOCK AS IT IS CAMERA SPECIFIC
         #for feature in ["pgrDefectPixelCorrectionEnable",
@@ -107,7 +108,9 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
 
         # Configure 'director' cameras to not use triggering.
         #
-        self.camera.getProperty("TriggerMode")
+        #self.camera.getProperty("TriggerMode")
+        
+        print("Setting trigger properties")
         if self.is_master:
             self.camera.setProperty("TriggerMode", "Off")
 
@@ -255,6 +258,8 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
             self.parameters.getp(param).setMutable(False)
 
         self.newParameters(self.parameters, initialization = True)
+        
+        print("Complete camera initialization")
                              
     def newParameters(self, parameters, initialization = False):
         
