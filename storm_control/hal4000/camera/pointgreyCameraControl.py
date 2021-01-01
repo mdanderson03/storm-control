@@ -7,6 +7,7 @@ Tested on :
    GS3-U3-41C6NIR
 
 Hazen 01/19
+Jeff Moffitt (jeffrey.moffitt@childrens.harvard.edu) 01/20 -- added more versatile control over input/output lines
 """
 import storm_control.sc_hardware.pointGrey.spinnaker as spinnaker
 import storm_control.sc_library.parameters as params
@@ -39,13 +40,24 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
         # exposure time and frame rate: This dictionary will allow extension in the future if needed
         self.exposure_control = {"CameraControlExposure": True}
           
+        # Save properties of trigger_out: Needed to turn on/off this trigger in start/stopAcquisition
+        if not config.has("trigger_out_line"):
+            self.default_trigger_config = True
+        else:
+            self.default_trigger_config = False
+        
+        self.trigger_out_line = config.get("trigger_out_line", "Line1")
+        self.trigger_out_source = config.get("trigger_out_source", "ExposureActive")
+        self.trigger_out_off_source = config.get("trigger_out_off_source", "UserOutput0")
+        self.trigger_out_invert = config.get("trigger_out_invert", False)        
+        
         # Extract preset values if provided
         if config.has("presets"):
             # Extract preset values
             presets = config.get("presets")
             
             print("Configuring preset values of spinnaker camera: " + str(config.get("camera_id")))
-            
+                        
             # Loop over values and set them
             for p_name in presets.getAttrs():
                 if self.camera.hasProperty(p_name): # Confirm the camera has the property and warn if not
@@ -53,6 +65,24 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
                     self.camera.setProperty(p_name, p_value) # Set value
                     set_value = self.camera.getProperty(p_name).getValue() # Check set
                     print("   " + str(p_name) + ": " + str(p_value) + " (" + str(set_value) + ")")
+                elif (p_name in ["Line1", "Line2", "Line3", "Line4", "Line5", "Line6"]):
+                    p_elements = presets.get(p_name)
+                    self.camera.setProperty("LineSelector", p_name)
+                    print("   Setting " + str(p_name) + " properties")
+                    for p_subname in p_elements.getAttrs():
+                        p_subvalue = p_elements.get(p_subname)
+                        self.camera.setProperty(p_subname, p_subvalue) # Set value
+                        set_value = self.camera.getProperty(p_subname).getValue() # Check set
+                        print("       " + str(p_subname) + ": " + str(p_subvalue) + " (" + str(set_value) + ")")
+                elif (p_name in ["UserOutput0", "UserOutput1"]):
+                    p_elements = presets.get(p_name)
+                    self.camera.setProperty("UserOutputSelector", p_name)
+                    print("   Setting " + str(p_name) + " properties")
+                    for p_subname in p_elements.getAttrs():
+                        p_subvalue = p_elements.get(p_subname)
+                        self.camera.setProperty(p_subname, p_subvalue) # Set value
+                        set_value = self.camera.getProperty(p_subname).getValue() # Check set
+                        print("       " + str(p_subname) + ": " + str(p_subvalue) + " (" + str(set_value) + ")")                
                 else:
                     if p_name not in self.exposure_control.keys():
                         print("!!!! preset " + str(p_name) + " is not a valid parameter for this camera")
@@ -75,22 +105,30 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
         #    if self.camera.hasProperty(feature):
         #        assert not self.camera.getProperty(feature).getValue()
 
-        # Configure 'master' cameras to not use triggering.
+        # Configure 'director' cameras to not use triggering.
         #
         self.camera.getProperty("TriggerMode")
         if self.is_master:
             self.camera.setProperty("TriggerMode", "Off")
 
-            # This line is connected to the DAQ.
-            self.camera.setProperty("LineSelector", "Line1")
-            self.camera.setProperty("LineSource", "ExposureActive")
+            # Handle backwards compatability with original grasshopper setups
+            if self.default_trigger_config:
+                # This line is connected to the DAQ.
+                self.camera.setProperty("LineSelector", "Line1")
+                self.camera.setProperty("LineSource", "ExposureActive")
 
-            # This line is connected to the other cameras.
-            self.camera.setProperty("LineSelector", "Line2")
-            self.camera.setProperty("LineMode", "Output")
-            self.camera.setProperty("LineSource", "ExposureActive")
+                # This line is connected to the other cameras.
+                self.camera.setProperty("LineSelector", "Line2")
+                self.camera.setProperty("LineMode", "Output")
+                self.camera.setProperty("LineSource", "ExposureActive")
+                
+            else: # Set the properties of the trigger line
+                self.camera.setProperty("LineSelector", self.trigger_out_line)
+                self.camera.setProperty("LineMode", "Output")
+                self.camera.setProperty("LineSource", self.trigger_out_source)
+                self.camera.setProperty("LineInverter", self.trigger_out_invert)
 
-        # Configure 'slave' cameras to use triggering.
+        # Configure 'worker' cameras to use triggering.
         # We are following: http://www.ptgrey.com/KB/11052
         #
         # "Configuring Synchronized Capture with Multiple Cameras"
@@ -100,9 +138,10 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
         #
         else:
             self.camera.setProperty("TriggerMode", "On")
-            self.camera.setProperty("TriggerSource", "Line3")
-            self.camera.setProperty("TriggerOverlap", "ReadOut")
-            self.camera.setProperty("TriggerActivation", config.get("trigger_activation", "FallingEdge"))
+            
+            self.camera.setProperty("TriggerSource", config.get("trigger_in_line", "Line3"))
+            self.camera.setProperty("TriggerOverlap", config.get("trigger_in_type", "ReadOut"))
+            self.camera.setProperty("TriggerActivation", config.get("trigger_in_activation", "FallingEdge"))
 
         #
         # Dictionary of Point Grey specific camera parameters.
@@ -348,17 +387,20 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
         # when the camera stops.
         #
         if self.is_master:
-            self.camera.setProperty("LineSelector", "Line1")
-            self.camera.setProperty("LineSource", "ExposureActive")
+            self.camera.setProperty("LineSelector", self.trigger_out_line)
+            self.camera.setProperty("LineMode", "Output")
+            self.camera.setProperty("LineSource", self.trigger_out_source)
+            self.camera.setProperty("LineInverter", self.trigger_out_invert)
 
     def stopCamera(self):
         super().stopCamera()
         if self.is_master:
-            self.camera.setProperty("LineSelector", "Line1")
-            if self.camera.hasProperty("VideoMode"):
+            if self.default_trigger_config:
+                self.camera.setProperty("LineSelector", "Line1")
                 self.camera.setProperty("LineSource", "ExternalTriggerActive")
             else:
-                self.camera.setProperty("LineSource", "ExposureActive")
+                self.camera.setProperty("LineSelector", self.trigger_out_line)
+                self.camera.setProperty("LineSource", self.trigger_out_off_source) # Set this output to a constant False value
 
 #
 # The MIT License

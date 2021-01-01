@@ -139,14 +139,29 @@
 					<!-- Invalid parameter to test warning --> 
 					<test_parameter type="string">Test Value</test_parameter>
 					
-					<!-- Line Configuration Options -->
-					<LineConfiguration>
-						<LineSelector type="string">Line1</LineSelector>
+					<!-- Line Configuration Options: Use this specific additional/default output/inputs -->
+					<!--<Line1>
 						<LineMode type="string">Output</LineMode>
 						<LineSource type="string">ExposureActive</LineSource>
-					</LineConfiguration>
+					</Line1>
+					-->
+					
+					<!-- User Output Options: Use this to configure user defined outputs -->
+					<UserOutput0>
+						<UserOutputValue type="boolean">False</UserOutputValue>
+					</UserOutput0>
 					
 				</presets>
+
+				<!-- Trigger parameters -->
+				<trigger_out_line type="string">Line2</trigger_out_line>
+				<trigger_out_source type="string">ExposureActive</trigger_out_source>
+				<trigger_out_off_source type="string">UserOutput0</trigger_out_off_source>
+				<trigger_out_invert type="boolean">False</trigger_out_invert>
+				
+				<trigger_in_line type="string">Line3</trigger_in_line>
+				<trigger_in_type type="string">ReadOut</trigger_in_type>
+				<trigger_in_activation type="string">FallingEdge</trigger_in_activation>
 
 				<!-- These are the display defaults, not the camera range. -->
 				<default_max type="int">200</default_max> 
@@ -167,6 +182,77 @@
 		</camera>
 	</camera1>
     
-    
+	<camera2>
+		<class_name type="string">Camera</class_name>
+		<module_name type="string">storm_control.hal4000.camera.camera</module_name>
+		<camera>
+			<master type="boolean">False</master>
+			<class_name type="string">PointGreyCameraControl</class_name>
+			<module_name type="string">storm_control.hal4000.camera.pointgreyCameraControl</module_name>
+			<parameters>
+				<!-- Which camera to use -->
+				<camera_id type="string">20176703</camera_id>
+
+				<!-- Preset values - camera specific values that are fixed -->
+				<presets>
+					<!-- FLIR camera general properties -->
+					<PixelFormat type="string">Mono16</PixelFormat> <!-- Mono12Packed/Mono12p -->
+					<ExposureAuto type="string">Off</ExposureAuto>
+					<GainAuto type="string">Off</GainAuto>
+					<BlackLevelClampingEnable type="boolean">False</BlackLevelClampingEnable>
+
+					<!-- Blackfly specific properties --> 
+					<AcquisitionFrameRateEnable type="boolean">True</AcquisitionFrameRateEnable>
+
+					<!-- Properties to control relationship between exposure and frame rate -->
+					<CameraControlExposure type="boolean">False</CameraControlExposure>
+
+					<!-- Invalid parameter to test warning --> 
+					<test_parameter type="string">Test Value</test_parameter>
+					
+					<!-- Line Configuration Options: Use this specific additional/default output/inputs -->
+					<!--<Line1>
+						<LineMode type="string">Output</LineMode>
+						<LineSource type="string">ExposureActive</LineSource>
+					</Line1>
+					-->
+					
+					<!-- User Output Options: Use this to configure user defined outputs -->
+					<UserOutput0>
+						<UserOutputValue type="boolean">False</UserOutputValue>
+					</UserOutput0>
+					
+				</presets>
+
+				<!-- Trigger parameters -->
+				<trigger_out_line type="string">Line2</trigger_out_line>
+				<trigger_out_source type="string">ExposureActive</trigger_out_source>
+				<trigger_out_off_source type="string">UserOutput0</trigger_out_off_source>
+				<trigger_out_invert type="boolean">False</trigger_out_invert>
+				
+				<trigger_in_line type="string">Line3</trigger_in_line>
+				<trigger_in_type type="string">ReadOut</trigger_in_type>
+				<trigger_in_activation type="string">FallingEdge</trigger_in_activation>
+
+
+				<!-- These are the display defaults, not the camera range. -->
+				<default_max type="int">200</default_max> 
+				<default_min type="int">30</default_min>
+				<flip_horizontal type="boolean">False</flip_horizontal>
+				<flip_vertical type="boolean">False</flip_vertical>
+				<transpose type="boolean">True</transpose>
+
+				<!-- These can be changed / editted. -->
+
+				<!-- This is the extension to use (if any) when saving data from this camera. -->
+				<extension type="string">c2</extension>
+
+				<!-- Whether or not data from this camera is saved during filming. -->
+				<saved type="boolean">True</saved>
+
+			</parameters>
+		</camera>
+	</camera2>
+
   </modules>  
 </config>
