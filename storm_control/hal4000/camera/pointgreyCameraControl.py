@@ -263,6 +263,8 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
                              
     def newParameters(self, parameters, initialization = False):
         
+        print("Updating parameters")
+        
         # Translate AOI information to parameters used by HAL.
         parameters.setv("x_end", parameters.get("OffsetX") + parameters.get("Width") - 1)
         parameters.setv("x_pixels", parameters.get("Width"))
@@ -372,6 +374,8 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
                 self.startCamera()
                 
             self.camera_functionality.parametersChanged.emit()
+            
+        print("Complete update of parameters")
 
     def startCamera(self):
         #
@@ -391,6 +395,8 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
         # re-configure the output source to one that is constant
         # when the camera stops.
         #
+        
+        print("Starting camera")
         if self.is_master:
             self.camera.setProperty("LineSelector", self.trigger_out_line)
             self.camera.setProperty("LineMode", "Output")
