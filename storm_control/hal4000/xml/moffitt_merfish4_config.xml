@@ -374,18 +374,6 @@
 		<ct_fn_name type="string">daq.ir_laser.ct_task</ct_fn_name>
       </configuration>
     </ldc_irlaser>
-	
-    <!-- Marzhauzer stage -->
-    <marzhauser_stage>
-      <module_name type="string">storm_control.sc_hardware.marzhauser.marzhauserModule</module_name>
-      <class_name type="string">MarzhauserStage</class_name>
-
-      <configuration>
-		<baudrate type="int">57600</baudrate>
-		<port type="string">COM5</port>
-		<velocity type="float">2.0</velocity>
-      </configuration>
-    </marzhauser_stage>
 
     <!-- Mad City Labs Z piezo -->
     <mcl_zstage>
@@ -453,6 +441,15 @@
 		<units_to_microns type="float">-1.2</units_to_microns>
 	  </configuration>
     </uc480_camera>
+    <celesta_light_engine>
+		<module_name type="string">storm_control.sc_hardware.lumencor.LumencorModule</module_name>
+		<class_name type="string">Celesta</class_name>
+		<configuration>
+			<ip type="string">192.168.201.200</ip>
+			<laser_id type ="int">0</laser_id>
+			<used_during_filming type = "boolean">True</used_during_filming>
+		</configuration>
+	</celesta_light_engine>
 
   </modules>
 

@@ -148,12 +148,12 @@ class LumencorLaser(object):
 #
 if (__name__ == "__main__"):
     import time
-    obj = LumencorLaser(laser_id=0,ip = '192.168.201.200')
+    obj = LumencorLaser(laser_id=1,ip = '192.168.201.200')
     if obj.getStatus():
         print(obj.getPowerRange())
         print(obj.getLaserOnOff())
         obj.setLaserOnOff(True)
-        obj.setPower(20.0)
+        obj.setPower(100.0)
         time.sleep(5)
         obj.shutDown()
 
