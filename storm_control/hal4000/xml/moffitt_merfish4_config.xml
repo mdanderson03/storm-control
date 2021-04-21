@@ -400,6 +400,10 @@
 		<stage_id type="int">2</stage_id>
 		<unit_to_um type="float">0.15625</unit_to_um>
 		<velocity type="float">60000</velocity> <!-- in um/s default 60 mm/s -->
+		<x_min type="float">45000</x_min>
+		<x_max type="float">56000</x_max>
+		<y_min type="float">52000</y_min>
+		<y_max type="float">67000</y_max>
       </configuration>
     </zaber_xy_stage>
 

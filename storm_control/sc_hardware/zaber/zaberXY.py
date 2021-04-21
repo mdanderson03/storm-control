@@ -31,6 +31,7 @@ class ZaberXYRS232(RS232.RS232):
         del kwds["stage_id"]
         del kwds["unit_to_um"]
         del kwds["limits_dict"]
+        print(str(self.limits))
 
         # RS232 stuff
         try:
