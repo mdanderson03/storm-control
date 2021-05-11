@@ -85,7 +85,7 @@ class SteveItemsStore(object):
         gi = item.getGraphicsItem()
         if gi is not None:
             self.q_scene.addItem(gi)
-
+            
             # Recalculate scene bounding box. We maintain a rather large
             # (8000 pixel) bounding box.
             bd_rect = self.q_scene.itemsBoundingRect()
@@ -96,6 +96,7 @@ class SteveItemsStore(object):
             bd_rect.setTop(bd_rect.top() - self.margin)
 
             self.q_scene.setSceneRect(bd_rect)
+
 
     def addLoader(self, loader_name, loader_fn):
         """
@@ -156,6 +157,11 @@ class SteveItemsStore(object):
                     warnings.warn("No loading function for '" + data_type + "'")
 
         return True
+
+    def reframeScene(self):
+        print("Reframing scene")
+        b_box = self.q_scene.itemsBoundingRect() 
+        print(str(b_box))
 
     def removeItem(self, item_id):
         gi = self.items[item_id].getGraphicsItem()

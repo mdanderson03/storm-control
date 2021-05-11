@@ -221,6 +221,14 @@ class Mosaic(steveModule.SteveModule):
 
         self.updateCrossHair(stage_x, stage_y)
 
+    def handleReframeMosaic(self):
+        #for item in self.item_store.itemIterator():
+        #    gi = item.getGraphicsItem()
+        #    if gi is not None:
+        #        print(str(gi))
+        #        print(str(gi.boundingRect()))
+        pass
+    
     def handleRemoveLastPicture(self, ignored):
         """
         This removes the last picture that was added.

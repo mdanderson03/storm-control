@@ -156,7 +156,8 @@ class Window(QtWidgets.QMainWindow):
                       ["Add Section", self.sections.handleAddSection],
                       ["Query Objective", self.objectives.handleGetObjective],
                       ["Remove Last Picture", self.mosaic.handleRemoveLastPicture],
-                      ["Extrapolate", self.mosaic.handleExtrapolate]]
+                      ["Extrapolate", self.mosaic.handleExtrapolate],
+                      ["Reframe", self.item_store.reframeScene]]
 
         for elt in menu_items:
             action = QtWidgets.QAction(self.tr(elt[0]), self)
