@@ -112,7 +112,7 @@ class ImageItem(steveItems.SteveItem):
         width_um = coord.pixToUm(pixmap.width()/self.magnification)
         height_um = coord.pixToUm(pixmap.height()/self.magnification)
         return (width_um, height_um)
-        
+            
     def getZValue(self):
         return self.graphics_item.zValue()
 

@@ -155,6 +155,11 @@ class Mosaic(steveModule.SteveModule):
 
     def handleCaptureComplete(self, image_item):
         self.updateCrossHair(*image_item.getPosUm())
+        
+        ## Adjust the mosaic view so that the captured item is visible
+        im = image_item.getGraphicsItem()
+        if im is not None:
+            self.mosaic_view.ensureVisible(im)
 
     def handleExtrapolate(self, ignored):
         """
@@ -220,7 +225,7 @@ class Mosaic(steveModule.SteveModule):
         self.ui.yStartPosSpinBox.setValue(stage_y)
 
         self.updateCrossHair(stage_x, stage_y)
-
+        
     def handleRemoveLastPicture(self, ignored):
         """
         This removes the last picture that was added.
