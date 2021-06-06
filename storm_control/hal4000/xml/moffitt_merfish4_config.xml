@@ -286,7 +286,7 @@
 		<z_stage type="string">mcl_zstage</z_stage>
 		<parameters>
 			<scan>
-				<offset_threshold type="float">250</offset_threshold><!-- This is in nanometers and get converted by Hal to microns-->
+				<offset_threshold type="float">500</offset_threshold><!-- This is in nanometers and get converted by Hal to microns-->
 			</scan>
 		  <find_sum>
 			<step_size type="float">1.0</step_size>
@@ -470,7 +470,7 @@
 		<x_width type="int">400</x_width>
 		<!--<y_width type="int">250</y_width>-->
 		<y_width type="int">100</y_width>
-		<units_to_microns type="float">-1.2</units_to_microns>
+		<units_to_microns type="float">-0.9</units_to_microns>
 	  </configuration>
     </uc480_camera>
 
