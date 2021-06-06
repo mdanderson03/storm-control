@@ -474,6 +474,14 @@
 	  </configuration>
     </uc480_camera>
 
+	<joystick>
+		<module_name type="string">storm_control.sc_hardware.logitech.gamepadF310Module</module_name>
+		<class_name type="string">GamepadF310Module</class_name>
+		<configuration>
+			<joystick_gains type="string">25.0, 250.0, 2500.0</joystick_gains>
+		</configuration>
+	</joystick>
+
   </modules>
 
 </config>
