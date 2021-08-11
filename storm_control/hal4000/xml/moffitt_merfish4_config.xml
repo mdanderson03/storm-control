@@ -192,7 +192,8 @@
 			 camera fire pin. Other films will just use the camera fire pin directly.
 		-->
 		<timing>
-		  <camera_fire_pin type="string">/Dev1/PFI9</camera_fire_pin>
+		  <!--<camera_fire_pin type="string">/Dev1/PFI9</camera_fire_pin>-->
+		  <camera_fire_pin type="string">/Dev1/PFI8</camera_fire_pin>
 		  <counter type="string">/Dev1/ctr0</counter>
 		  <counter_out type="string">/Dev1/PFI12</counter_out>
 		</timing>
@@ -376,7 +377,7 @@
     </ldc_irlaser>
 	
     <!-- Marzhauzer stage -->
-    <!--<marzhauser_stage>
+    <marzhauser_stage>
       <module_name type="string">storm_control.sc_hardware.marzhauser.marzhauserModule</module_name>
       <class_name type="string">MarzhauserStage</class_name>
 
@@ -386,27 +387,27 @@
 		<velocity type="float">2.0</velocity>
       </configuration>
     </marzhauser_stage>
-	-->
+	
+	<!--
     <zaber_xy_stage>
       <module_name type="string">storm_control.sc_hardware.zaber.zaberXYModule</module_name>
       <class_name type="string">ZaberXYStage</class_name>
 
       <configuration>
-		<!-- communication parameters -->
 		<baudrate type="int">115200</baudrate>
 		<port type="string">COM3</port>
 		
-		<!-- stage parameters -->
 		<stage_id type="int">2</stage_id>
 		<unit_to_um type="float">0.15625</unit_to_um>
-		<velocity type="float">60000</velocity> <!-- in um/s default 60 mm/s -->
+		<velocity type="float">60000</velocity> < in um/s default 60 mm/s >
 		<x_min type="float">45000</x_min>
 		<x_max type="float">56000</x_max>
 		<y_min type="float">52000</y_min>
 		<y_max type="float">67000</y_max>
       </configuration>
     </zaber_xy_stage>
-
+	--> 
+	
     <!-- Mad City Labs Z piezo -->
     <mcl_zstage>
       <module_name type="string">storm_control.sc_hardware.madCityLabs.mclVoltageZModule</module_name>
@@ -431,7 +432,7 @@
       <class_name type="string">Stage</class_name>
       <module_name type="string">storm_control.hal4000.stage.stage</module_name>
       <configuration>
-		<stage_functionality type="string">zaber_xy_stage</stage_functionality>
+		<stage_functionality type="string">marzhauser_stage</stage_functionality>
       </configuration>
     </stage>
 
