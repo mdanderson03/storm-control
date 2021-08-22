@@ -4,7 +4,7 @@
 # ----------------------------------------------------------------------------------------
 # Jeff Moffitt
 # 12/17/13
-# jeffmoffitt@gmail.com
+# lmoffitt@mcb.harvard.edu
 #
 # TODO: Simulated port should be in a different class
 # ----------------------------------------------------------------------------------------
