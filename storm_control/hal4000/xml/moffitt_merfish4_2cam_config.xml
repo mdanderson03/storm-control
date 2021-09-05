@@ -5,7 +5,7 @@
   <directory type="directory">C:/Data/</directory>
   
   <!-- The setup name -->
-  <setup_name type="string">moffitt_merfish4</setup_name>
+  <setup_name type="string">moffitt_merfish4_2cam</setup_name>
 
   <!-- The ui type, this is 'classic' or 'detached' -->
   <ui_type type="string">detached</ui_type>
@@ -74,9 +74,9 @@
 
       <!-- List objectives available on this setup here. -->
       <parameters>
-		<flip_horizontal desc="Flip image horizontal (mosaic)" type="boolean">False</flip_horizontal>
-		<flip_vertical desc="Flip image vertical (mosaic)" type="boolean">False</flip_vertical>
-		<transpose desc="Transpose image (mosaic)" type="boolean">False</transpose>
+		<flip_horizontal desc="Flip image horizontal (mosaic)" type="boolean">True</flip_horizontal>
+		<flip_vertical desc="Flip image vertical (mosaic)" type="boolean">True</flip_vertical>
+		<transpose desc="Transpose image (mosaic)" type="boolean">True</transpose>
 
 		<objective desc="Current objective" type="string" values="obj1,obj2">obj1</objective>
 		<obj1 desc="Objective 1" type="custom">60x,0.1028,0.0,0.0</obj1>
@@ -113,18 +113,10 @@
 	</hardware_timing>
 	-->
 
-  
-    <!--
-	Everything else is optional, but you probably want at least one camera.
-    -->
-
+ 
     <!-- Camera control. -->
     <!--
 	Note that the cameras must have the names "camera1", "camera2", etc..
-	
-	Cameras are either "master" (they provide their own hardware timing)
-	or "slave" they are timed by another camera. Each time the cameras
-	are started the slave cameras are started first, then the master cameras.
     -->
 
 	<camera1>
@@ -136,7 +128,7 @@
 		<module_name type="string">storm_control.hal4000.camera.pointgreyCameraControl</module_name>
 		<parameters>
 			<!-- Which camera to use -->
-			<camera_id type="string">20232538</camera_id>
+			<camera_id type="string">19364947</camera_id>
 	  
 			<!-- Preset values - camera specific values that are fixed -->
 			<presets>
@@ -171,7 +163,7 @@
 			<!-- These can be changed / editted. -->
 
 			<!-- This is the extension to use (if any) when saving data from this camera. -->
-			<extension type="string"></extension>
+			<extension type="string">c1</extension>
 	  
 			<!-- Whether or not data from this camera is saved during filming. -->
 			<saved type="boolean">True</saved>
@@ -179,6 +171,58 @@
 		</parameters>
       </camera>
     </camera1>
+
+	<camera2>
+      <class_name type="string">Camera</class_name>
+      <module_name type="string">storm_control.hal4000.camera.camera</module_name>
+      <camera>
+		<master type="boolean">False</master>
+		<class_name type="string">PointGreyCameraControl</class_name>
+		<module_name type="string">storm_control.hal4000.camera.pointgreyCameraControl</module_name>
+		<parameters>
+			<!-- Which camera to use -->
+			<camera_id type="string">20176703</camera_id>
+	  
+			<!-- Preset values - camera specific values that are fixed -->
+			<presets>
+				<!-- FLIR camera general properties -->
+				<PixelFormat type="string">Mono16</PixelFormat> <!-- Mono12Packed/Mono12p -->
+				<ExposureAuto type="string">Off</ExposureAuto>
+				<GainAuto type="string">Off</GainAuto>
+				<BlackLevelClampingEnable type="boolean">False</BlackLevelClampingEnable>
+		
+				<!-- Blackfly specific properties --> 
+				<AcquisitionFrameRateEnable type="boolean">True</AcquisitionFrameRateEnable>
+
+				<!-- Properties to control relationship between exposure and frame rate -->
+				<CameraControlExposure type="boolean">False</CameraControlExposure>
+			</presets>
+	  
+			<!-- These are the display defaults, not the camera range. -->
+			<default_max type="int">200</default_max> 
+			<default_min type="int">30</default_min>
+			<flip_horizontal type="boolean">False</flip_horizontal>
+			<flip_vertical type="boolean">False</flip_vertical>
+			<transpose type="boolean">True</transpose>
+			
+			<!--
+					  What value to use for Trigger Activation, 'RisingEdge' or
+					  'FallingEdge'. 'FallingEdge' is the default if not specified.
+				  -->
+		    <trigger_activation type="string">RisingEdge</trigger_activation>
+		    <trigger_source type="string">Line3</trigger_source>
+			
+			<!-- These can be changed / editted. -->
+
+			<!-- This is the extension to use (if any) when saving data from this camera. -->
+			<extension type="string">c2</extension>
+	  
+			<!-- Whether or not data from this camera is saved during filming. -->
+			<saved type="boolean">True</saved>
+
+		</parameters>
+      </camera>
+    </camera2>
 
     <!-- DAQ control -->
     <daq>
@@ -192,8 +236,7 @@
 			 camera fire pin. Other films will just use the camera fire pin directly.
 		-->
 		<timing>
-		  <!--<camera_fire_pin type="string">/Dev1/PFI9</camera_fire_pin>-->
-		  <camera_fire_pin type="string">/Dev1/PFI8</camera_fire_pin>
+		  <camera_fire_pin type="string">/Dev1/PFI9</camera_fire_pin>
 		  <counter type="string">/Dev1/ctr0</counter>
 		  <counter_out type="string">/Dev1/PFI12</counter_out>
 		</timing>
@@ -208,8 +251,6 @@
    			 </ctc_task>
    		 </counter>
 		 -->
-
-
 			<!-- These are the things that we provide DAQ functionality for.
 				 Other modules will request them with a 'get functionality'
 				 message and "name" = "daq.xxx.yyy". -->
