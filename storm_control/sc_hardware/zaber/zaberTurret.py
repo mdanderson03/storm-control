@@ -7,10 +7,34 @@ Jeffrey Moffitt 9/21
 
 import storm_control.sc_hardware.serial.RS232 as RS232
 
-class ZaberTurret(RS232.RS232):
+class ZaberXFCR06C(RS232.RS232):
 
     def __init__(self, **kwds):
         super().__init__(**kwds)
+        self.max_num_positions = 6
+
+    # Change the position of the turret
+    def changePosition(self, requested_position):
+        # Check to confirm the request is within limits
+        assert requested_position <= self.max_num_positions
+        assert requested_position > 0
+        
+        # Define the command string
+        command_string = "/01 0 move index " + str(requested_position) + "\n"
+        
+        # Issue the command
+        response = self.commandResponse(command_string)
+        
+        # Report a problem, if needed
+        if not (response == "OK"):
+            print("WARNING: Dichroic cube position may not have changed!")
+
+    # Check to see if the device is valid
+    def checkIsDeviceOn(self):
+        # Check the device id
+        device_id = self.commandResponse("/01 0 get device.id\n")
+        assert device_id is not None
+        print("......Zaber dichroic turret detected: Device " + str(device_id))
 
     def commandResponse(self, command, timeout = 0.1):
         

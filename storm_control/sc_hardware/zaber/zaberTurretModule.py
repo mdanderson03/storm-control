@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-HAL module to interface with the Zaber Dichroic Cuber Turret (X-FCR).
+HAL module to interface with the Zaber Dichroic Cube Turret (X-FCR).
 
 Jeffrey Moffitt 9/21
 """
@@ -22,27 +22,33 @@ class ZaberTurretControl(object):
         super().__init__(**kwds)
         self.turret = turret
 
-        # Confirm that the turrent is active
-        device_id = self.turret.commandResponse("/01 0 get device.id\n")
-        assert device_id is not None
-        print("... Zaber dichroic turret detected: Device " + str(device_id))
-
-        # Create dictionaries for the configuration of the
-        # filter wheels and two dichroic mirror sets.
+        # Confirm that the turret is active
+        self.turret.checkIsDeviceOn()
+        
+        # Create a dictionary based on the configuration file
+        #   This will define the names for each dichroic cube, and we will index them via these names
         self.turret_config = {}
-        values = configuration.get("cube_names")
+        values = configuration.get("cube_names", None)
+        
+        # Confirm this required configuration was provided
+        assert values is not None
+        
+        # Parse the configuration
         cube_names = values.split(",")
         for pos, cube_name in enumerate(cube_names):
             self.turret_config[cube_name] = pos + 1
 
+        # This dichroic cube can hold only 6 entries
+        assert len(cube_names) <= self.turret.max_num_positions
+
         # Create parameters
         self.parameters = params.StormXMLObject()
 
-        # Turret positions
+        # Create a Hal parameter that can be modified in the parameters editor to select cube
         values = sorted(self.turret_config.keys())
         self.parameters.add(params.ParameterSetString(description = "Turret positions",
                                                       name = "Dichroic cube",
-                                                      value = values[0],
+                                                      value = values[0],  # Start in the first position
                                                       allowed = values))
 
         self.newParameters(self.parameters, initialization = True)
@@ -52,6 +58,7 @@ class ZaberTurretControl(object):
     
     def newParameters(self, parameters, initialization = False):
 
+        # Find the parameters that have changed (if not initializing the class)
         if initialization:
             changed_p_names = parameters.getAttrs()
         else:
@@ -63,17 +70,15 @@ class ZaberTurretControl(object):
             # Update our current parameters.
             self.parameters.setv(pname, p.get(pname))
 
-            # Position the Turret.
+            # Position the turret
             if (pname == "Dichroic cube"):
                 requested_position = self.turret_config[p.get("Dichroic cube")]
-                command_string = "/01 0 move index " + str(requested_position) + "\n"
-                self.turret.commandResponse(command_string)
-
+                self.turret.changePosition(requested_position)
             else:
-                print(">> Warning", str(pname), " is not a valid parameter for the W1")
+                print(">> Warning", str(pname), " is not a valid parameter for the Zaber dichroic cube turret")
 
 
-class ZaberTurretModule(hardwareModule.HardwareModule):
+class ZaberXFCR06CModule(hardwareModule.HardwareModule):
 
     def __init__(self, module_params = None, qt_settings = None, **kwds):
         super().__init__(**kwds)
@@ -81,8 +86,8 @@ class ZaberTurretModule(hardwareModule.HardwareModule):
         self.turret = None
 
         configuration = module_params.get("configuration")
-        self.turret = zaberTurret.ZaberTurret(baudrate = configuration.get("baudrate"),
-                                              port = configuration.get("port"))
+        self.turret = zaberTurret.ZaberXFCR06C(baudrate = configuration.get("baudrate"),
+                                               port = configuration.get("port"))
         if self.turret.getStatus():
             self.control = ZaberTurretControl(turret = self.turret,
                                               configuration = configuration)

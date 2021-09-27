@@ -524,10 +524,10 @@
 	</joystick>-->
 
 
-    <!-- Zaber Dichroic Turret -->
+    <!-- Zaber Dichroic Cube Turret -->
     <dichroic_turret>
       <module_name type="string">storm_control.sc_hardware.zaber.zaberTurretModule</module_name>
-      <class_name type="string">ZaberTurretModule</class_name>
+      <class_name type="string">ZaberXFCR06CModule</class_name>
       <configuration>
 		<baudrate type="int">115200</baudrate>
 		<port type="string">COM3</port>
