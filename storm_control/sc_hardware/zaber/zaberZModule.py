@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """
-HAL module for controlling a Zaber XY stage.  Based on the Marzhauser class.
+HAL module for controlling a Zaber Z stage.  
 
+Jeff 09/21
 Hazen 04/17
-Jeff 04/21
 """
 
 from PyQt5 import QtCore
@@ -11,7 +11,7 @@ from PyQt5 import QtCore
 import storm_control.hal4000.halLib.halMessage as halMessage
 
 import storm_control.sc_hardware.baseClasses.stageModule as stageModule
-import storm_control.sc_hardware.zaber.zaberXY as zaber
+import storm_control.sc_hardware.zaber.zaberZ as zaberZ
 
 
 class ZaberXYStageFunctionality(stageModule.StageFunctionality):
@@ -139,7 +139,7 @@ class ZaberPollingThread(QtCore.QThread):
         self.wait()
         
 
-class ZaberXYStage(stageModule.StageModule):
+class ZaberZStage(stageModule.StageModule):
 
     def __init__(self, module_params = None, qt_settings = None, **kwds):
         super().__init__(**kwds)
@@ -148,16 +148,14 @@ class ZaberXYStage(stageModule.StageModule):
         configuration = module_params.get("configuration")
         
         # Build the limits dictionary: These are hard coded limits for go_absolute commands
-        limits_dict = {"x_min": configuration.get("x_min",0), 
-                        "x_max": configuration.get("x_max", 120000), 
-                        "y_min": configuration.get("y_min", 0),
-                        "y_max": configuration.get("y_max",100000)}
-        
+        limits_dict = {"z_min": configuration.get("x_min",0), 
+                        "z_max": configuration.get("x_max", 120000)}
+                        
         # Create the stage
-        self.stage = zaber.ZaberXYRS232(baudrate = configuration.get("baudrate"),
+        self.stage = zaber.ZaberZRS232(baudrate = configuration.get("baudrate"),
                                         port = configuration.get("port"), 
-                                        unit_to_um = configuration.get("unit_to_um", 0.15625),
-                                        stage_id = configuration.get("stage_id", 2), 
+                                        unit_to_um = configuration.get("unit_to_um", 0.001),
+                                        stage_id = configuration.get("stage_id", 1), 
                                         limits_dict = limits_dict)
         if self.stage.getStatus():            
             
@@ -167,9 +165,35 @@ class ZaberXYStage(stageModule.StageModule):
                 self.stage.setVelocity(velocity, velocity)
             
             # Create the stage functionality
-            self.stage_functionality = ZaberXYStageFunctionality(device_mutex = QtCore.QMutex(),
+            self.stage_functionality = ZaberStageFunctionality(device_mutex = QtCore.QMutex(),
                                                                     stage = self.stage,
                                                                     update_interval = 500)
 
         else:
             self.stage = None
+
+
+
+#
+# The MIT License
+#
+# Copyright (c) 2021 Moffitt Lab, Boston Children's Hospital, Harvard Medical School
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#

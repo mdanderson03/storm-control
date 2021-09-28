@@ -60,7 +60,7 @@ class ZaberZRS232(RS232.RS232):
         z = int(round(z * self.um_to_unit))       
         
         # Send a command to move the z to the absolute position
-        self.writeline("/" + str(self.stage_id) + " move abs " + str(z))
+        reponse = self.commWithResp("/" + str(self.stage_id) + " move abs " + str(z))
         
     def goRelative(self, z):
         # Convert um units to the stage step units and round to an integer
