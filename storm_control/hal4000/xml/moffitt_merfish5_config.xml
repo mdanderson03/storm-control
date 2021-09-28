@@ -316,6 +316,18 @@
 
     </daq>
 
+	<!-- Coarse Focus control GUI. -->
+	<coarse_focus>
+      <class_name type="string">ZStage</class_name>
+      <module_name type="string">storm_control.hal4000.miscControl.zStage</module_name>
+	  <configuration>
+		<retracted_z type="float">0</retracted_z>
+		<can_zero type="boolean">False</can_zero>
+		<menu_name type="string">Coarse Focus</menu_name>
+		<z_stage_fn type="string">....</z_stage_fn>
+	  </configuration>
+	</coarse_focus>
+	
     <!-- Focus lock control GUI. -->
     <focuslock>
       <class_name type="string">FocusLock</class_name>
