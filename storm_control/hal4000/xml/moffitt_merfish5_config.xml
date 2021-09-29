@@ -98,21 +98,6 @@
 		<time_base type="string">camera1</time_base>
       </parameters>
     </timing>
-	
-	<!-- Hardware camera timing module -->
-	<!--
-	<hardware_timing>
-		<class_name type="string">HardwareTiming</class_name>
-		<module_name type="string">storm_control.hal4000.timing.hardwareTiming</module_name>
-		<configuration>
-			<counter_fn_name>daq.counter.ctc_task</counter_fn_name>
-			<fps type="float">10.0</fps>
-			<fps_min type="float">1.0</fps_min>
-			<fps_max type="float">1000.0</fps_max>
-		</configuration>
-	</hardware_timing>
-	-->
-
  
     <!-- Camera control. -->
     <!--
@@ -226,37 +211,27 @@
 
     <!-- DAQ control -->
     <daq>
-      <module_name type="string">storm_control.sc_hardware.nationalInstruments.nidaqModule</module_name>
-      <class_name type="string">NidaqModule</class_name>
+		<module_name type="string">storm_control.sc_hardware.nationalInstruments.nidaqModule</module_name>
+		<class_name type="string">NidaqModule</class_name>
 
-      <configuration>
+		<configuration>
 
-		<!-- This is the default timing source to use while filming. "Oversampled"
-			 films will use the counter for timing. The counter is driven by the
-			 camera fire pin. Other films will just use the camera fire pin directly.
-		-->
-		<timing>
-		  <camera_fire_pin type="string">/Dev1/PFI9</camera_fire_pin>
-		  <counter type="string">/Dev1/ctr0</counter>
-		  <counter_out type="string">/Dev1/PFI12</counter_out>
-		</timing>
-		
-		<!--
-   			 This counter provides the hardware time base for the cameras.
-   		 -->
-   		 <!--<counter>
-   			 <ctc_task>
-   				 <source type="string">/Dev1/ctr0</source>
-   				 <frequency type="float">10</frequency>
-   			 </ctc_task>
-   		 </counter>
-		 -->
+			<!-- This is the default timing source to use while filming. "Oversampled"
+				 films will use the counter for timing. The counter is driven by the
+				 camera fire pin. Other films will just use the camera fire pin directly.
+			-->
+			<timing>
+			  <camera_fire_pin type="string">/Dev1/PFI9</camera_fire_pin>
+			  <counter type="string">/Dev1/ctr0</counter>
+			  <counter_out type="string">/Dev1/PFI12</counter_out>
+			</timing>
+			
 			<!-- These are the things that we provide DAQ functionality for.
 				 Other modules will request them with a 'get functionality'
 				 message and "name" = "daq.xxx.yyy". -->
 
-	
-	
+
+
 			<ilm750>
 			  <do_task>
 				<source type="string">/Dev1/port0/line7</source>
@@ -299,7 +274,6 @@
 			  </do_task>
 			</ilm405>
 
-
 			<ir_laser>
 			  <ct_task>
 				<source type="string">/Dev1/ctr0</source>
@@ -307,11 +281,6 @@
 			  </ct_task>
 			</ir_laser>
 	
-			<!--<mcl>
-			  <ao_task>
-				<source type="string">/Dev1/ao0</source>
-			  </ao_task>
-			</mcl>-->
 		</configuration>
 
     </daq>
@@ -324,9 +293,39 @@
 		<retracted_z type="float">0</retracted_z>
 		<can_zero type="boolean">False</can_zero>
 		<menu_name type="string">Coarse Focus</menu_name>
-		<z_stage_fn type="string">....</z_stage_fn>
+		<z_stage_fn type="string">zaber_z.coarse_focus</z_stage_fn>
 	  </configuration>
 	</coarse_focus>
+	
+	<!-- Zaber Z Stage control -->
+	<zaber_z>
+		<module_name type="string">storm_control.sc_hardware.zaber.zaberFocusModule</module_name>
+		<class_name type="string">ZaberZController</class_name>
+		<configuration>
+			<!-- communication parameters -->
+			<baudrate type="int">115200</baudrate>
+			<port type="string">COM4</port>
+
+			<!-- stage parameters -->
+			<stage_id type="int">1</stage_id>
+			<unit_to_um type="float">1000</unit_to_um>
+			<z_min type="float">0</z_min>
+			<z_max type="float">100000</z_max>
+			
+			<!-- coarse focus settings -->
+			<coarse_focus>
+			</coarse_focus>
+			
+			<!-- fine focuse settings -->
+			<fine_focus>
+			</fine_focus>
+			
+		</configuration>
+	</zaber_z>
+
+	<!-- Zaber Z Stage Controller -->
+	<zaber_z_controller>
+
 	
     <!-- Focus lock control GUI. -->
     <focuslock>
@@ -429,18 +428,6 @@
       </configuration>
     </ldc_irlaser>
 	
-    <!-- Marzhauzer stage -->
-    <!--<marzhauser_stage>
-      <module_name type="string">storm_control.sc_hardware.marzhauser.marzhauserModule</module_name>
-      <class_name type="string">MarzhauserStage</class_name>
-
-      <configuration>
-		<baudrate type="int">57600</baudrate>
-		<port type="string">COM5</port>
-		<velocity type="float">2.0</velocity>
-      </configuration>
-    </marzhauser_stage>
-	-->
     <zaber_xy_stage>
       <module_name type="string">storm_control.sc_hardware.zaber.zaberXYModule</module_name>
       <class_name type="string">ZaberXYStage</class_name>
