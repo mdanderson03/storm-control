@@ -26,27 +26,27 @@ class ZaberCoarseFocusBufferedFunctionality(stageZModule.ZStageFunctionalityBuff
     """
     
     # FROM ZStageFunctionalityBuffered
-    zStagePosition = QtCore.pyqtSignal(float)
+    #zStagePosition = QtCore.pyqtSignal(float)
 
-    def __init__(self, update_interval = None, velocity = None, **kwds):
+    def __init__(self, **kwds):
         super().__init__(**kwds)
 
-        # From lockModule.LoclFunctionalityMixin
-        self.parameters = parameters
+        # From lockModule.LockFunctionalityMixin
+        #self.parameters = parameters
 
         # From lockModule.ZStageFunctionalityMixin
-        self.z_position = 0.0
+        #self.z_position = 0.0
 
         # From ZStageFunctionalityBuffered
-        self.z_stage = z_stage
+        #self.z_stage = z_stage
 
         ### EVERYTHING BELOW IS FROM THE TIGER
         self.maximum = self.getParameter("maximum")
         self.minimum = self.getParameter("minimum")
 
         # Set initial z velocity.
-        self.mustRun(task = self.z_stage.zSetVelocity,
-                     args = [velocity])
+        #self.mustRun(task = self.z_stage.zSetVelocity,
+        #             args = [velocity])
         
         # This timer to restarts the update timer after a move. It appears
         # that if you query the position during a move the stage will stop
