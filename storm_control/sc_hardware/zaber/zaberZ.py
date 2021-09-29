@@ -24,7 +24,7 @@ class ZaberZRS232(RS232.RS232):
         self.um_to_unit = 1.0/self.unit_to_um
         self.stage_id = kwds["stage_id"]
         self.limits = kwds["limits_dict"]
-		self.coarse_position = 0.0
+        self.coarse_position = 0.0
 
         # We need to remove the keywords not needed for the RS232 super class initialization
         del kwds["stage_id"]
@@ -45,10 +45,10 @@ class ZaberZRS232(RS232.RS232):
             print("Failed to connect to the Zaber Z stage at ", kwds["port"])
 
 		# Get the current coarse position
-		self.coarse_position = self.getPosition()
+        self.coarse_position = self.getPosition()
 
 	# Coerce the requested position
-	def coerceToLimits(self, z):
+    def coerceToLimits(self, z):
 		# Coerce values to stage limits
         coerced_value = False
         if z<self.limits["z_min"]:
@@ -59,37 +59,43 @@ class ZaberZRS232(RS232.RS232):
             coerced_value = True
         if coerced_value:
             print("Zaber Z Stage Warning: Requested a move outside of programmed limits")
-	
+        return z
+    
 	# Command a coarse position change AND update the coarse position
-	def zMoveCoarse(self, z_in_um):
+    def zMoveCoarse(self, z_in_um):
+        
 		# Coerce to limits
-		z_in_um = self.coerceToLimits(z_in_um)
+        z_in_um = self.coerceToLimits(z_in_um)
 		
+        print(str(z_in_um))
+        
 		# Convert z to units
-        z_in_units = int(round(z * self.um_to_unit))       
+        z_in_units = int(round(z_in_um * self.um_to_unit))       
 		
 		# Send a command to move the z to the absolute position
         response = self.commWithResp("/" + str(self.stage_id) + " move abs " + str(z_in_units))
-
-		# Check to see if successful, and if so, store the requested coarse_position
-		if response[2] == "OK":
-			self.coarse_position = z_in_units
-		else:
+        response_parts = response.split(" ")
+		
+        # Check to see if successful, and if so, store the requested coarse_position
+        if response_parts[2] == "OK":
+            self.coarse_position = z_in_units
+        else:
             print("Zaber Z Stage Warning: Coarse movement request not successful")
     
 	# Command a fine position change
-	def zMoveFine(self, z_in_um):
+    def zMoveFine(self, z_in_um):
 		# Coerce to limits
-		z_in_um = self.coerceToLimits(z_in_um + self.coarse_position)
-		
-		# Convert z to units
-        z_in_units = int(round(z * self.um_to_unit))       
-		
+        z_in_um = self.coerceToLimits(z_in_um + self.coarse_position)
+				
+        # Convert z to units
+        z_in_units = int(round(z_in_um * self.um_to_unit))       
+        
 		# Send a command to move the z to the absolute position
         response = self.commWithResp("/" + str(self.stage_id) + " move abs " + str(z_in_units))
+        response_parts = response.split(" ")
 
 		# Check to see if successful, and if so, store the requested coarse_position
-		if not (response[2] == "OK"):
+        if response_parts[2] == "OK":
             print("Zaber Z Stage Warning: Fine movement request not successful")
 	
 	# Return the absolute position
@@ -99,18 +105,18 @@ class ZaberZRS232(RS232.RS232):
         response = response.strip()
         response_parts = response.split(" ")
         try:
-            sz = map(float, response_parts[5])
+            sz = float(response_parts[5])
         except ValueError:
-            return [None]
+            return None
         return sz*self.unit_to_um
 	
 	# Return the coarse position
-	def zPositionCoarse(self):
+    def zPositionCoarse(self):
         return self.coarse_position
 	
 	# Return the fine position
-	def zPositionFine(self):
-		return self.getPosition() - self.coarse_position
+    def zPositionFine(self):
+        return self.getPosition() - self.coarse_position
 
 	# Return if the stage is moving
     def isStageMoving(self):

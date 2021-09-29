@@ -229,9 +229,6 @@
 			<!-- These are the things that we provide DAQ functionality for.
 				 Other modules will request them with a 'get functionality'
 				 message and "name" = "daq.xxx.yyy". -->
-
-
-
 			<ilm750>
 			  <do_task>
 				<source type="string">/Dev1/port0/line7</source>
@@ -284,7 +281,38 @@
 		</configuration>
 
     </daq>
+	
+	<!-- Zaber Z Stage control -->
+	<zaber_z>
+		<module_name type="string">storm_control.sc_hardware.zaber.zaberFocusModule</module_name>
+		<class_name type="string">ZaberZController</class_name>
+		<configuration>
+			<baudrate type="int">115200</baudrate>
+			<port type="string">COM4</port>
+			<debug type="boolean">True</debug>
 
+			<stage_id type="int">1</stage_id>
+			<unit_to_um type="float">0.001</unit_to_um>
+			<z_min type="float">0</z_min>
+			<z_max type="float">100000</z_max>
+			
+			<coarse_focus>
+				<minimum type="float">0</minimum>
+				<maximum type="float">100000</maximum>
+			</coarse_focus>
+			
+			<fine_focus>
+				<center type="float">100.0</center>
+				<has_center_bar type="boolean">True</has_center_bar>
+				<maximum type="float">200.0</maximum>
+				<minimum type="float">0.0</minimum>
+				<warning_high type="float">190.0</warning_high>
+				<warning_low type="float">10.0</warning_low>
+			</fine_focus>
+			
+		</configuration>
+	</zaber_z>
+	
 	<!-- Coarse Focus control GUI. -->
 	<coarse_focus>
       <class_name type="string">ZStage</class_name>
@@ -292,39 +320,12 @@
 	  <configuration>
 		<retracted_z type="float">0</retracted_z>
 		<can_zero type="boolean">False</can_zero>
-		<menu_name type="string">Coarse Focus</menu_name>
+		<!--<menu_name type="string">Coarse Focus</menu_name>-->
 		<z_stage_fn type="string">zaber_z.coarse_focus</z_stage_fn>
+		<large_step type="float">100000.0</large_step>
+		<small_step type="float">1000</small_step>
 	  </configuration>
 	</coarse_focus>
-	
-	<!-- Zaber Z Stage control -->
-	<zaber_z>
-		<module_name type="string">storm_control.sc_hardware.zaber.zaberFocusModule</module_name>
-		<class_name type="string">ZaberZController</class_name>
-		<configuration>
-			<!-- communication parameters -->
-			<baudrate type="int">115200</baudrate>
-			<port type="string">COM4</port>
-
-			<!-- stage parameters -->
-			<stage_id type="int">1</stage_id>
-			<unit_to_um type="float">1000</unit_to_um>
-			<z_min type="float">0</z_min>
-			<z_max type="float">100000</z_max>
-			
-			<!-- coarse focus settings -->
-			<coarse_focus>
-			</coarse_focus>
-			
-			<!-- fine focuse settings -->
-			<fine_focus>
-			</fine_focus>
-			
-		</configuration>
-	</zaber_z>
-
-	<!-- Zaber Z Stage Controller -->
-	<zaber_z_controller>
 
 	
     <!-- Focus lock control GUI. -->

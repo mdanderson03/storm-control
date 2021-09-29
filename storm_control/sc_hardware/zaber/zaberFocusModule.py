@@ -16,8 +16,7 @@ import storm_control.sc_hardware.baseClasses.hardwareModule as hardwareModule
 import storm_control.sc_hardware.baseClasses.stageZModule as stageZModule
 import storm_control.sc_hardware.baseClasses.lockModule as lockModule
 
-### IMPORT THE ZABER Z RS232
-import storm_control.sc_hardware.zaber.zaberFocus as zaberFocus
+import storm_control.sc_hardware.zaber.zaberZ as zaber
 
 
 class ZaberCoarseFocusBufferedFunctionality(stageZModule.ZStageFunctionalityBuffered):
@@ -26,11 +25,13 @@ class ZaberCoarseFocusBufferedFunctionality(stageZModule.ZStageFunctionalityBuff
     """
     def __init__(self, **kwds):
         super().__init__(**kwds)
+        self.minimum = self.getMinimum()
+        self.maximum = self.getMaximum()
 
-	def zMoveTo(self, z_pos):
-		self.z_stage.zMoveCoarse(z_pos)
-		self.z_position = z_pos
-		return z_pos
+    def zMoveTo(self, z_pos):
+        self.z_stage.zMoveCoarse(z_pos)
+        self.z_position = z_pos
+        return z_pos
 
 
 class ZaberFineFocusBufferedFunctionality(stageZModule.ZStageFunctionalityBuffered):
@@ -41,14 +42,13 @@ class ZaberFineFocusBufferedFunctionality(stageZModule.ZStageFunctionalityBuffer
 
     def __init__(self, stage = None, parameters = None, **kwds):
         super().__init__(**kwds)
-        self.stage = z_stage
+        self.stage = stage
 
-	def zMoveTo(self, z_pos):
-		self.z_stage.zMoveFine(z_pos)
-		self.z_position = z_pos
-		return z_pos
+    def zMoveTo(self, z_pos):
+        self.z_stage.zMoveFine(z_pos)
+        self.z_position = z_pos
+        return z_pos
 
-	# From here
     def goRelative(self, z_delta):
         z_pos = self.z_position + z_delta
         self.goAbsolute(z_pos)
@@ -65,37 +65,51 @@ class ZaberZController(hardwareModule.HardwareModule):
 									   port = configuration.get("port"), 
 									   stage_id = configuration.get("stage_id", 1), 
 									   unit_to_um = configuration.get("unit_to_um", 1000), 
-									   limits_dict = {z_min: configuration.get("z_min", 0), 
-													  z_max: configuration.get("z_maz", 100000)})
+									   limits_dict = {"z_min": configuration.get("z_min", 0), 
+													  "z_max": configuration.get("z_maz", 100000)},
+                                       debug = configuration.get("debug", False))
         
 		# Create the coarse movement functionality
-		settings = configuration.get("coarse_focus")
-		self.coarse_functionality = ZaberCoarseFocusBufferedFunctionality(device_mutex = self.controller_mutex, 
-																		  stage = self.stage,
-																		  parameters = settings)
+        settings = configuration.get("coarse_focus")
+        print(settings)
+        self.coarse_functionality = ZaberCoarseFocusBufferedFunctionality(device_mutex = self.controller_mutex, 
+																		  z_stage = self.stage,
+                                                                          parameters=settings)
+        
+        print(self.coarse_functionality)
+        print(self.coarse_functionality.__dict__)
 
 		# Create the fine movement functionality
-		settings = configuration.get("coarse_focus")
-		self.fine_functionality = ZaberFineFocusBufferedFunctionality(device_mutex = self.controller_mutex, 
+        settings = configuration.get("coarse_focus")
+        self.fine_functionality = ZaberFineFocusBufferedFunctionality(device_mutex = self.controller_mutex, 
 																	  stage = self.stage,
-																	  parameters = settings)
+                                                                      parameters=settings)
 		
 		# Create a list of the functionalities for ease of indexing 
-		self.functionalities[self.module_name + ".coarse_focus"] = self.coarse_functionality
-		self.functionalities[self.module_name + ".fine_focus"] = self.coarse_functionality
+        self.functionalities[self.module_name + ".coarse_focus"] = self.coarse_functionality
+        self.functionalities[self.module_name + ".fine_focus"] = self.fine_functionality
+
+        print("------------------------------------------------------------------------------------------------")
+        print(self.functionalities)
 
     def getFunctionality(self, message):
+        print("------------------------------------------------------------------------------------------------")
+        print(message)
+        
         if message.getData()["name"] in self.functionalities:
+            print("Found functionality")
             fn = self.functionalities[message.getData()["name"]]
             message.addResponse(halMessage.HalMessageResponse(source = self.module_name,
                                                               data = {"functionality" : fn}))
                     
     def processMessage(self, message):
+        if message.isType("get functionality"):
+            self.getFunctionality(message)
         if message.isType("stop film"):  # Add the current z_coarse position to the parameters that are written
             message.addResponse(halMessage.HalMessageResponse(source = self.module_name,
                                                               data = {"parameters" : self.view.getParameters()}))
     def cleanUp(self, qt_settings):
-		self.stage.shutDown()
+        self.stage.shutDown()
 #
 # The MIT License
 #

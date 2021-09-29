@@ -16,7 +16,8 @@ class LockFunctionalityMixin(object):
     render the output of the device properly.
     """
     def __init__(self, parameters = None, **kwds):
-        super().__init__(**kwds)
+        #super().__init__(**kwds)  #### WAS THIS AN UNDETECTED BUG???
+        super().__init__()
         self.parameters = parameters
 
     def getParameter(self, pname):
