@@ -294,11 +294,11 @@
 			<stage_id type="int">1</stage_id>
 			<unit_to_um type="float">0.001</unit_to_um>
 			<z_min type="float">0</z_min>
-			<z_max type="float">100000</z_max>
+			<z_max type="float">12500</z_max>
 			
 			<coarse_focus>
 				<minimum type="float">0</minimum>
-				<maximum type="float">100000</maximum>
+				<maximum type="float">12500</maximum>
 			</coarse_focus>
 			
 			<fine_focus>
