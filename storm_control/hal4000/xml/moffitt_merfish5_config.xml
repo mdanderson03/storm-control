@@ -337,7 +337,7 @@
 		<ir_power type="int">10</ir_power>
 		<lock_modes type="string">NoLockMode,AutoLockMode,AlwaysOnLockMode,HardwareZScanLockMode,OptimalLockMode,CalibrationLockMode</lock_modes>
 		<qpd type="string">uc480_camera</qpd>
-		<z_stage type="string">mcl_zstage</z_stage>
+		<z_stage type="string">zaber_z.fine_focus</z_stage>
 		<parameters>
 			<scan>
 				<offset_threshold type="float">500</offset_threshold><!-- This is in nanometers and get converted by Hal to microns-->

@@ -46,6 +46,7 @@ class ZaberZRS232(RS232.RS232):
 
 		# Get the current coarse position
         self.coarse_position = self.getPosition()
+        print("  Zaber z stage is starting at " + str(self.coarse_position))
 
 	# Coerce the requested position
     def coerceToLimits(self, z):

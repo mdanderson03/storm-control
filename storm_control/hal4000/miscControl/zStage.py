@@ -114,6 +114,7 @@ class ZStageView(halDialog.HalDialog):
         self.z_stage_fn.zStagePosition.connect(self.handleZStagePosition)
         self.ui.goSpinBox.setMinimum(self.z_stage_fn.getMinimum())
         self.ui.goSpinBox.setMaximum(self.z_stage_fn.getMaximum())
+        self.handleZStagePosition(self.z_stage_fn.getPosition())
         self.setEnabled(True)
 
 

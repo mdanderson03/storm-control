@@ -27,12 +27,17 @@ class ZaberCoarseFocusBufferedFunctionality(stageZModule.ZStageFunctionalityBuff
         super().__init__(**kwds)
         self.minimum = self.getMinimum()
         self.maximum = self.getMaximum()
+        
+        # Start the class with the current hardware position of the stage (not zero)
+        self.z_position = self.z_stage.zPositionCoarse()
 
     def zMoveTo(self, z_pos):
         self.z_stage.zMoveCoarse(z_pos)
         self.z_position = z_pos
         return z_pos
-
+    
+    def getPosition(self):
+        return self.z_stage.zPositionCoarse()
 
 class ZaberFineFocusBufferedFunctionality(stageZModule.ZStageFunctionalityBuffered):
     """
@@ -40,7 +45,7 @@ class ZaberFineFocusBufferedFunctionality(stageZModule.ZStageFunctionalityBuffer
     """
     zStagePosition = QtCore.pyqtSignal(float)
 
-    def __init__(self, stage = None, parameters = None, **kwds):
+    def __init__(self, stage = None, **kwds):
         super().__init__(**kwds)
         self.stage = stage
 
@@ -71,20 +76,16 @@ class ZaberZController(hardwareModule.HardwareModule):
         
 		# Create the coarse movement functionality
         settings = configuration.get("coarse_focus")
-        print(settings)
         self.coarse_functionality = ZaberCoarseFocusBufferedFunctionality(device_mutex = self.controller_mutex, 
 																		  z_stage = self.stage,
                                                                           parameters=settings)
         
-        print(self.coarse_functionality)
-        print(self.coarse_functionality.__dict__)
-
 		# Create the fine movement functionality
-        settings = configuration.get("coarse_focus")
+        settings = configuration.get("fine_focus")
         self.fine_functionality = ZaberFineFocusBufferedFunctionality(device_mutex = self.controller_mutex, 
 																	  stage = self.stage,
                                                                       parameters=settings)
-		
+
 		# Create a list of the functionalities for ease of indexing 
         self.functionalities[self.module_name + ".coarse_focus"] = self.coarse_functionality
         self.functionalities[self.module_name + ".fine_focus"] = self.fine_functionality
@@ -98,6 +99,7 @@ class ZaberZController(hardwareModule.HardwareModule):
         
         if message.getData()["name"] in self.functionalities:
             print("Found functionality")
+            print(message.getData()["name"])
             fn = self.functionalities[message.getData()["name"]]
             message.addResponse(halMessage.HalMessageResponse(source = self.module_name,
                                                               data = {"functionality" : fn}))
