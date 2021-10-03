@@ -448,25 +448,6 @@
 		<y_max type="float">67000</y_max>
       </configuration>
     </zaber_xy_stage>
-	
-    <!-- Mad City Labs Z piezo -->
-    <!--<mcl_zstage>
-      <module_name type="string">storm_control.sc_hardware.madCityLabs.mclVoltageZModule</module_name>
-      <class_name type="string">MCLVoltageZ</class_name>
-
-      <configuration>
-		<parameters>
-		  <center type="float">100.0</center>
-		  <has_center_bar type="boolean">True</has_center_bar>
-		  <maximum type="float">200.0</maximum>
-		  <minimum type="float">0.0</minimum>
-		  <warning_high type="float">190.0</warning_high>
-		  <warning_low type="float">10.0</warning_low>
-		</parameters>
-		<ao_fn_name type="string">daq.mcl.ao_task</ao_fn_name>
-		<microns_to_volts type="float">0.05</microns_to_volts>
-      </configuration>
-    </mcl_zstage>-->
 
     <!-- Stage control GUI -->
     <stage>
@@ -487,6 +468,35 @@
       </configuration>
     </tcp_control>
     
+	<blackfly_autofocus>
+      <class_name type="string">PointGreyLockCamera</class_name>
+      <module_name type="string">storm_control.sc_hardware.pointGrey.pointGreyLockCameraModule</module_name>
+      <configuration>
+		<parameters>
+		  <offset_has_center_bar type="boolean">True</offset_has_center_bar>
+		  <offset_maximum type="float">2.5</offset_maximum>
+		  <offset_minimum type="float">-2.5</offset_minimum>
+		  <offset_warning_high type="float">2.25</offset_warning_high>
+		  <offset_warning_low type="float">-2.25</offset_warning_low>	  
+		  <sum_maximum type="float">100000.0</sum_maximum>
+		  <sum_minimum type="float">50.0</sum_minimum>
+		  <sum_warning_low type="float">10000.0</sum_warning_low>
+		</parameters>
+		<use_storm_analysis type="boolean">False</use_storm_analysis>
+		<background type="int">0</background>
+		<camera_id type="int">1</camera_id>
+		<ini_file type="string">uc480_settings.ini</ini_file>
+		<offset_file type="string">C:\Users\MERFISH4\Code\storm-control\storm_control\hal4000\cam_offsets_moffitt_merfish4.txt</offset_file>
+		<sigma type="float">3.0</sigma>
+		<uc480_dll type="string">c:/windows/system32/uc480_64.dll</uc480_dll>
+		<x_width type="int">400</x_width>
+		<y_width type="int">100</y_width>
+		<units_to_microns type="float">-0.9</units_to_microns>
+	  </configuration>
+    </blackfly_autofocus>-->
+
+	
+	
     <!-- Thorlabs UC480 camera for the focus lock -->
     <!--<uc480_camera>
       <class_name type="string">UC480Camera</class_name>
