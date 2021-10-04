@@ -322,8 +322,8 @@
 		<can_zero type="boolean">False</can_zero>
 		<!--<menu_name type="string">Coarse Focus</menu_name>-->
 		<z_stage_fn type="string">zaber_z.coarse_focus</z_stage_fn>
-		<large_step type="float">100000.0</large_step>
-		<small_step type="float">1000</small_step>
+		<large_step type="float">50.0</large_step>
+		<small_step type="float">1</small_step>
 	  </configuration>
 	</coarse_focus>
 
@@ -494,7 +494,6 @@
 		<units_to_microns type="float">-0.9</units_to_microns>
 	  </configuration>
     </blackfly_autofocus>-->
-
 	
 	
     <!-- Thorlabs UC480 camera for the focus lock -->
