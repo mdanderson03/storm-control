@@ -67,9 +67,7 @@ class ZaberZRS232(RS232.RS232):
         
 		# Coerce to limits
         z_in_um = self.coerceToLimits(z_in_um)
-		
-        print(str(z_in_um))
-        
+		        
 		# Convert z to units
         z_in_units = int(round(z_in_um * self.um_to_unit))       
 		
@@ -79,7 +77,8 @@ class ZaberZRS232(RS232.RS232):
 		
         # Check to see if successful, and if so, store the requested coarse_position
         if response_parts[2] == "OK":
-            self.coarse_position = z_in_units
+            print("Updating coarse position")
+            self.coarse_position = z_in_um
         else:
             print("Zaber Z Stage Warning: Coarse movement request not successful")
     
@@ -87,7 +86,7 @@ class ZaberZRS232(RS232.RS232):
     def zMoveFine(self, z_in_um):
 		# Coerce to limits
         z_in_um = self.coerceToLimits(z_in_um + self.coarse_position)
-				
+	
         # Convert z to units
         z_in_units = int(round(z_in_um * self.um_to_unit))       
         
@@ -96,7 +95,7 @@ class ZaberZRS232(RS232.RS232):
         response_parts = response.split(" ")
 
 		# Check to see if successful, and if so, store the requested coarse_position
-        if response_parts[2] == "OK":
+        if not (response_parts[2] == "OK"):
             print("Zaber Z Stage Warning: Fine movement request not successful")
 	
 	# Return the absolute position

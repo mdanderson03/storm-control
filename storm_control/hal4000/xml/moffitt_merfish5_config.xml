@@ -289,7 +289,7 @@
 		<configuration>
 			<baudrate type="int">115200</baudrate>
 			<port type="string">COM4</port>
-			<debug type="boolean">False</debug>
+			<debug type="boolean">True</debug>
 
 			<stage_id type="int">1</stage_id>
 			<unit_to_um type="float">0.001</unit_to_um>
@@ -522,16 +522,6 @@
 		<units_to_microns type="float">-0.9</units_to_microns>
 	  </configuration>
     </blackfly_autofocus>
-
-
-	<!--<joystick>
-		<module_name type="string">storm_control.sc_hardware.logitech.gamepadF310Module</module_name>
-		<class_name type="string">GamepadF310Module</class_name>
-		<configuration>
-			<joystick_gains type="string">25.0, 250.0, 2500.0</joystick_gains>
-		</configuration>
-	</joystick>-->
-
 
     <!-- Zaber Dichroic Cube Turret -->
     <dichroic_turret>
