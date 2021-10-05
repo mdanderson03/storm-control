@@ -49,18 +49,26 @@ class LockCamera(QtCore.QThread):
 
         # In order to turn off pixel defect correction the camera has
         # to be in video mode 0.
-        self.camera.setProperty("VideoMode", "Mode0")
-        self.camera.setProperty("pgrDefectPixelCorrectionEnable", False)
+        
+        if self.camera.hasProperty("VideoMode"):
+            self.camera.setProperty("VideoMode", "Mode0")
+        if self.camera.hasProperty("pgrDefectPixelCorrectionEnable"):
+            self.camera.setProperty("pgrDefectPixelCorrectionEnable", False)
         
         # Set pixel format.
-        self.camera.setProperty("PixelFormat", "Mono16")
+        if self.camera.hasProperty("PixelFormat"):
+            self.camera.setProperty("PixelFormat", "Mono16")
 
-        self.camera.setProperty("VideoMode", parameters.get("video_mode"))
+        if self.camera.hasProperty("VideoMode"):
+            self.camera.setProperty("VideoMode", parameters.get("video_mode"))
                 
         # We don't want any of these 'features'.
-        self.camera.setProperty("AcquisitionFrameRateAuto", "Off")
-        self.camera.setProperty("ExposureAuto", "Off")
-        self.camera.setProperty("GainAuto", "Off")        
+        if self.camera.hasProperty("AcquisitionFrameRateAuto"):
+            self.camera.setProperty("AcquisitionFrameRateAuto", "Off")
+        if self.camera.hasProperty("ExposureAuto"):
+            self.camera.setProperty("ExposureAuto", "Off")
+        if self.camera.hasProperty("GainAuto"):
+            self.camera.setProperty("GainAuto", "Off")        
 
         if self.camera.hasProperty("pgrExposureCompensationAuto"):
             self.camera.setProperty("pgrExposureCompensationAuto", "Off")
@@ -79,7 +87,8 @@ class LockCamera(QtCore.QThread):
         # camera. We try and turn it off but that seems to be much
         # harder to do than one would hope.
         #
-        self.camera.setProperty("OnBoardColorProcessEnabled", False)
+        if self.camera.hasProperty("OnBoardColorProcessEnabled"):
+            self.camera.setProperty("OnBoardColorProcessEnabled", False)
 
         # Verify that we have turned off some of these 'features'.
         for feature in ["pgrDefectPixelCorrectionEnable",
@@ -134,124 +143,6 @@ class LockCamera(QtCore.QThread):
         self.cur_offsetx = tmp_x
         self.cur_offsety = tmp_y
         self.params_mutex.unlock()    
-
-    def adjustZeroDist(self, inc):
-        pass
-
-    def run(self):
-        self.camera.startAcquisition()
-        self.running = True
-        while(self.running):
-            [frames, frame_size] = self.camera.getFrames()
-            self.analyze(frames, frame_size)
-
-            # Check for AOI change.
-            self.params_mutex.lock()
-            if (self.old_offsetx != self.cur_offsetx) or (self.old_offsety != self.cur_offsety):
-                self.camera.stopAcquisition()
-                self.camera.setProperty("OffsetX", self.cur_offsetx)
-                self.camera.setProperty("OffsetY", self.cur_offsety)
-                self.camera.startAcquisition()
-                self.old_offsetx = self.cur_offsetx
-                self.old_offsety = self.cur_offsety                
-            self.params_mutex.unlock()
-            self.msleep(5)
-            
-        self.camera.stopAcquisition()
-
-    def startCamera(self):
-        self.start(QtCore.QThread.NormalPriority)
-        self.start_time = time.time()
-        
-    def stopCamera(self, verbose = True):
-        if verbose:
-            fps = self.n_analyzed/(time.time() - self.start_time)
-            print("    > AF: Analyzed {0:d}, Dropped {1:d}, {2:.3f} FPS".format(self.n_analyzed, self.n_dropped, fps))
-            print("    > AF: OffsetX {0:d}, OffsetY {1:d}, ZeroD {2:.2f}".format(self.cur_offsetx, self.cur_offsety, self.zero_dist))
-
-        self.running = False
-        self.wait()
-        self.camera.shutdown()
-
-class BlackflyLockCamera(QtCore.QThread):
-    """
-    This class is used to control a FLIR (PointGrey, Spinnaker) camera in the 
-    context of a focus lock.  It implements the differences in parameters associated with the blackfly model
-    """
-    cameraUpdate = QtCore.pyqtSignal(dict)
-
-    def __init__(self, camera_id = None, parameters = None, **kwds):
-        super().__init__(**kwds)
-
-        self.cur_offsetx = None
-        self.cur_offsety = None        
-        self.old_offsetx = None
-        self.old_offsety = None
-        self.max_offsetx = None
-        self.max_offsety = None
-        self.n_analyzed = 0
-        self.n_dropped = 0
-        self.start_time = None
-
-        self.params_mutex = QtCore.QMutex()
-        self.running = False
-        
-        self.zero_dist = parameters.get("zero_dist", 0)
-
-        # Initialize library.
-        spinnaker.pySpinInitialize(verbose = False)
-
-        # Get the camera & set some defaults.
-        self.camera = spinnaker.getCamera(camera_id)
-
-        # Preset some properties of the camera
-        self.camera.setProperty("ExposureAuto", "Off")
-        self.camera.setProperty("GainAuto", "Off")
-        self.camera.setProperty("BlackLevelClampingEnable", False)
-        self.camera.setProperty("AcquisitionFrameRateEnable", True)
-        self.camera.setProperty("TriggerMode", "Off")
-
-        # The provided parameters must have presets
-        assert parameters.has("presets")        
-
-        # Handle the provided parameter values
-        presets = parameters.get("presets")
-        
-        # Set the exposure time
-        self.camera.setProperty("AcquisitionFrameRate", presets.get("AcquisitionFrameRate",100))
-        self.camera.setProperty("ExposureTime", self.camera.getProperty("ExposureTime").getMaximum())
-
-        # Get current offsets.
-        #
-        self.cur_offsetx = self.camera.getProperty("OffsetX").getValue()
-        self.cur_offsety = self.camera.getProperty("OffsetY").getValue()
-        self.old_offsetx = self.cur_offsetx
-        self.old_offsety = self.cur_offsety
-        
-        # Set maximum offsets.
-        #
-        self.max_offsetx = self.camera.getProperty("OffsetX").getMaximum()
-        self.max_offsety = self.camera.getProperty("OffsetY").getMaximum()
-        
-    def adjustAOI(self, dx, dy):
-        #tmp_x = self.cur_offsetx + dx
-        #tmp_y = self.cur_offsety + dy
-
-        #tmp_x = max(0, tmp_x)
-        #tmp_x = min(self.max_offsetx, tmp_x)
-                
-        #tmp_y = max(0, tmp_y)
-        #tmp_y = min(self.max_offsety, tmp_y)
-
-        #
-        # The thread loop will check for cur != old and update the camera values
-        # as necessary.
-        #
-       # self.params_mutex.lock()
-       # self.cur_offsetx = tmp_x
-        #self.cur_offsety = tmp_y
-        #self.params_mutex.unlock()    
-        pass
 
     def adjustZeroDist(self, inc):
         pass

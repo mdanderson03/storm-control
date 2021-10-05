@@ -81,6 +81,11 @@ class PointGreyLockCamera(hardwareModule.HardwareModule):
             self.camera = pointGreyLockCamera.SSLockCamera(camera_id = configuration.get("camera_id"),
                                                            parameters = configuration.get("camera_parameters"))            
 
+        # Confirm that a proper configuration was given and a camera was created
+        if self.camera is None:
+            print(">>The PointGrey autofocus camera was not properly configured")
+        assert(self.camera is not None)
+
         self.camera_functionality = PGQPDAutoFocusFunctionality(camera = self.camera,
                                                                 parameters = configuration.get("parameters"),
                                                                 units_to_microns = configuration.get("units_to_microns"))
