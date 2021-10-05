@@ -43,11 +43,13 @@ class ZaberFineFocusBufferedFunctionality(stageZModule.ZStageFunctionalityBuffer
     """
     This functionality interfaces with the fine focusing module, i.e. the focus lock. As a buffered functionality it contains a device mutex
     """
-    zStagePosition = QtCore.pyqtSignal(float)
-
-    def __init__(self, stage = None, **kwds):
+    def __init__(self, **kwds):
         super().__init__(**kwds)
-        self.stage = stage
+        self.minimum = self.getMinimum()
+        self.maximum = self.getMaximum()
+
+        print("Creating the fine focus functionality with the following stage:")
+        print(self.z_stage)
 
     def zMoveTo(self, z_pos):
         self.z_stage.zMoveFine(z_pos)
@@ -83,7 +85,7 @@ class ZaberZController(hardwareModule.HardwareModule):
 		# Create the fine movement functionality
         settings = configuration.get("fine_focus")
         self.fine_functionality = ZaberFineFocusBufferedFunctionality(device_mutex = self.controller_mutex, 
-																	  stage = self.stage,
+																	  z_stage = self.stage,
                                                                       parameters=settings)
 
 		# Create a list of the functionalities for ease of indexing 

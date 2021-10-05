@@ -47,6 +47,9 @@ class LockCamera(QtCore.QThread):
         # Get the camera & set some defaults.
         self.camera = spinnaker.getCamera(camera_id)
 
+        # Debug code to list all available properties on different cameras
+        # self.camera.listAllProperties()
+
         # In order to turn off pixel defect correction the camera has
         # to be in video mode 0.
         
@@ -65,6 +68,9 @@ class LockCamera(QtCore.QThread):
         # We don't want any of these 'features'.
         if self.camera.hasProperty("AcquisitionFrameRateAuto"):
             self.camera.setProperty("AcquisitionFrameRateAuto", "Off")
+        if self.camera.hasProperty("AcquisitionFrameRateEnable"):
+            self.camera.setProperty("AcquisitionFrameRateEnable", True)
+        
         if self.camera.hasProperty("ExposureAuto"):
             self.camera.setProperty("ExposureAuto", "Off")
         if self.camera.hasProperty("GainAuto"):
