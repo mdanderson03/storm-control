@@ -216,7 +216,9 @@ class QAFCamDisplay(QCamDisplay):
         # Update the camera image. The image should be an numpy.uint8 array.
         np_data = qpd_data["image"]
         h, w = np_data.shape
-        self.camera_image = QtGui.QImage(np_data.data, w, h, QtGui.QImage.Format_Indexed8)
+        #self.camera_image = QtGui.QImage(np_data.data, w, h, QtGui.QImage.Format_Indexed8)
+        self.camera_image = QtGui.QImage(np_data.data, h, w, QtGui.QImage.Format_Indexed8)
+        
         self.camera_image.ndarray = np_data
         for i in range(256):
             self.camera_image.setColor(i, QtGui.QColor(i,i,i).rgb())

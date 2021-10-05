@@ -117,7 +117,6 @@ class ZStageView(halDialog.HalDialog):
         self.handleZStagePosition(self.z_stage_fn.getPosition())
         self.setEnabled(True)
 
-
 class ZStage(halModule.HalModule):
 
     def __init__(self, module_params = None, qt_settings = None, **kwds):

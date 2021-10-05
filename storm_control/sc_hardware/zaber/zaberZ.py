@@ -25,6 +25,7 @@ class ZaberZRS232(RS232.RS232):
         self.stage_id = kwds["stage_id"]
         self.limits = kwds["limits_dict"]
         self.coarse_position = 0.0
+        self.fine_position = 0.0
 
         # We need to remove the keywords not needed for the RS232 super class initialization
         del kwds["stage_id"]
@@ -66,7 +67,7 @@ class ZaberZRS232(RS232.RS232):
     def zMoveCoarse(self, z_in_um):
         
 		# Coerce to limits
-        z_in_um = self.coerceToLimits(z_in_um)
+        z_in_um = self.coerceToLimits(z_in_um + self.fine_position)
 		        
 		# Convert z to units
         z_in_units = int(round(z_in_um * self.um_to_unit))       
@@ -78,7 +79,7 @@ class ZaberZRS232(RS232.RS232):
         # Check to see if successful, and if so, store the requested coarse_position
         if response_parts[2] == "OK":
             print("Updating coarse position")
-            self.coarse_position = z_in_um
+            self.coarse_position = z_in_um - self.fine_position
         else:
             print("Zaber Z Stage Warning: Coarse movement request not successful")
     
@@ -94,8 +95,11 @@ class ZaberZRS232(RS232.RS232):
         response = self.commWithResp("/" + str(self.stage_id) + " move abs " + str(z_in_units))
         response_parts = response.split(" ")
 
-		# Check to see if successful, and if so, store the requested coarse_position
-        if not (response_parts[2] == "OK"):
+        # Check to see if successful, and if so, store the requested fine_position
+        if response_parts[2] == "OK":
+            print("Updating fine position")
+            self.fine_position = z_in_um - self.coarse_position
+        else:
             print("Zaber Z Stage Warning: Fine movement request not successful")
 	
 	# Return the absolute position
@@ -116,7 +120,7 @@ class ZaberZRS232(RS232.RS232):
 	
 	# Return the fine position
     def zPositionFine(self):
-        return self.getPosition() - self.coarse_position
+        return self.fine_position
 
 	# Return if the stage is moving
     def isStageMoving(self):
