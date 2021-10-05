@@ -486,6 +486,7 @@
       </configuration>
     </tcp_control>
     
+	
 	<blackfly_autofocus>
       <class_name type="string">PointGreyLockCamera</class_name>
       <module_name type="string">storm_control.sc_hardware.pointGrey.pointGreyLockCameraModule</module_name>
@@ -510,18 +511,19 @@
 			<sum_scale type="float">1.0</sum_scale>
 			<reps type="int">1</reps>
 			<BlackLevel type="float">0.0</BlackLevel>
-			<Gain type="float">1.0</Gain>
+			<Gain type="float">30.0</Gain>
 			<Height type="int">540</Height>
 			<Width type="int">720</Width>
 			<OffsetX type="int">0</OffsetX>
 			<OffsetY type="int">0</OffsetY>
-			<AcquisitionFrameRate type="float">100.0</AcquisitionFrameRate>
+			<AcquisitionFrameRate type="float">10.0</AcquisitionFrameRate>
 			<sigma type="float">3.0</sigma>
 			<threshold type="float">10</threshold>
 		</camera_parameters>
 		<units_to_microns type="float">-0.9</units_to_microns>
 	  </configuration>
     </blackfly_autofocus>
+	-->
 
     <!-- Zaber Dichroic Cube Turret -->
     <dichroic_turret>
