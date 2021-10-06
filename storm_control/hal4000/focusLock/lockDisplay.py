@@ -349,7 +349,8 @@ class QQPDCamDisplay(QCamDisplay):
             self.camera_image.setColor(i, QtGui.QColor(i,i,i).rgb())
 
         # Update display image. This is a square version of the camera image.
-        self.display_pixmap = QtGui.QPixmap(w, w)
+        #self.display_pixmap = QtGui.QPixmap(w, w)
+        self.display_pixmap = QtGui.QPixmap(w,h)
         painter = QtGui.QPainter(self.display_pixmap)
 
         # Draw background.
@@ -358,8 +359,10 @@ class QQPDCamDisplay(QCamDisplay):
         painter.drawRect(0, 0, w, w)
 
         # Draw image.
-        y_start = self.display_pixmap.height()/2 - self.camera_image.height()/2
-        destination_rect = QtCore.QRect(0, y_start, self.camera_image.width(), self.camera_image.height())
+        #y_start = self.display_pixmap.height()/2 - self.camera_image.height()/2
+        #destination_rect = QtCore.QRect(0, y_start, self.camera_image.width(), self.camera_image.height())
+        destination_rect = QtCore.QRect(0, 0, self.camera_image.width(), self.camera_image.height())
+
         painter.drawImage(destination_rect, self.camera_image)
 
         # Draw bounding rectangle.

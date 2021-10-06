@@ -13,7 +13,6 @@ import storm_control.sc_hardware.baseClasses.hardwareModule as hardwareModule
 import storm_control.sc_hardware.baseClasses.lockModule as lockModule
 import storm_control.sc_hardware.pointGrey.pointGreyLockCamera as pointGreyLockCamera
 
-
 class PGQPDAutoFocusFunctionality(hardwareModule.HardwareFunctionality, lockModule.QPDAutoFocusFunctionalityMixin):
     qpdUpdate = QtCore.pyqtSignal(dict)
 

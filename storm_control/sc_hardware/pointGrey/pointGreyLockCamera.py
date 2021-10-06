@@ -332,7 +332,6 @@ class SSLockCamera(LockCamera):
         self.params_mutex.unlock()
         
     def analyze(self, frames, frame_size):
-
         # Only keep the last max_backlog frames if we are falling behind.
         lf = len(frames)
         if (lf>self.max_backlog):
@@ -363,7 +362,6 @@ class SSLockCamera(LockCamera):
             # Check if we have all the samples we need.
             self.cnt += 1
             if (self.cnt == self.reps):
-
                 # Convert current frame to 8 bit image.
                 image = numpy.right_shift(frame.astype(numpy.uint16), 3).astype(numpy.uint8)
 
@@ -384,7 +382,7 @@ class SSLockCamera(LockCamera):
                     qpd_dict["offset"] = y_off
                     qpd_dict["x_off"] = numpy.mean(self.x_off[self.good])
                     qpd_dict["y_off"] = y_off
-                    
+                                        
                     self.cameraUpdate.emit(qpd_dict)
 
                 self.cnt = 0

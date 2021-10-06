@@ -498,9 +498,9 @@
 		  <offset_minimum type="float">-2.5</offset_minimum>
 		  <offset_warning_high type="float">2.25</offset_warning_high>
 		  <offset_warning_low type="float">-2.25</offset_warning_low>	  
-		  <sum_maximum type="float">100000.0</sum_maximum>
+		  <sum_maximum type="float">1000</sum_maximum>
 		  <sum_minimum type="float">50.0</sum_minimum>
-		  <sum_warning_low type="float">10000.0</sum_warning_low>
+		  <sum_warning_low type="float">100</sum_warning_low>
 		</parameters>
 		<camera_id type="string">21159820</camera_id>
 		<camera_parameters>
@@ -517,7 +517,7 @@
 			<OffsetX type="int">0</OffsetX>
 			<OffsetY type="int">0</OffsetY>
 			<AcquisitionFrameRate type="float">10.0</AcquisitionFrameRate>
-			<sigma type="float">3.0</sigma>
+			<sigma type="float">10.0</sigma>
 			<threshold type="float">10</threshold>
 		</camera_parameters>
 		<units_to_microns type="float">-0.9</units_to_microns>
