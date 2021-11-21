@@ -30,16 +30,8 @@ class Kilroy(QtWidgets.QMainWindow):
 
         # Parse parameters into internal attributes
         self.verbose = parameters.get("verbose")
-        self.valve_com_port = parameters.get("valves_com_port")
         self.tcp_port = parameters.get("tcp_port")
-        self.pump_com_port = parameters.get("pump_com_port")
-        self.pump_ID = parameters.get("pump_ID")
         
-        if not parameters.has("num_simulated_valves"):
-            self.num_simulated_valves = 0
-        else:
-            self.num_simulated_valves = parameters.get("num_simulated_valves")
-
         if not parameters.has("valve_type"):
             self.valve_type = 'Hamilton'
         else:
@@ -64,10 +56,7 @@ class Kilroy(QtWidgets.QMainWindow):
         self.received_message = None
         
         # Create ValveChain instance
-        self.valveChain = ValveChain(com_port = self.valve_com_port,
-                                     num_simulated_valves = self.num_simulated_valves,
-                                     valve_type=self.valve_type,
-                                     verbose = self.verbose)
+        self.valveChain = ValveChain(parameters = parameters)
 
         # Create PumpControl instance
         self.pumpControl = PumpControl(parameters = parameters)
