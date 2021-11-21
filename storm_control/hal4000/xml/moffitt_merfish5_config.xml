@@ -113,8 +113,9 @@
 		<module_name type="string">storm_control.hal4000.camera.pointgreyCameraControl</module_name>
 		<parameters>
 			<!-- Which camera to use -->
-			<camera_id type="string">21182029</camera_id>
-	  
+			<camera_id type="string">19364947</camera_id>
+			<!--<camera_id type="string">20232532</camera_id>-->
+
 			<!-- Preset values - camera specific values that are fixed -->
 			<presets>
 				<!-- FLIR camera general properties -->
@@ -157,6 +158,7 @@
       </camera>
     </camera1>
 
+	<!--
 	<camera2>
       <class_name type="string">Camera</class_name>
       <module_name type="string">storm_control.hal4000.camera.camera</module_name>
@@ -165,49 +167,36 @@
 		<class_name type="string">PointGreyCameraControl</class_name>
 		<module_name type="string">storm_control.hal4000.camera.pointgreyCameraControl</module_name>
 		<parameters>
-			<!-- Which camera to use -->
 			<camera_id type="string">21347367</camera_id>
 	  
-			<!-- Preset values - camera specific values that are fixed -->
 			<presets>
-				<!-- FLIR camera general properties -->
-				<PixelFormat type="string">Mono16</PixelFormat> <!-- Mono12Packed/Mono12p -->
+				<PixelFormat type="string">Mono16</PixelFormat> 
 				<ExposureAuto type="string">Off</ExposureAuto>
 				<GainAuto type="string">Off</GainAuto>
 				<BlackLevelClampingEnable type="boolean">False</BlackLevelClampingEnable>
 		
-				<!-- Blackfly specific properties --> 
 				<AcquisitionFrameRateEnable type="boolean">True</AcquisitionFrameRateEnable>
 
-				<!-- Properties to control relationship between exposure and frame rate -->
 				<CameraControlExposure type="boolean">False</CameraControlExposure>
 			</presets>
 	  
-			<!-- These are the display defaults, not the camera range. -->
 			<default_max type="int">200</default_max> 
 			<default_min type="int">30</default_min>
 			<flip_horizontal type="boolean">False</flip_horizontal>
 			<flip_vertical type="boolean">False</flip_vertical>
 			<transpose type="boolean">True</transpose>
 			
-			<!--
-					  What value to use for Trigger Activation, 'RisingEdge' or
-					  'FallingEdge'. 'FallingEdge' is the default if not specified.
-				  -->
 		    <trigger_activation type="string">RisingEdge</trigger_activation>
 		    <trigger_source type="string">Line3</trigger_source>
 			
-			<!-- These can be changed / editted. -->
-
-			<!-- This is the extension to use (if any) when saving data from this camera. -->
 			<extension type="string">c2</extension>
 	  
-			<!-- Whether or not data from this camera is saved during filming. -->
 			<saved type="boolean">True</saved>
 
 		</parameters>
       </camera>
     </camera2>
+	-->
 
     <!-- DAQ control -->
     <daq>
@@ -323,7 +312,7 @@
 		<!--<menu_name type="string">Coarse Focus</menu_name>-->
 		<z_stage_fn type="string">zaber_z.coarse_focus</z_stage_fn>
 		<large_step type="float">50.0</large_step>
-		<small_step type="float">1</small_step>
+		<small_step type="float">5.0</small_step>
 	  </configuration>
 	</coarse_focus>
 	
@@ -448,25 +437,6 @@
       </configuration>
     </zaber_xy_stage>
 	
-    <!-- Mad City Labs Z piezo -->
-    <!--<mcl_zstage>
-      <module_name type="string">storm_control.sc_hardware.madCityLabs.mclVoltageZModule</module_name>
-      <class_name type="string">MCLVoltageZ</class_name>
-
-      <configuration>
-		<parameters>
-		  <center type="float">100.0</center>
-		  <has_center_bar type="boolean">True</has_center_bar>
-		  <maximum type="float">200.0</maximum>
-		  <minimum type="float">0.0</minimum>
-		  <warning_high type="float">190.0</warning_high>
-		  <warning_low type="float">10.0</warning_low>
-		</parameters>
-		<ao_fn_name type="string">daq.mcl.ao_task</ao_fn_name>
-		<microns_to_volts type="float">0.05</microns_to_volts>
-      </configuration>
-    </mcl_zstage>-->
-
     <!-- Stage control GUI -->
     <stage>
       <class_name type="string">Stage</class_name>
@@ -531,7 +501,7 @@
       <configuration>
 		<baudrate type="int">115200</baudrate>
 		<port type="string">COM3</port>
-		<cube_names type="string">1:celesta,2:50-50,3:empty,4:empty,5:empty,6:empty</cube_names>
+		<cube_names type="string">1:Celesta-DA/FI/TR/CY5/CY7-A,2:lumencore-440/510/590/691/823,3:50:50,4:empty,5:empty,6:empty</cube_names>
       </configuration>
     </dichroic_turret>
 
