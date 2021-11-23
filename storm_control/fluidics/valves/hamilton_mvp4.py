@@ -114,7 +114,6 @@ class AValveChain(AbstractValve):
         else:
             message = "h2500" + str(port_ID+1) + "R\r"
         
-        print("SENDING MOVE: " + message)
         response = self.inquireAndRespond(valve_ID, message)        
 
         self.current_port[valve_ID] = port_ID
@@ -128,11 +127,8 @@ class AValveChain(AbstractValve):
     # Close Serial Port
     # ------------------------------------------------------------------------------------ 
     def close(self):
-        if not self.simulate:
-            self.serial.close()
-            if self.verbose: print("Closed hamilton valves")
-        else: ## simulation code
-            if self.verbose: print("Closed simulated hamilton valves")
+        self.serial.close()
+        if self.verbose: print("Closed hamilton valves")
      
     # ------------------------------------------------------------------------------------
     # Initialize Port Position of Given Valve
@@ -356,7 +352,7 @@ class AValveChain(AbstractValve):
 # Test/Demo of Classs
 # ----------------------------------------------------------------------------------------
 if (__name__ == '__main__'):
-    hamilton = AValveChain(verbose = True)
+    hamilton = APump(verbose = True)
 
     for valve_ID in range(hamilton.howManyValves()):
         text = "Valve " + str(valve_ID+1)

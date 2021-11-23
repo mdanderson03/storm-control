@@ -1,11 +1,11 @@
 #!/usr/bin/python
 # ----------------------------------------------------------------------------------------
 # A master control class to implemented a series of automated flow protocols
-# using a daisy chained valve system (and eventually syringe pumps)
+# using a daisy chained valve system and peristaltic or syringe pumps
 # ----------------------------------------------------------------------------------------
 # Jeff Moffitt
 # 12/28/13
-# jeffmoffitt@gmail.com
+# jeffrey.moffitt@childrens.harvard.edu
 # ----------------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------------
@@ -16,7 +16,7 @@ import os
 import time
 from PyQt5 import QtCore, QtGui, QtWidgets
 from storm_control.fluidics.valves.valveChain import ValveChain
-from storm_control.fluidics.pumps.pumpControl import PumpControl
+import storm_control.fluidics.pumps.pumpControl as pumpControl
 from storm_control.fluidics.kilroyProtocols import KilroyProtocols
 from storm_control.sc_library.tcpServer import TCPServer
 import storm_control.sc_library.parameters as params
@@ -59,7 +59,15 @@ class Kilroy(QtWidgets.QMainWindow):
         self.valveChain = ValveChain(parameters = parameters)
 
         # Create PumpControl instance
-        self.pumpControl = PumpControl(parameters = parameters)
+        pump_type = parameters.get("pump_type", "peristaltic")
+        
+        if pump_type == "peristaltic":
+            self.pumpControl = pumpControl.PeristalticPumpControl(parameters = parameters)
+        elif pump_type == "syringe":
+            self.pumpControl = pumpControl.SyringePumpControl(parameters = parameters)
+        else:
+            print("Unrecognized pump_type requested")
+            assert False
                                        
         # Create KilroyProtocols instance and connect signals
         self.kilroyProtocols = KilroyProtocols(protocol_xml_path = self.protocols_file,
@@ -199,6 +207,11 @@ class StandAlone(QtWidgets.QMainWindow):
         valve_menu = menubar.addMenu("&Valves")
         for menu_item in self.kilroy.valveChain.menu_items[0]:
             valve_menu.addAction(menu_item)
+            
+        if not self.kilroy.pumpControl.menu_items is None:
+            pump_menu = menubar.addMenu("&Pump")
+            for menu_item in self.kilroy.pumpControl.menu_items[0]:
+                pump_menu.addAction(menu_item)
 
     # ----------------------------------------------------------------------------------------
     # Handle dragEnterEvent
