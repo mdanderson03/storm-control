@@ -238,8 +238,8 @@ class SyringePumpControl(GenericPumpControl):
 
         # Initialize syringe specific parameters
         self.volume_units = "mL"
-        self.max_speed = parameters.get("max_speed", 25) # mL/min
-        self.min_speed = parameters.get("min_speed", 0.25)
+        self.max_speed = parameters.get("max_speed", 100) # mL/min
+        self.min_speed = parameters.get("min_speed", 0.05)
         self.max_volume = parameters.get("max_volume", 12.5)
         self.min_volume = parameters.get("min_volume", 0.0)
         self.port_names = parameters.get("port_names", "Pull, Exhaust").split(',')
@@ -441,7 +441,7 @@ class SyringePumpControl(GenericPumpControl):
         self.pump.setPort(port_index)
         
         # Poll status
-        time.sleep(0.1)
+        time.sleep(0.5)
         self.pollPumpStatus()
         
     # ----------------------------------------------------------------------------------------
@@ -460,14 +460,28 @@ class SyringePumpControl(GenericPumpControl):
     # ----------------------------------------------------------------------------------------
     def handleStopFill(self):
         self.pump.stopFill()
-        time.sleep(0.1)
+        time.sleep(0.5)
         self.pollPumpStatus()
 
     # ------------------------------------------------------------------------------------
     # Change pump based on sent command: [port_name, speed, volume]
     # ------------------------------------------------------------------------------------          
     def receiveCommand(self, command):
-        print(command)
+
+        # Confirm the pump is ready for a command
+        status = self.pump.getStatus()
+        self.updateStatus(status)
+        time_out = 10
+        elapsed_time = 0
+        while status[0]:
+            time.sleep(0.5)
+            status = self.pump.getStatus()
+            self.updateStatus(status)
+            elapsed_time = elapsed_time + 0.5
+            if elapsed_time >= time_out:
+                print("Pump command timeout....")
+                break
+
         # Set the port
         found_port = False
         for port_id, port_name in enumerate(self.port_names):
@@ -479,14 +493,26 @@ class SyringePumpControl(GenericPumpControl):
             assert False
         
         # Let the port adjust before proceeding
-        time.sleep(0.1)
-        
+        status = self.pump.getStatus()
+        self.updateStatus(status)
+        while status[0]:
+            time.sleep(0.5)
+            status = self.pump.getStatus()
+            self.updateStatus(status)
+            
         # Set the speed
         if command[1]>=self.min_speed and command[1]<= self.max_speed:
             self.pump.setSpeed(command[1])
         else:
             print("PSD4 received a bad speed request")
             assert False
+            
+        status = self.pump.getStatus()
+        self.updateStatus(status)
+        while status[0]:
+            time.sleep(0.5)
+            status = self.pump.getStatus()
+            self.updateStatus(status)
             
         # Set the fill
         if command[2]>=self.min_volume and command[2]<=self.max_volume:

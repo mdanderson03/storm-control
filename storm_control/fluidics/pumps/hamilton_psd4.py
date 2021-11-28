@@ -25,7 +25,20 @@ class APump():
         self.verbose = parameters.get("verbose", True)
         self.simulate = parameters.get("simulate_pump", False)
         self.serial_verbose = parameters.get("serial_verbose", False)
-        self.steps_to_volume = parameters.get("steps_to_volume", 12.5/3000.0)
+        self.high_res_mode = parameters.get("high_res", True)
+        self.syringe_volume = parameters.get("syringe_volume", 12.5)
+        self.min_velocity_in_steps_s = 2
+        self.max_velocity_in_steps_s = 10000
+        self.min_stroke_in_steps = 0
+        self.max_stroke_in_steps = None
+
+        # Define the resolution mode
+        if self.high_res_mode:
+            self.max_stroke_in_steps = 24000.0
+        else:
+            self.max_stroke_in_steps = 3000.0
+           
+        self.steps_to_volume = self.syringe_volume/self.max_stroke_in_steps
         
         # Create serial port
         self.serial = serial.Serial(port = self.com_port, 
@@ -51,6 +64,7 @@ class APump():
 
     def configurePump(self):
         
+        # Determine the port configuration
         message = "/1?21000R\r"
         self.write(message)
         response = self.read()
@@ -67,9 +81,21 @@ class APump():
         
         self.num_ports = num_ports_dict[chr(response[3])]
                 
+        # Set the resolution
+        if self.high_res_mode:
+            message = '/1N1R\r'
+        else:
+            message = '/1N0R\r'
+            
+        self.write(message)
+        response = self.read()
+        if len(response) < 2:
+            assert False
+
+        
     def getStatus(self):
         # Determine if is moving
-        message = "/1QR\r"
+        message = "/1Q\r"
         
         self.write(message)
         response = self.read()
@@ -85,6 +111,7 @@ class APump():
             is_moving = False
         else:
             print("Unknown response from PSD4")
+            print(response)
             assert False
         
         # Determine the syringe position and return in mL
@@ -115,7 +142,7 @@ class APump():
         start_pos = 3
         end_pos = response.find('\x03'.encode())
         vel_in_units = float(response[start_pos:end_pos].decode())
-        vel_in_mLmin = vel_in_units*self.steps_to_volume*60
+        vel_in_mLmin = vel_in_units*self.syringe_volume*60/6000
     
         # Determine valve numerical position
         message = '/1?24000R\r'
@@ -152,7 +179,20 @@ class APump():
         self.serial.close()
     
     def setSpeed(self, fill_speed_in_mLmin):
-        new_speed_value = int(fill_speed_in_mLmin/self.steps_to_volume/60)
+        
+        # Convert the requested speed to steps per s
+        fill_speed_in_mLs = fill_speed_in_mLmin/60
+        new_speed_value = int(fill_speed_in_mLs/self.syringe_volume * 6000)
+        
+        # Coerce to the hardware limits
+        if new_speed_value < self.min_velocity_in_steps_s:
+            new_speed_value = self.min_velocity_in_steps_s
+            print("Coerced pump speed to lowest value")
+        
+        if new_speed_value > self.max_velocity_in_steps_s:
+            new_speed_value = self.max_velocity_in_steps_s
+            print("Coerced pump speed to highest value")
+        
         message = '/1V' + str(new_speed_value) + 'R\r'
         
         self.write(message)
@@ -162,12 +202,19 @@ class APump():
             print("Unknown response from PSD4")
             assert False
 
-        
-
     def startFill(self, new_volume):
         # Define the volume
         new_step_pos = int(new_volume/self.steps_to_volume)
         
+        # Coerce to the hardware limits
+        if new_step_pos < self.min_stroke_in_steps:
+            new_step_pos = self.min_stroke_in_steps
+            print("Coerced pump fill to lowest value")
+        
+        if new_step_pos > self.max_stroke_in_steps:
+            new_step_pos = self.max_stroke_in_steps
+            print("Coerced pump fill to highest value")
+
         # Define and write the message
         message = '/1A' + str(new_step_pos) + 'R\r'
         
@@ -179,8 +226,15 @@ class APump():
             assert False
 
     def stopFill(self):
-        print("Not yet enabled...")
-            
+        message = '/1TR\r'
+        
+        self.write(message)
+        response = self.read()
+        
+        if len(response)<2:
+            print("Unknown response from PSD4")
+            assert False
+    
     def read(self):
        # response = self.serial.readline().decode()
         response = self.serial.readline()
