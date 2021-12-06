@@ -78,7 +78,6 @@ class ZaberZRS232(RS232.RS232):
 		
         # Check to see if successful, and if so, store the requested coarse_position
         if response_parts[2] == "OK":
-            print("Updating coarse position")
             self.coarse_position = z_in_um - self.fine_position
         else:
             print("Zaber Z Stage Warning: Coarse movement request not successful")
@@ -97,7 +96,6 @@ class ZaberZRS232(RS232.RS232):
 
         # Check to see if successful, and if so, store the requested fine_position
         if response_parts[2] == "OK":
-            print("Updating fine position")
             self.fine_position = z_in_um - self.coarse_position
         else:
             print("Zaber Z Stage Warning: Fine movement request not successful")
