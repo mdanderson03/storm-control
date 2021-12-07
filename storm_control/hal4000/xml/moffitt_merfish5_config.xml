@@ -278,7 +278,7 @@
 		<configuration>
 			<baudrate type="int">115200</baudrate>
 			<port type="string">COM4</port>
-			<debug type="boolean">True</debug>
+			<debug type="boolean">False</debug>
 
 			<stage_id type="int">1</stage_id>
 			<unit_to_um type="float">0.001</unit_to_um>
@@ -461,7 +461,7 @@
       <class_name type="string">PointGreyLockCamera</class_name>
       <module_name type="string">storm_control.sc_hardware.pointGrey.pointGreyLockCameraModule</module_name>
       <configuration>
-		<single_spot type="boolean">True</single_spot>
+		<axicon type="boolean">True</axicon>
 		<parameters>
 		  <offset_has_center_bar type="boolean">True</offset_has_center_bar>
 		  <offset_maximum type="float">2.5</offset_maximum>
@@ -471,26 +471,30 @@
 		  <sum_maximum type="float">1000</sum_maximum>
 		  <sum_minimum type="float">50.0</sum_minimum>
 		  <sum_warning_low type="float">100</sum_warning_low>
+
 		</parameters>
 		<camera_id type="string">21159820</camera_id>
 		<camera_parameters>
-			<zero_dist type="float">0.0</zero_dist>
-			<min_good type="int">1</min_good>
-			<offset type="float">0.0</offset>
-			<sum_zero type="float">0.0</sum_zero>
-			<sum_scale type="float">1.0</sum_scale>
 			<reps type="int">1</reps>
 			<BlackLevel type="float">0.0</BlackLevel>
 			<Gain type="float">10.0</Gain>
 			<Height type="int">540</Height>
-			<Width type="int">720</Width>
+			<Width type="int">540</Width>
 			<OffsetX type="int">0</OffsetX>
 			<OffsetY type="int">0</OffsetY>
 			<AcquisitionFrameRate type="float">10.0</AcquisitionFrameRate>
-			<sigma type="float">10.0</sigma>
-			<threshold type="float">10</threshold>
+			
+			<sum_threshold type="float">300</sum_threshold>
+			<roi1 type="string">25,125,235,305</roi1>
+			<roi2 type="string">425,525,235,305</roi2>
+			<zero_dist type="float">0.0</zero_dist>
+			<min_good type="int">1</min_good>
+			<offset type="float">0.0</offset>
+			<camera_background type="float">100.0</camera_background>
+			<sum_scale type="float">1.0</sum_scale>
+			
 		</camera_parameters>
-		<units_to_microns type="float">-0.9</units_to_microns>
+		<units_to_microns type="float">-0.2</units_to_microns>
 	  </configuration>
     </blackfly_autofocus>
 

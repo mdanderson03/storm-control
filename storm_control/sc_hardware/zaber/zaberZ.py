@@ -99,7 +99,7 @@ class ZaberZRS232(RS232.RS232):
             self.fine_position = z_in_um - self.coarse_position
         else:
             print("Zaber Z Stage Warning: Fine movement request not successful")
-	
+            	
 	# Return the absolute position
     def getPosition(self):
         response = self.commWithResp("/" + str(self.stage_id) + " get pos")

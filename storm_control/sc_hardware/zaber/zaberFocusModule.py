@@ -71,11 +71,10 @@ class ZaberFineFocusBufferedFunctionality(hardwareModule.BufferedFunctionality, 
         self.goAbsolute(self.z_position)
         
     def goAbsolute(self, z_pos):
-        self.z_position = self.restrictZPos(z_pos)
-        print("Requested fine focus move of " + str(self.z_position))
-        self.z_stage.zMoveFine(self.z_position)
-        self.zStagePosition.emit(self.z_position)
-
+        z_pos = self.restrictZPos(z_pos)
+        self.maybeRun(task = self.zMoveTo,
+              args = [z_pos],
+              ret_signal = self.zStagePosition)
 
 class ZaberZController(hardwareModule.HardwareModule):
 
