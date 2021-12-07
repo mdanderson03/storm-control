@@ -75,7 +75,8 @@ class ZaberFineFocusBufferedFunctionality(hardwareModule.BufferedFunctionality, 
         z_pos = self.restrictZPos(z_pos)
         self.maybeRun(task = self.zMoveTo,
               args = [z_pos],
-              ret_signal = self.zStagePosition)
+              ret_signal = self.zStagePosition,
+              run_next = False)
         
     def getWaveform(self, z_pos_relative):
         return self.z_stage.setTimedMovement(z_pos_relative)

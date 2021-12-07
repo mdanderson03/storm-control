@@ -297,7 +297,6 @@
 	  <configuration>
 		<retracted_z type="float">0</retracted_z>
 		<can_zero type="boolean">False</can_zero>
-		<!--<menu_name type="string">Coarse Focus</menu_name>-->
 		<z_stage_fn type="string">zaber_z.coarse_focus</z_stage_fn>
 		<large_step type="float">50.0</large_step>
 		<small_step type="float">5.0</small_step>
@@ -324,8 +323,8 @@
 		  <locked>
 			<buffer_length type="int">5</buffer_length>
 			<offset_threshold type="float">250</offset_threshold><!-- This is in nanometers and get converted by Hal to microns-->
-			<lock_gain type="float">0.15</lock_gain>
-			<lock_gain_max type="float">0.15</lock_gain_max>
+			<lock_gain type="float">1</lock_gain>
+			<lock_gain_max type="float">1</lock_gain_max>
 		  </locked>
 		  <jump_size type="float">0.1</jump_size>
 		</parameters>
@@ -429,7 +428,7 @@
       </configuration>
     </tcp_control>
     
-	
+	<!-- Autofocus -->
 	<blackfly_autofocus>
       <class_name type="string">PointGreyLockCamera</class_name>
       <module_name type="string">storm_control.sc_hardware.pointGrey.pointGreyLockCameraModule</module_name>
@@ -480,8 +479,7 @@
 		<cube_names type="string">1:Celesta-DA/FI/TR/CY5/CY7-A,2:lumencore-440/510/590/691/823,3:50:50,4:empty,5:empty,6:empty</cube_names>
       </configuration>
     </dichroic_turret>
-
-
+	
   </modules>
 
 </config>
