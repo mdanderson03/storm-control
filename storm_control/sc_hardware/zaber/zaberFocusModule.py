@@ -11,6 +11,7 @@ from PyQt5 import QtCore
 import storm_control.sc_library.halExceptions as halExceptions
 
 import storm_control.hal4000.halLib.halMessage as halMessage
+import storm_control.sc_library.parameters as params
 
 import storm_control.sc_hardware.baseClasses.hardwareModule as hardwareModule
 import storm_control.sc_hardware.baseClasses.stageZModule as stageZModule
@@ -75,6 +76,9 @@ class ZaberFineFocusBufferedFunctionality(hardwareModule.BufferedFunctionality, 
         self.maybeRun(task = self.zMoveTo,
               args = [z_pos],
               ret_signal = self.zStagePosition)
+        
+    def getWaveform(self, z_pos_relative):
+        return self.z_stage.setTimedMovement(z_pos_relative)
 
 class ZaberZController(hardwareModule.HardwareModule):
 
@@ -118,8 +122,12 @@ class ZaberZController(hardwareModule.HardwareModule):
         if message.isType("get functionality"):
             self.getFunctionality(message)
         if message.isType("stop film"):  # Add the current z_coarse position to the parameters that are written
+        
+            coarse_z_position = params.ParameterFloat(name = "coarse_z_position",
+                                                   value = self.stage.coarse_position)
             message.addResponse(halMessage.HalMessageResponse(source = self.module_name,
-                                                              data = {"parameters" : self.view.getParameters()}))
+                                                              data = {"acquisition" : [coarse_z_position]}))
+
     def cleanUp(self, qt_settings):
         self.stage.shutDown()
 #

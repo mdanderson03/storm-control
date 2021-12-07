@@ -47,7 +47,7 @@ class ZaberTurretControl(object):
         # Create a Hal parameter that can be modified in the parameters editor to select cube
         values = sorted(self.turret_config.keys())
         self.parameters.add(params.ParameterSetString(description = "Turret positions",
-                                                      name = "Dichroic cube",
+                                                      name = "Dichroic_cube",
                                                       value = values[0],  # Start in the first position
                                                       allowed = values))
 
@@ -71,8 +71,8 @@ class ZaberTurretControl(object):
             self.parameters.setv(pname, p.get(pname))
 
             # Position the turret
-            if (pname == "Dichroic cube"):
-                requested_position = self.turret_config[p.get("Dichroic cube")]
+            if (pname == "Dichroic_cube"):
+                requested_position = self.turret_config[p.get("Dichroic_cube")]
                 self.turret.changePosition(requested_position)
             else:
                 print(">> Warning", str(pname), " is not a valid parameter for the Zaber dichroic cube turret")

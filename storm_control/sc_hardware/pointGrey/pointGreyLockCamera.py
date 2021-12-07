@@ -479,9 +479,6 @@ class AxiconLockCamera(LockCamera):
             self.y2_off[self.cnt] = y2_off 
             self.offset[self.cnt] = x1_off - x2_off
 
-            print(sum1, sum2, self.sum_threshold, self.camera_background)
-
-
             # Check if we have all the samples we need.
             self.cnt += 1
             if (self.cnt == self.reps):
