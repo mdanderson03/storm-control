@@ -18,7 +18,7 @@ import storm_control.sc_hardware.baseClasses.stageZModule as stageZModule
 import storm_control.sc_hardware.baseClasses.lockModule as lockModule
 
 import storm_control.sc_hardware.zaber.zaberZ as zaber
-
+import numpy
 
 class ZaberCoarseFocusBufferedFunctionality(stageZModule.ZStageFunctionalityBuffered):
     """
@@ -41,7 +41,6 @@ class ZaberCoarseFocusBufferedFunctionality(stageZModule.ZStageFunctionalityBuff
         return self.z_stage.zPositionCoarse()
     
 class ZaberFineFocusBufferedFunctionality(hardwareModule.BufferedFunctionality, lockModule.ZStageFunctionalityMixin):
-#class ZaberFineFocusBufferedFunctionality(stageZModule.ZStageFunctionalityBuffered):
     """
     This functionality interfaces with the fine focusing module, i.e. the focus lock. As a buffered functionality it contains a device mutex
     """
@@ -51,13 +50,18 @@ class ZaberFineFocusBufferedFunctionality(hardwareModule.BufferedFunctionality, 
         self.minimum = self.getMinimum()
         self.maximum = self.getMaximum()
         self.z_stage = z_stage
+        self.z_scan_mode = False
+        self.z_pos_prior_to_scan = None
         
         self.recenter()
         
     def zMoveTo(self, z_pos):
-        self.z_stage.zMoveFine(z_pos)
-        self.z_position = z_pos
-        return z_pos
+        if not self.z_scan_mode:
+            self.z_stage.zMoveFine(z_pos)
+            self.z_position = z_pos
+            return z_pos
+        else:
+            return self.z_pos_prior_to_scan
     
     def restrictZPos(self,z_pos):
         #Ensure that all requested z positions are within the maximum and minimum range, working in units of microns
@@ -78,8 +82,38 @@ class ZaberFineFocusBufferedFunctionality(hardwareModule.BufferedFunctionality, 
               ret_signal = self.zStagePosition,
               run_next = False)
         
-    def getWaveform(self, z_pos_relative):
-        return self.z_stage.setTimedMovement(z_pos_relative)
+    def getCurrentPosition(self):
+        return self.z_stage.fine_position
+    
+    def haveHardwareTiming(self):
+        return True
+    
+    def setZPosition(self, z_pos):
+        # Configure in z scan mode and save current position
+        self.z_scan_mode = True
+        self.z_pos_prior_to_scan = self.getCurrentPosition()
+        
+        # Restrict requested Z positions
+        z_pos[z_pos < self.minimum] = self.minimum
+        z_pos[z_pos > self.maximum] = self.maximum
+                
+        self.configureZScan(z_pos)
+        # Run the z-scan configuration
+        #self.mustRun(task = self.configureZScan, 
+        #             args = [z_pos],
+        #             ret_signal = None)
+        
+    def isInZScanMode(self):
+        return self.z_scan_mode
+    
+    def configureZScan(self, z_pos):
+        self.z_stage.configureZScan(z_pos)
+        
+    def completeZScan(self):
+        self.z_stage.completeZScan()
+        self.z_stage.zMoveFine(self.z_pos_prior_to_scan)
+        self.z_position = self.z_pos_prior_to_scan
+        self.z_scan_mode = False
 
 class ZaberZController(hardwareModule.HardwareModule):
 
@@ -113,6 +147,12 @@ class ZaberZController(hardwareModule.HardwareModule):
         self.functionalities[self.module_name + ".coarse_focus"] = self.coarse_functionality
         self.functionalities[self.module_name + ".fine_focus"] = self.fine_functionality
 
+        # This message is used to set the waveforms for 
+        halMessage.addMessage("software config z scan",
+                      validator = {"data" : {"waveform" : [True, numpy.ndarray]},
+                                   "resp" : None})
+
+
     def getFunctionality(self, message):
         if message.getData()["name"] in self.functionalities:
             fn = self.functionalities[message.getData()["name"]]
@@ -120,14 +160,21 @@ class ZaberZController(hardwareModule.HardwareModule):
                                                               data = {"functionality" : fn}))
                     
     def processMessage(self, message):
+        
         if message.isType("get functionality"):
             self.getFunctionality(message)
         if message.isType("stop film"):  # Add the current z_coarse position to the parameters that are written
-        
             coarse_z_position = params.ParameterFloat(name = "coarse_z_position",
                                                    value = self.stage.coarse_position)
             message.addResponse(halMessage.HalMessageResponse(source = self.module_name,
                                                               data = {"acquisition" : [coarse_z_position]}))
+            
+            # Inform the fine functionality that it is done filming
+            if self.fine_functionality.isInZScanMode():
+                self.fine_functionality.completeZScan()
+            
+        if message.isType("software config z scan"):
+            self.fine_functionality.setZPosition(message.getData()["waveform"])
 
     def cleanUp(self, qt_settings):
         self.stage.shutDown()

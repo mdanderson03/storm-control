@@ -136,6 +136,63 @@ class ZaberZRS232(RS232.RS232):
             return "IDLE"
         else: # BUSY Case
             return "MOVING"
+        
+    def configureZScan(self, z_pos_in_um):
+        
+        # Handle empty z case
+        if len(z_pos_in_um)==0:
+            print("No z positions provided")
+            return
+        
+        # Convert offsets into absolute position units
+        z_in_units = []
+        for z_in_um in z_pos_in_um:
+            z_in_units.append(round(self.coerceToLimits(z_in_um + self.coarse_position)*self.um_to_unit))
+                
+        # Configure live stream mode
+        response = self.commWithResp("/stream 1 setup live 1")
+        response_parts = response.split(" ")
+        if not (response_parts[2] == "OK") or len(response_parts) < 2:
+            print("STAGE ERROR: " + response)
+            return "ERROR"        
+
+        print("Starting configuration of the z stage movement....")
+        # Loop over z positions to add relevant commands
+        for z in z_in_units:
+            # Wait for a low DI signal (completion of last frame)
+            response = self.commWithResp("/stream 1 wait io di 1 == 0")
+            response_parts = response.split(" ")
+            if not (response_parts[2] == "OK") or len(response_parts) < 2:
+                print("STAGE ERROR: " + response)
+                return "ERROR"  
+            
+            # Wait for a high DI signal (start of next frame)
+            response = self.commWithResp("/stream 1 wait io di 1 == 1")
+            response_parts = response.split(" ")
+            if not (response_parts[2] == "OK") or len(response_parts) < 2:
+                print("STAGE ERROR: " + response)
+                return "ERROR"        
+
+            # Wait for a high DI signal (start of next frame)
+            response = self.commWithResp("/stream 1 line abs " + str(z))
+            response_parts = response.split(" ")
+            if not (response_parts[2] == "OK") or len(response_parts) < 2:
+                print("STAGE ERROR: " + response)
+                return "ERROR"      
+            
+        print("...completed a hardware triggered configuration with the following positions")
+        print(z_in_units)
+
+            
+    def completeZScan(self):
+        response = self.commWithResp("/stream 1 info")
+        response = self.commWithResp("/stream 1 setup disable")
+        print("Disabled z scan")
+        print(response)
+        response_parts = response.split(" ")
+        if not (response_parts[2] == "OK") or len(response_parts) < 2:
+            print("STAGE ERROR: " + response)
+            return "ERROR"  
 
 #
 # The MIT License
