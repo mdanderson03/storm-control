@@ -10,6 +10,8 @@ import traceback
 import storm_control.sc_hardware.serial.RS232 as RS232
 import storm_control.sc_library.hdebug as hdebug
 
+from timeit import default_timer as timer
+
 class ZaberZRS232(RS232.RS232):
     """
     ZaberZ stage RS232 interface class.  This class allows for a coarse and fine z position, with the fine z position relative to the coarse position.
@@ -149,6 +151,9 @@ class ZaberZRS232(RS232.RS232):
         for z_in_um in z_pos_in_um:
             z_in_units.append(round(self.coerceToLimits(z_in_um + self.coarse_position)*self.um_to_unit))
                 
+        start_time = timer()
+        print("Starting configuration of the z stage movement....")
+            
         # Configure live stream mode
         response = self.commWithResp("/stream 1 setup live 1")
         response_parts = response.split(" ")
@@ -156,7 +161,6 @@ class ZaberZRS232(RS232.RS232):
             print("STAGE ERROR: " + response)
             return "ERROR"        
 
-        print("Starting configuration of the z stage movement....")
         # Loop over z positions to add relevant commands
         for z in z_in_units:
             # Wait for a low DI signal (completion of last frame)
@@ -180,7 +184,10 @@ class ZaberZRS232(RS232.RS232):
                 print("STAGE ERROR: " + response)
                 return "ERROR"      
             
+        end_time = timer()
+
         print("...completed a hardware triggered configuration with the following positions")
+        print("...required " + str(end_time - start_time))
         print(z_in_units)
 
             
