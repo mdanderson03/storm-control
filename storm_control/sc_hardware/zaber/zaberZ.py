@@ -139,7 +139,63 @@ class ZaberZRS232(RS232.RS232):
         else: # BUSY Case
             return "MOVING"
         
-    def configureZScan(self, z_pos_in_um):
+    def configureRelZScan(self, z_pos_in_um):
+        # Handle empty z case
+        if len(z_pos_in_um)==0:
+            print("No z positions provided")
+            return
+        
+        # Convert offsets into absolute position units
+        z_in_units = []
+        for z_in_um in z_pos_in_um:
+            temp_z = z_in_um*self.um_to_unit
+            if len(z_in_units) == 0: # Use movement from current position
+                z_in_units.append(temp_z)
+            else: # Calculate movement from previous relative position
+                z_in_units.append(temp_z - z_in_units[-1])
+                
+            z_in_units.append(round(z_in_um*self.um_to_unit))
+
+        start_time = timer()
+        print("Starting configuration of the z stage movement....")
+            
+        # Configure live stream mode
+        response = self.commWithResp("/stream 1 setup store 1")
+        response_parts = response.split(" ")
+        if not (response_parts[2] == "OK") or len(response_parts) < 2:
+            print("STAGE ERROR: " + response)
+            return "ERROR"        
+
+        # Loop over z positions to add relevant commands
+        for z in z_in_units:
+            # Wait for a low DI signal (completion of last frame)
+            response = self.commWithResp("/stream 1 wait io di 1 == 0")
+            response_parts = response.split(" ")
+            if not (response_parts[2] == "OK") or len(response_parts) < 2:
+                print("STAGE ERROR: " + response)
+                return "ERROR"  
+            
+            # Wait for a high DI signal (start of next frame)
+            response = self.commWithResp("/stream 1 wait io di 1 == 1")
+            response_parts = response.split(" ")
+            if not (response_parts[2] == "OK") or len(response_parts) < 2:
+                print("STAGE ERROR: " + response)
+                return "ERROR"        
+
+            # Wait for a high DI signal (start of next frame)
+            response = self.commWithResp("/stream 1 line rel " + str(z))
+            response_parts = response.split(" ")
+            if not (response_parts[2] == "OK") or len(response_parts) < 2:
+                print("STAGE ERROR: " + response)
+                return "ERROR"      
+            
+        end_time = timer()
+
+        print("...completed a hardware triggered configuration with the following relative positions")
+        print("...required " + str(end_time - start_time))
+        print(z_in_units)
+        
+    def configureAbsZScan(self, z_pos_in_um):
         
         # Handle empty z case
         if len(z_pos_in_um)==0:

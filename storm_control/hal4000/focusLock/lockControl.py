@@ -340,7 +340,6 @@ class LockControl(QtCore.QObject):
                                                                        data = {"waveforms" : [waveform]}))
                 elif waveform_dict["type"] == "software_config_hardware_trigger":
                     waveform = waveform_dict["waveform"]
-                    print("I am here preparing to emit the message with the proper waveform")
                     if waveform is not None:
                         self.controlMessage.emit(halMessage.HalMessage(m_type = "software config z scan",
                                                                        data = {"waveform" : waveform}))

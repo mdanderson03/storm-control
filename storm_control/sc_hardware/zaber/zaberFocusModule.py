@@ -173,6 +173,9 @@ class ZaberZController(hardwareModule.HardwareModule):
             if self.fine_functionality.isInZScanMode():
                 self.fine_functionality.completeZScan()
             
+        if message.isType("new parameters"):
+            #### NEED TO CONFIGURE Z POSITIONS HERE
+            
         if message.isType("software config z scan"):
             self.fine_functionality.setZPosition(message.getData()["waveform"])
 
