@@ -339,10 +339,9 @@ class LockControl(QtCore.QObject):
                         self.controlMessage.emit(halMessage.HalMessage(m_type = "daq waveforms",
                                                                        data = {"waveforms" : [waveform]}))
                 elif waveform_dict["type"] == "software_config_hardware_trigger":
-                    waveform = waveform_dict["waveform"]
-                    if waveform is not None:
-                        self.controlMessage.emit(halMessage.HalMessage(m_type = "software config z scan",
-                                                                       data = {"waveform" : waveform}))
+                    waveform = waveform_dict["waveform"] # This will always be an empty array
+                    self.controlMessage.emit(halMessage.HalMessage(m_type = "software config z scan",
+                                                                   data = {"waveform" : waveform}))
      
             self.lock_mode.startFilm()
         

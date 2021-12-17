@@ -124,6 +124,7 @@ class BufferedFunctionality(HardwareFunctionality):
 
         # Start the next 'maybe' request, if there was one.
         if self.next_request is not None:
+            print("I am starting a next_request")
             self.start(*self.next_request)
             self.next_request = None
         
@@ -167,7 +168,10 @@ class BufferedFunctionality(HardwareFunctionality):
         self.jobStarted.emit()
         self.busy = True
         self.device_mutex.lock()
-        retv = task(*args)
+        if task is not None:
+            retv = task(*args)
+        else:
+            print("I should never get a None task, but I got one from " + str(type(self)))
         self.device_mutex.unlock()
         self.busy = False
         self.jobDone.emit()

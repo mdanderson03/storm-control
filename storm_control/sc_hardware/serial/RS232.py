@@ -50,8 +50,6 @@ class RS232(object):
         """
         Send a command and wait (a little) for a response.
         """
-        if self.debug:
-            print("Sending: " + command)
         self.sendCommand(command)
         time.sleep(10 * self.wait_time)
         response = ""

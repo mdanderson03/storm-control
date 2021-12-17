@@ -6,6 +6,7 @@ Hazen 04/17
 Jeff 09/21
 """
 import traceback
+import time
 
 import storm_control.sc_hardware.serial.RS232 as RS232
 import storm_control.sc_library.hdebug as hdebug
@@ -28,6 +29,7 @@ class ZaberZRS232(RS232.RS232):
         self.limits = kwds["limits_dict"]
         self.coarse_position = 0.0
         self.fine_position = 0.0
+        self.is_zscan = False
 
         # We need to remove the keywords not needed for the RS232 super class initialization
         del kwds["stage_id"]
@@ -67,6 +69,12 @@ class ZaberZRS232(RS232.RS232):
     
 	# Command a coarse position change AND update the coarse position
     def zMoveCoarse(self, z_in_um):
+        print("Starting zMoveCoarse")
+        
+        
+        if self.is_zscan:
+            print("Ignoring move requests while in z scan mode")
+            return
         
 		# Coerce to limits
         z_in_um = self.coerceToLimits(z_in_um + self.fine_position)
@@ -83,9 +91,18 @@ class ZaberZRS232(RS232.RS232):
             self.coarse_position = z_in_um - self.fine_position
         else:
             print("Zaber Z Stage Warning: Coarse movement request not successful")
+        print("...ending zMoveCoarse")
+
+    
     
 	# Command a fine position change
     def zMoveFine(self, z_in_um):
+        print("Starting zMoveFine")
+
+        if self.is_zscan:
+            print("Ignoring move requests while in z scan mode")
+            return
+
 		# Coerce to limits
         z_in_um = self.coerceToLimits(z_in_um + self.coarse_position)
 	
@@ -102,8 +119,13 @@ class ZaberZRS232(RS232.RS232):
         else:
             print("Zaber Z Stage Warning: Fine movement request not successful")
             	
+        print("...ending zMoveFine")
+
+            
 	# Return the absolute position
     def getPosition(self):
+        print("Starting getPosition")
+
         response = self.commWithResp("/" + str(self.stage_id) + " get pos")
         
         response = response.strip()
@@ -112,6 +134,9 @@ class ZaberZRS232(RS232.RS232):
             sz = float(response_parts[5])
         except ValueError:
             return None
+        
+        print("...ending getPosition")
+
         return sz*self.unit_to_um
 	
 	# Return the coarse position
@@ -124,10 +149,12 @@ class ZaberZRS232(RS232.RS232):
 
 	# Return if the stage is moving
     def isStageMoving(self):
+        print("Starting isStageMoving")
         response = self.commWithResp("/" + str(self.stage_id))
         
         # Parse the response
         response_parts = response.split(" ")
+        print("...ending isStageMoving")
 
         # Handle an error response, or an empty response
         if not (response_parts[2] == "OK") or len(response_parts) < 2:
@@ -139,7 +166,8 @@ class ZaberZRS232(RS232.RS232):
         else: # BUSY Case
             return "MOVING"
         
-    def configureRelZScan(self, z_pos_in_um):
+    def configureZScan(self, z_pos_in_um):
+        print("Starting configureZScan")
         # Handle empty z case
         if len(z_pos_in_um)==0:
             print("No z positions provided")
@@ -147,20 +175,32 @@ class ZaberZRS232(RS232.RS232):
         
         # Convert offsets into absolute position units
         z_in_units = []
-        for z_in_um in z_pos_in_um:
-            temp_z = z_in_um*self.um_to_unit
+        for index, z_in_um in enumerate(z_pos_in_um):
             if len(z_in_units) == 0: # Use movement from current position
+                temp_z = round(z_in_um*self.um_to_unit)
                 z_in_units.append(temp_z)
             else: # Calculate movement from previous relative position
-                z_in_units.append(temp_z - z_in_units[-1])
+                temp_z = round( (z_in_um - z_pos_in_um[index-1]) * self.um_to_unit)
+                z_in_units.append(temp_z)
                 
-            z_in_units.append(round(z_in_um*self.um_to_unit))
-
         start_time = timer()
         print("Starting configuration of the z stage movement....")
             
-        # Configure live stream mode
-        response = self.commWithResp("/stream 1 setup store 1")
+        # Erase the previous buffer
+        response = self.commWithResp("/stream 1 setup disable")
+        response_parts = response.split(" ")
+        if not (response_parts[2] == "OK") or len(response_parts) < 2:
+            print("STAGE ERROR: " + response)
+            #return "ERROR"        
+        
+        response = self.commWithResp("/stream buffer 1 erase")
+        response_parts = response.split(" ")
+        if not (response_parts[2] == "OK") or len(response_parts) < 2:
+            print("STAGE ERROR: " + response)
+            #return "ERROR"        
+
+        # Configure a stream buffer
+        response = self.commWithResp("/stream 1 setup store 1 1")
         response_parts = response.split(" ")
         if not (response_parts[2] == "OK") or len(response_parts) < 2:
             print("STAGE ERROR: " + response)
@@ -194,61 +234,47 @@ class ZaberZRS232(RS232.RS232):
         print("...completed a hardware triggered configuration with the following relative positions")
         print("...required " + str(end_time - start_time))
         print(z_in_units)
+        print(z_pos_in_um)
+        print("...ending configureZScan")
         
-    def configureAbsZScan(self, z_pos_in_um):
+    def startZScan(self):
+        time.sleep(1)
+        print("Starting startZScan")
         
-        # Handle empty z case
-        if len(z_pos_in_um)==0:
-            print("No z positions provided")
-            return
+        # Configure zscan mode
+        self.is_zscan = True
         
-        # Convert offsets into absolute position units
-        z_in_units = []
-        for z_in_um in z_pos_in_um:
-            z_in_units.append(round(self.coerceToLimits(z_in_um + self.coarse_position)*self.um_to_unit))
-                
-        start_time = timer()
-        print("Starting configuration of the z stage movement....")
-            
-        # Configure live stream mode
-        response = self.commWithResp("/stream 1 setup live 1")
+        # For troubleshooting purposes, reset the stream
+        response = self.commWithResp("/stream 1 setup disable")
+        print("Disabled z scan")
+        print("My response is now: " + str(response))
         response_parts = response.split(" ")
         if not (response_parts[2] == "OK") or len(response_parts) < 2:
             print("STAGE ERROR: " + response)
-            return "ERROR"        
+            return "ERROR"  
+        
+        # Configure the live mode
+        print("Enabling z scan")
+        response = self.commWithResp("/stream 1 setup live 1")
+        print("Got response from stream setup: " + response)
+        response_parts = response.split(" ")
+        if not (response_parts[2] == "OK") or len(response_parts) < 2:
+            print("STAGE ERROR: " + response)
+            return "ERROR"  
 
-        # Loop over z positions to add relevant commands
-        for z in z_in_units:
-            # Wait for a low DI signal (completion of last frame)
-            response = self.commWithResp("/stream 1 wait io di 1 == 0")
-            response_parts = response.split(" ")
-            if not (response_parts[2] == "OK") or len(response_parts) < 2:
-                print("STAGE ERROR: " + response)
-                return "ERROR"  
-            
-            # Wait for a high DI signal (start of next frame)
-            response = self.commWithResp("/stream 1 wait io di 1 == 1")
-            response_parts = response.split(" ")
-            if not (response_parts[2] == "OK") or len(response_parts) < 2:
-                print("STAGE ERROR: " + response)
-                return "ERROR"        
-
-            # Wait for a high DI signal (start of next frame)
-            response = self.commWithResp("/stream 1 line abs " + str(z))
-            response_parts = response.split(" ")
-            if not (response_parts[2] == "OK") or len(response_parts) < 2:
-                print("STAGE ERROR: " + response)
-                return "ERROR"      
-            
-        end_time = timer()
-
-        print("...completed a hardware triggered configuration with the following positions")
-        print("...required " + str(end_time - start_time))
-        print(z_in_units)
+        # Configure the live mode
+        response = self.commWithResp("/stream 1 call 1")
+        response_parts = response.split(" ")
+        if not (response_parts[2] == "OK") or len(response_parts) < 2:
+            print("STAGE ERROR: " + response)
+            return "ERROR"  
+        
+        print("...ending startZScan")
 
             
     def completeZScan(self):
-        response = self.commWithResp("/stream 1 info")
+        print("Starting zaberZ.completeZScan")
+        #response = self.commWithResp("/stream 1 info")
         response = self.commWithResp("/stream 1 setup disable")
         print("Disabled z scan")
         print(response)
@@ -256,6 +282,8 @@ class ZaberZRS232(RS232.RS232):
         if not (response_parts[2] == "OK") or len(response_parts) < 2:
             print("STAGE ERROR: " + response)
             return "ERROR"  
+
+        self.is_zscan = False
 
 #
 # The MIT License
