@@ -238,7 +238,6 @@ class ZaberZRS232(RS232.RS232):
         print("...ending configureZScan")
         
     def startZScan(self):
-        time.sleep(1)
         print("Starting startZScan")
         
         # Configure zscan mode

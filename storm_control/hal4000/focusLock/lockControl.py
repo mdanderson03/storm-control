@@ -38,6 +38,10 @@ class LockControl(QtCore.QObject):
     def getLockModeName(self):
         return self.lock_mode.getName()
     
+    def getLockStatus(self):
+        print("Requesting lock status")
+        return self.lock_mode.amLocked()
+    
     def getLockTarget(self):
         return self.lock_mode.getLockTarget()
 
@@ -339,9 +343,8 @@ class LockControl(QtCore.QObject):
                         self.controlMessage.emit(halMessage.HalMessage(m_type = "daq waveforms",
                                                                        data = {"waveforms" : [waveform]}))
                 elif waveform_dict["type"] == "software_config_hardware_trigger":
-                    waveform = waveform_dict["waveform"] # This will always be an empty array
                     self.controlMessage.emit(halMessage.HalMessage(m_type = "software config z scan",
-                                                                   data = {"waveform" : waveform}))
+                                                                   data = {"is_locked" : waveform_dict["is_locked"]}))
      
             self.lock_mode.startFilm()
         

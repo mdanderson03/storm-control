@@ -44,6 +44,7 @@ class ZaberFineFocusBufferedFunctionality(hardwareModule.BufferedFunctionality, 
     This functionality interfaces with the fine focusing module, i.e. the focus lock. As a buffered functionality it contains a device mutex
     """
     zStagePosition = QtCore.pyqtSignal(float)
+    zScanConfigComplete = QtCore.pyqtSignal(object)
     def __init__(self, z_stage = None, **kwds):
         super().__init__(**kwds)
         self.minimum = self.getMinimum()
@@ -55,7 +56,6 @@ class ZaberFineFocusBufferedFunctionality(hardwareModule.BufferedFunctionality, 
         self.recenter()
         
     def zMoveTo(self, z_pos):
-        print("Calling zMoveTo from fine focus")
         self.z_stage.zMoveFine(z_pos)
         self.z_position = z_pos
         return z_pos
@@ -84,22 +84,7 @@ class ZaberFineFocusBufferedFunctionality(hardwareModule.BufferedFunctionality, 
     
     def haveHardwareTiming(self):
         return True
-    
-#    def setZPosition(self, z_pos):
-#        # Configure in z scan mode and save current position
-#        self.z_pos_prior_to_scan = self.getCurrentPosition()
-        
-        # Restrict requested Z positions
-#        z_pos[z_pos < self.minimum] = self.minimum
-#        z_pos[z_pos > self.maximum] = self.maximum
-                
-        #self.configureZScan(z_pos)
-        
-        # Run the z-scan configuration
-#        self.mustRun(task = self.configureZScan, 
-#                     args = [z_pos],
-#                     ret_signal = None)
-        
+            
     def isInZScanMode(self):
         return self.z_stage.is_zscan
     
@@ -107,7 +92,8 @@ class ZaberFineFocusBufferedFunctionality(hardwareModule.BufferedFunctionality, 
         #self.z_stage.startZScan()
         print("In startZScan")
         self.z_pos_prior_to_scan = self.getCurrentPosition()
-        self.mustRun(task = self.z_stage.startZScan())
+        self.mustRun(task = self.z_stage.startZScan, 
+                     ret_signal = self.zScanConfigComplete)
         print("Exciting startZScan")
     
     def configureZScan(self, z_pos):
@@ -119,7 +105,7 @@ class ZaberFineFocusBufferedFunctionality(hardwareModule.BufferedFunctionality, 
         print("Starting complete ZScan")
         # Add the complete Z scan to the must run queue
         self.mustRun(task = self.z_stage.completeZScan)
-        # Add an move to the original location to the must run queue
+        # Add a move to the original location to the must run queue
         self.mustRun(task = self.zMoveTo,
               args = [self.z_pos_prior_to_scan],
               ret_signal = self.zStagePosition)
@@ -159,6 +145,10 @@ class ZaberZController(hardwareModule.HardwareModule):
         self.fine_functionality = ZaberFineFocusBufferedFunctionality(device_mutex = self.controller_mutex, 
 																	  z_stage = self.stage,
                                                                       parameters=settings)
+        
+        # Connect the configuration complete signal
+        self.fine_functionality.zScanConfigComplete.connect(self.handleZScanConfigComplete)
+        
 
 		# Create a list of the functionalities for ease of indexing 
         self.functionalities[self.module_name + ".coarse_focus"] = self.coarse_functionality
@@ -166,7 +156,7 @@ class ZaberZController(hardwareModule.HardwareModule):
 
         # This message is sent by lockModes.lockMode to indicate that the stage should be placed in z scan mode 
         halMessage.addMessage("software config z scan",
-                      validator = {"data" : {"waveform" : [True, numpy.ndarray]},
+                      validator = {"data" : {"is_locked" : [True, bool]},
                                    "resp" : None})
         
         
@@ -200,14 +190,53 @@ class ZaberZController(hardwareModule.HardwareModule):
     def getParameters(self):
         return self.parameters
     
+    def handleResponses(self, message):
+        # Handle the response from the focus lock (called with the 'start film' message)
+        print("received a response")
+        if message.isType("focus lock status"):
+            print("Handling response from focus lock status")
+            # Confirm just one response
+            assert (len(message.getResponses()) == 1)
+            
+            # Loop over the one response and gather the name of the mode and it status
+            for response in message.getResponses():
+                lock_mode_name = response.getData()["mode_name"]
+                is_locked = response.getData()["is_locked"]
+                
+            # If the mode is the z-scan mode appropriate for this module, and it is locked, configure z scane
+            if (lock_mode_name == "Triggered Z Scan") and is_locked:
+                self.fine_functionality.startZScan()  # NOTE: This will complete the loop by calling handleZScanConfigComplete
+                print("I have successful configured the z scan")
+                self.in_z_scan_mode = True
+            else: # Tell film.Film that it can go
+                print("Focus lock is not in a z-scan mode")
+                self.sendMessage(halMessage.HalMessage(m_type = "ready to film"))
+    
     def processMessage(self, message):
         
-        if message.isType("get functionality"):
+        if message.isType("configure1"):
+            # Let film.film know that it needs to wait for us
+            # to get ready before starting the cameras.
+            self.sendMessage(halMessage.HalMessage(m_type = "wait for",
+                                                   data = {"module names" : ["film"]}))
+        elif message.isType("get functionality"):
             self.getFunctionality(message)
             
-        elif message.isType("stop film"):  # Add the current z_coarse position to the parameters that are written
+        elif message.isType("start film"):
+            # Handle the case that there is no z_scan requested
+            if self.rel_z_values is None:
+                print("Bypass z-scan and just run")
+                # Tell film.Film that this module is ready for filing to start
+                self.sendMessage(halMessage.HalMessage(m_type = "ready to film"))
+            else: 
+                print("Sending request for focus lock status")
+                # Check with the focus lock to get it status
+                self.sendMessage(halMessage.HalMessage(m_type = "focus lock status"))
+                        
+        elif message.isType("stop film"):  
+            # Add the current z_coarse position to the parameters that are written
             coarse_z_position = params.ParameterFloat(name = "coarse_z_position",
-                                                   value = self.stage.coarse_position)
+                                                      value = self.stage.coarse_position)
             in_z_scan_mode = params.ParameterSetBoolean(name = "z_scan_mode",
                                                         value = self.in_z_scan_mode)
             rel_pos = params.ParameterString(name = "relative_z_offsets", 
@@ -229,13 +258,10 @@ class ZaberZController(hardwareModule.HardwareModule):
 
         elif message.isType("new parameters"): # Handle the new parameters
             self.newParameters(message)
-            
-        elif message.isType("software config z scan"): # Handle the message from the lockMode that a zscan was requested
-            print("ZController: Received the software config z scan")    
-            if self.rel_z_values is not None:
-                self.fine_functionality.startZScan()
-                print("I have successful configured the z scan")
-                self.in_z_scan_mode = True # Record that a z scan was requested to mark this in the xml file for the movie
+                        
+    def handleZScanConfigComplete(self):
+        # Handle the completion of a ZScanConfigurationComplete signal by telling film.Film that the module is ready
+        self.sendMessage(halMessage.HalMessage(m_type = "ready to film"))
 
     def cleanUp(self, qt_settings):
         self.stage.shutDown()

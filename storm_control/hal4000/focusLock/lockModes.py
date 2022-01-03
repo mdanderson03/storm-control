@@ -1020,15 +1020,19 @@ class SoftwareConfigHardwareTrigZScanLockMode(AlwaysOnLockMode):
         self.hzs_film_off = False
         self.name = "Triggered Z Scan"
         
-    def getWaveform(self):
-        """
-        This is called before startFilm() by lockControl.LockControl. It
-        returns the waveform to use during filming as a daqModule.DaqWaveform,
-        or None if there is no waveform or one shouldn't be used.
-        """
-        if self.amLocked(): # This sends an empty signal via getWaveform....  ugly
-            return {"type": "software_config_hardware_trigger", 
-                    "waveform": numpy.array([])}
+#    def getWaveform(self):
+#        """
+#        This is called before startFilm() by lockControl.LockControl. It
+#        returns the waveform to use during filming as a daqModule.DaqWaveform,
+#        or None if there is no waveform or one shouldn't be used.
+#        """
+#        return {"type": "software_config_hardware_trigger", 
+#                "isLocked": self.amLocked()}
+
+    def amLocked(self): 
+        # Over write this method, so that the focus lock is marked as on if it is either 
+        # in the lock behavior or it was in the lock behavior prior to starting a film
+        return (self.behavior == "locked") or self.hzs_film_off
 
     def setZStageFunctionality(self, z_stage_functionality):
         if not LockMode.z_stage_functionality.haveHardwareTiming():
