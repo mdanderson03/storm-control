@@ -165,175 +165,173 @@
     </pump_cmd>
 
 	<pump_cmd name = "Full Exhaust">
-       <pump_config speed = "100.0" port_name = "Exhaust" volume = "0.0"></pump_config>
+       <pump_config speed = "70.0" port_name = "Exhaust" volume = "0.0"></pump_config>
     </pump_cmd>
 
  </pump_commands>
 
  <kilroy_protocols>
     <protocol name = "Flow Image Buffer">
-		<pump duration = "10">Full Exhaust</pump>
-		<valve duration = "3">Image Buffer</valve>
-		<pump duration = "185">1.5 mL @ 0.5mL/min</pump>
-		<valve duration = "3">Seal</valve>
-		<pump duration = "10">Full Exhaust</pump>
+		<pump duration = "2">Full Exhaust</pump>
+		<valve duration = "2">Image Buffer</valve>
+		<pump duration = "182">1.5 mL @ 0.5mL/min</pump>
+		<valve duration = "2">Seal</valve>
+		<pump duration = "2">Full Exhaust</pump>
+    </protocol>    
+    <protocol name = "Flow SSC">
+		<pump duration = "2">Full Exhaust</pump>
+		<valve duration = "2">SSC</valve>
+		<pump duration = "182">1.5 mL @ 0.5mL/min</pump>
+		<valve duration = "2">Seal</valve>
+		<pump duration = "2">Full Exhaust</pump>
+    </protocol>    
+	<protocol name = "Flow TCEP Buffer">
+		<pump duration = "2">Full Exhaust</pump>
+		<valve duration = "2">TCEP</valve>
+		<pump duration = "182">1.5 mL @ 0.5mL/min</pump>
+		<valve duration = "2">Seal</valve>
+		<pump duration = "2">Full Exhaust</pump>
     </protocol>    
 	
-    <protocol name = "Flow SSC">
-		<pump duration = "10">Full Exhaust</pump>
-        <valve duration = "3">SSC</valve>
-		<pump duration = "185">1.5 mL @ 0.5mL/min</pump>
-		<valve duration = "3">Seal</valve>
-		<pump duration = "10">Full Exhaust</pump>
-    </protocol> 
-    
-	<protocol name = "Flow TCEP Buffer">
-		<pump duration = "10">Full Exhaust</pump>
-		<valve duration = "3">TCEP</valve>
-		<pump duration = "185">1.5 mL @ 0.5mL/min</pump>
-		<valve duration = "3">Seal</valve>
-		<pump duration = "10">Full Exhaust</pump>
-    </protocol>   
-	
 	<protocol name = "Cleave">
-		<pump duration = "10">Full Exhaust</pump>
+		<pump duration = "2">Full Exhaust</pump>
 
-        <valve duration = "3">TCEP</valve>
-		<pump duration = "185">1.5 mL @ 0.5mL/min</pump>
-		<pump duration = "10">Full Exhaust</pump>
+        <valve duration = "2">TCEP</valve>
+		<pump duration = "182">1.5 mL @ 0.5mL/min</pump>
+		<pump duration = "2">Full Exhaust</pump>
 		
-		<pump duration = "290">0.25 mL @ 0.25mL/min</pump>
-		<pump duration = "10">Full Exhaust</pump>
-		<pump duration = "290">0.25 mL @ 0.25mL/min</pump>
-		<pump duration = "10">Full Exhaust</pump>
-		<pump duration = "290">0.25 mL @ 0.25mL/min</pump>
-		<pump duration = "10">Full Exhaust</pump>
+		<pump duration = "298">0.25 mL @ 0.25mL/min</pump>
+		<pump duration = "2">Full Exhaust</pump>
+		<pump duration = "298">0.25 mL @ 0.25mL/min</pump>
+		<pump duration = "2">Full Exhaust</pump>
+		<pump duration = "298">0.25 mL @ 0.25mL/min</pump>
+		<pump duration = "2">Full Exhaust</pump>
 
-        <valve duration = "5">SSC</valve>
-		<pump duration = "185">1.5 mL @ 0.5mL/min</pump>
-		<valve duration = "3">Seal</valve>
-		<pump duration = "10">Full Exhaust</pump>
+        <valve duration = "2">SSC</valve>
+		<pump duration = "182">1.5 mL @ 0.5mL/min</pump>
+		<valve duration = "2">Seal</valve>
+		<pump duration = "2">Full Exhaust</pump>
     </protocol>
 
 	<protocol name = "Prime 24">
-		<pump duration="10">Full Exhaust</pump>
-		<valve duration = "3">SSC</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">SSC</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 1</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 1</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 2</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 2</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 3</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 3</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 4</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 4</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 5</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 5</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 6</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 6</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
 		<pump duration="3">Full Exhaust</pump>
 		<valve duration = "3">Set Hyb 7</valve>
         <pump duration = "35">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 8</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 8</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 9</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 9</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 10</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 10</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 11</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 11</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 12</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 12</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 13</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 13</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 14</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 14</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 15</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 15</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 16</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 16</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 17</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 17</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 18</valve>
-		<pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 18</valve>
+		<pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 19</valve>
-		<pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 19</valve>
+		<pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 20</valve>
-		<pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 20</valve>
+		<pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 21</valve>
-		<pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 21</valve>
+		<pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 22</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 22</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 23</valve>
-		<pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 23</valve>
+		<pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Set Hyb 24</valve>
-		<pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Set Hyb 24</valve>
+		<pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">TCEP</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">TCEP</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Wash Buffer</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Wash Buffer</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">Image Buffer</valve>
-        <pump duration = "35">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">Image Buffer</valve>
+        <pump duration = "32">1 mL @ 2mL/min</pump>
 		
-		<pump duration="3">Full Exhaust</pump>
-		<valve duration = "3">SSC</valve>
-		<pump duration = "35">1 mL @ 2mL/min</pump>
-		<pump duration="3">Full Exhaust</pump>
+		<pump duration="2">Full Exhaust</pump>
+		<valve duration = "2">SSC</valve>
+		<pump duration = "32">1 mL @ 2mL/min</pump>
+		<pump duration="2">Full Exhaust</pump>
 
-		<valve duration = "3">Seal</valve>
+		<valve duration = "2">Seal</valve>
      </protocol>
 		 
 	<protocol name = "Hybridize 1">

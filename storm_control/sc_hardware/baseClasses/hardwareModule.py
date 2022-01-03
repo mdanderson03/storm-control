@@ -167,11 +167,7 @@ class BufferedFunctionality(HardwareFunctionality):
         self.jobStarted.emit()
         self.busy = True
         self.device_mutex.lock()
-        if task is not None:
-            retv = task(*args)
-        else:
-            print("I should never get a None task, but I got one from " + str(type(self)))
-            retv = None
+        retv = task(*args)
         self.device_mutex.unlock()
         self.busy = False
         self.jobDone.emit()
