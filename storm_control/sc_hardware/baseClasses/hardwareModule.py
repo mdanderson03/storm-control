@@ -124,7 +124,6 @@ class BufferedFunctionality(HardwareFunctionality):
 
         # Start the next 'maybe' request, if there was one.
         if self.next_request is not None:
-            print("I am starting a next_request")
             self.start(*self.next_request)
             self.next_request = None
         
