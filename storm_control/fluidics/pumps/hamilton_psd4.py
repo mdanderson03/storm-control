@@ -52,6 +52,13 @@ class APump():
         # Configure pump
         self.configurePump()
         self.identification = "PSD4"
+        
+        # Report configuration
+        print("--------------------------------")
+        print("Configured PSD4 Syringe Pump")
+        print("   Syringe Volume: " + str(self.syringe_volume) + " mL")
+        print("   High Res Mode: " + str(self.high_res_mode) + " mL")
+        print("   Minimum Speed: " + str(1 * self.syringe_volume/100) + " mL/min")
 
     def initializePump(self):
         message = "/1ZR\r"

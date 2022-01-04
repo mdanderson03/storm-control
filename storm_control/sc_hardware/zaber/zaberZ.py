@@ -69,9 +69,6 @@ class ZaberZRS232(RS232.RS232):
     
 	# Command a coarse position change AND update the coarse position
     def zMoveCoarse(self, z_in_um):
-        print("Starting zMoveCoarse")
-        
-        
         if self.is_zscan:
             print("Ignoring move requests while in z scan mode")
             return
@@ -91,13 +88,9 @@ class ZaberZRS232(RS232.RS232):
             self.coarse_position = z_in_um - self.fine_position
         else:
             print("Zaber Z Stage Warning: Coarse movement request not successful")
-        print("...ending zMoveCoarse")
-
-    
     
 	# Command a fine position change
     def zMoveFine(self, z_in_um):
-        print("Starting zMoveFine")
 
         if self.is_zscan:
             print("Ignoring move requests while in z scan mode")
@@ -119,7 +112,6 @@ class ZaberZRS232(RS232.RS232):
         else:
             print("Zaber Z Stage Warning: Fine movement request not successful")
             	
-        print("...ending zMoveFine")
 
             
 	# Return the absolute position
@@ -235,7 +227,6 @@ class ZaberZRS232(RS232.RS232):
         print("...required " + str(end_time - start_time))
         print(z_in_units)
         print(z_pos_in_um)
-        print("...ending configureZScan")
         
     def startZScan(self):
         print("Starting startZScan")
@@ -245,17 +236,13 @@ class ZaberZRS232(RS232.RS232):
         
         # For troubleshooting purposes, reset the stream
         response = self.commWithResp("/stream 1 setup disable")
-        print("Disabled z scan")
-        print("My response is now: " + str(response))
         response_parts = response.split(" ")
         if not (response_parts[2] == "OK") or len(response_parts) < 2:
             print("STAGE ERROR: " + response)
             return "ERROR"  
         
         # Configure the live mode
-        print("Enabling z scan")
         response = self.commWithResp("/stream 1 setup live 1")
-        print("Got response from stream setup: " + response)
         response_parts = response.split(" ")
         if not (response_parts[2] == "OK") or len(response_parts) < 2:
             print("STAGE ERROR: " + response)
