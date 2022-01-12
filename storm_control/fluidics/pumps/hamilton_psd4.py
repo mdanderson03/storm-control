@@ -57,8 +57,8 @@ class APump():
         print("--------------------------------")
         print("Configured PSD4 Syringe Pump")
         print("   Syringe Volume: " + str(self.syringe_volume) + " mL")
-        print("   High Res Mode: " + str(self.high_res_mode) + " mL")
-        print("   Minimum Speed: " + str(1 * self.syringe_volume/100) + " mL/min")
+        print("   High Res Mode: " + str(self.high_res_mode))
+        print("   Minimum Speed: " + str(self.min_velocity_in_steps_s * self.syringe_volume/100) + " mL/min")
 
     def initializePump(self):
         message = "/1ZR\r"

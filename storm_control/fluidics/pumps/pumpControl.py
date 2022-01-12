@@ -400,6 +400,9 @@ class SyringePumpControl(GenericPumpControl):
         self.menu_names = ["Pump"]
         self.menu_items = [[self.pump_reset_menu_item]]
 
+        # Create a dialog box for bringing errors to the users attention
+        self.warning_dialog = None
+
 
     # ----------------------------------------------------------------------------------------
     # Display Status
@@ -451,6 +454,9 @@ class SyringePumpControl(GenericPumpControl):
         fill_value = float(self.fill_control_entry_box.displayText())
         self.pump.startFill(fill_value)
         
+    # ----------------------------------------------------------------------------------------
+    # Handle Speed Change Request
+    # ----------------------------------------------------------------------------------------
     def handleUpdateSpeed(self):
         speed_value = float(self.speed_control_entry_box.displayText())
         self.pump.setSpeed(speed_value)
@@ -479,7 +485,21 @@ class SyringePumpControl(GenericPumpControl):
             self.updateStatus(status)
             elapsed_time = elapsed_time + 0.5
             if elapsed_time >= time_out:
-                print("Pump command timeout....")
+                # Warn the user!!
+                warning_message = "Pump command timeout...." + '\n'
+                warning_message += "...in executing " + str(command) + '\n'
+                warning_message += "...pump was stopped mid-action to protect sample"+ '\n'
+                warning_message += "...WARNING: An incorrect volume may have been pulled"
+
+                print(warning_message)
+                self.warning_dialog = QtWidgets.QMessageBox()
+                self.warning_dialog.setIcon(QtWidgets.QMessageBox.Warning)
+                self.warning_dialog.setText(warning_message)
+                self.warning_dialog.setWindowTitle("PSD4 Error!")
+                self.warning_dialog.show()
+                
+                # Issue a hard stop to protect sample
+                self.handleStopFill()
                 break
 
         # Set the port
