@@ -219,8 +219,6 @@ class Positions(QtWidgets.QListView):
         
         # Determine the action and apply
         which_key = event.key()
-        print(event)
-        print(event.modifiers())
         # Delete current item.
         if (which_key == QtCore.Qt.Key_Backspace) or (which_key == QtCore.Qt.Key_Delete):
             for ind in range(len(valid_indexes)):
