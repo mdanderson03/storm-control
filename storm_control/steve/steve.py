@@ -272,9 +272,12 @@ class Window(QtWidgets.QMainWindow):
             self.sections.handleAddSection(None)
 
         # Delete current positions
-        elif (event.key() == QtCore.Qt.Key_Delete):
-            self.positions.handleDeletePositions()
+       # elif (event.key() == QtCore.Qt.Key_Delete):
+       #     self.positions.handleDeletePositions()
+       # If the key can be handled by positions than pass back to positions
+        self.positions.keyPressEvent(event)
 
+    @hdebug.debug
     def handleMosaicViewSelectionChange(self, selected_items):
         self.positions.toggleSelectionForSelectedGraphicsItems(selected_items)
 

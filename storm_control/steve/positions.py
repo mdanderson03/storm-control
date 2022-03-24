@@ -7,6 +7,7 @@ This is displayed in the mosaic tab, but is technically an
 independent SteveModule() like object.
 
 Hazen 10/18
+Jeff 3/22
 """
 
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -97,7 +98,7 @@ class Positions(QtWidgets.QListView):
 
         self.item_store = item_store
         self.mosaic_event_coord = None
-        self.step_size = parameters.get("step_size")
+        self.step_size = 10*parameters.get("step_size")
         self.title_bar = None
 
         PositionItem.deselected_pen.setWidth(parameters.get("pen_width"))
@@ -218,26 +219,29 @@ class Positions(QtWidgets.QListView):
         
         # Determine the action and apply
         which_key = event.key()
-
+        print(event)
+        print(event.modifiers())
         # Delete current item.
         if (which_key == QtCore.Qt.Key_Backspace) or (which_key == QtCore.Qt.Key_Delete):
             for ind in range(len(valid_indexes)):
                 self.position_list_model.removeRow(valid_indexes[ind].row())
                 self.item_store.removeItem(current_items[ind].position_item.getItemID())
             self.updateTitle()
-        ##FIXME THIS IS NOT WORKING        
-        elif (which_key == QtCore.Qt.Key_W):
+
+        elif which_key in [QtCore.Qt.Key_8, QtCore.Qt.Key_2, QtCore.Qt.Key_4, QtCore.Qt.Key_6]:
+            if event.modifiers() & QtCore.Qt.ControlModifier:
+                scale_modifier = 10
+            else:
+                scale_modifier = 1
             for current_item in current_items:
-                current_item.movePosition(0.0, -self.step_size)
-        elif (which_key == QtCore.Qt.Key_S):
-            for current_item in current_items:
-                current_item.movePosition(0.0, self.step_size)
-        elif (which_key == QtCore.Qt.Key_A):
-            for current_item in current_items:
-                current_item.movePosition(-self.step_size, 0.0)
-        elif (which_key == QtCore.Qt.Key_D):
-            for current_item in current_items:
-                current_item.movePosition(self.step_size, 0.0)
+                if (which_key == QtCore.Qt.Key_8):
+                    current_item.movePosition(0.0, -self.step_size*scale_modifier)
+                elif (which_key == QtCore.Qt.Key_2):
+                    current_item.movePosition(0.0, self.step_size*scale_modifier)
+                elif (which_key == QtCore.Qt.Key_4):
+                    current_item.movePosition(-self.step_size*scale_modifier, 0.0)
+                elif (which_key == QtCore.Qt.Key_6):
+                    current_item.movePosition(self.step_size*scale_modifier, 0.0)
         else:
             super().keyPressEvent(event)
 
