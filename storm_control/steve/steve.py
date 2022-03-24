@@ -83,6 +83,7 @@ class Window(QtWidgets.QMainWindow):
         self.mosaic.mosaic_view.mosaicViewContextMenuEvent.connect(self.handleMosaicViewContextMenuEvent)
         self.mosaic.mosaic_view.mosaicViewDropEvent.connect(self.handleMosaicViewDropEvent)
         self.mosaic.mosaic_view.mosaicViewKeyPressEvent.connect(self.handleMosaicViewKeyPressEvent)
+        self.mosaic.mosaic_view.mosaicViewSelectionChange.connect(self.handleMosaicViewSelectionChange)
 
         # The objectives group box keeps track of the data for each objective. To
         # do this it needs HAL comm access. It also needs the item store so that
@@ -249,9 +250,9 @@ class Window(QtWidgets.QMainWindow):
             elt.setMosaicEventCoord(a_coord)
             
         # Picture taking
-        if (event.key() == QtCore.Qt.Key_Space):
-            self.mosaic.handleTakeMovie(None)
-        elif (event.key() == QtCore.Qt.Key_3):
+        #if (event.key() == QtCore.Qt.Key_Space):
+            #self.setCursor(QtCore.Qt.OpenHandCursor)
+        if (event.key() == QtCore.Qt.Key_3):
             self.mosaic.handleTakeSpiral(3)
         elif (event.key() == QtCore.Qt.Key_5):
             self.mosaic.handleTakeSpiral(5)
@@ -269,7 +270,14 @@ class Window(QtWidgets.QMainWindow):
         # Create section
         elif (event.key() == QtCore.Qt.Key_S):
             self.sections.handleAddSection(None)
-            
+
+        # Delete current positions
+        elif (event.key() == QtCore.Qt.Key_Delete):
+            self.positions.handleDeletePositions()
+
+    def handleMosaicViewSelectionChange(self, selected_items):
+        self.positions.toggleSelectionForSelectedGraphicsItems(selected_items)
+
     @hdebug.debug
     def handleQuit(self, boolean):
         self.close()

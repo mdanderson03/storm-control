@@ -40,6 +40,9 @@ class PositionItem(steveItems.SteveItem):
         self.graphics_item.setZValue(1000.0)
         self.setLocation(a_point)
 
+    def getGraphicsItem(self):
+        return self.graphics_item
+
     def getText(self):
         """
         The current position of the object in microns as a text string.
@@ -112,10 +115,7 @@ class Positions(QtWidgets.QListView):
         # Set mosaic file loader. This handles loading PositionItems from a mosaic file.
         self.item_store.addLoader(PositionItem.data_type, PositionItemLoader())
 
-
-
     def addPosition(self, pos):
-
         # Add to our item store.
         position_item = PositionItem(pos)
         self.item_store.addItem(position_item)
@@ -125,6 +125,51 @@ class Positions(QtWidgets.QListView):
         self.position_list_model.appendRow(positions_standard_item)
 
         self.updateTitle()
+
+    def handleDeletePositions(self):
+        # Loop over all selected indexes and create a list of current items
+        selected_indexes = reversed(sorted(self.selectedIndexes())) # Note that the order is important
+        current_items = []
+        valid_indexes = []
+        for index in selected_indexes:
+            current_item = self.position_list_model.itemFromIndex(index)
+            if isinstance(current_item, PositionsStandardItem):
+                current_items.append(current_item)
+                valid_indexes.append(index)
+        
+        for ind in range(len(valid_indexes)):
+            self.position_list_model.removeRow(valid_indexes[ind].row())
+            self.item_store.removeItem(current_items[ind].position_item.getItemID())
+        self.updateTitle()
+
+    def toggleSelectionForSelectedGraphicsItems(self, selected_graphics_items):
+
+        # Compile list of all graphics items
+        graphics_item_list = []
+        for graphics_item in selected_graphics_items:
+            if isinstance(graphics_item, QtWidgets.QGraphicsRectItem):
+                graphics_item_list.append(graphics_item)
+        
+        # Now iterate over all positions
+        selected_items = QtCore.QItemSelection()
+        deselected_items = QtCore.QItemSelection()
+        for index in range(self.position_list_model.rowCount()):
+            local_position_item = self.position_list_model.item(index).getPositionItem()
+            if local_position_item.getGraphicsItem() in graphics_item_list:
+                selected_items.merge(QtCore.QItemSelection(self.position_list_model.indexFromItem(self.position_list_model.item(index)),
+                                    self.position_list_model.indexFromItem(self.position_list_model.item(index))),
+                                    QtCore.QItemSelectionModel.Select)
+                #local_position_item.setSelected(True)
+                #self.setSelected(index)
+            else:
+                deselected_items.merge(QtCore.QItemSelection(self.position_list_model.indexFromItem(self.position_list_model.item(index)),
+                                    self.position_list_model.indexFromItem(self.position_list_model.item(index))),
+                                    QtCore.QItemSelectionModel.Select)
+                #local_position_item.setSelected(False)
+        
+        # Update the selection
+        self.clearSelection()
+        self.selectionModel().select(selected_items, QtCore.QItemSelectionModel.Select)
 
     def selectionChanged(self, selected, deselected):
         """
@@ -141,7 +186,9 @@ class Positions(QtWidgets.QListView):
             current_item = self.position_list_model.itemFromIndex(index)
             if isinstance(current_item, PositionsStandardItem):
                 current_item.setSelected(True)
-
+        
+        # Update the viewport
+        self.viewport().update()
 
     def currentTabChanged(self, tab_index):
 
@@ -159,7 +206,6 @@ class Positions(QtWidgets.QListView):
         self.addPosition(self.mosaic_event_coord)
             
     def keyPressEvent(self, event):
-
         # Loop over all selected indexes and create a list of current items
         selected_indexes = reversed(sorted(self.selectedIndexes())) # Note that the order is important
         current_items = []

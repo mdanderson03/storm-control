@@ -212,6 +212,7 @@ class Mosaic(steveModule.SteveModule):
         
         self.ui.mosaicLabel.setText("{0:.2f}, {1:.2f}".format(offset_point.x_um, offset_point.y_um))
 
+
     def handlePositionMessage(self, tcp_message, tcp_message_response):
         stage_x = float(tcp_message_response.getResponse("stage_x"))
         self.ui.xStartPosSpinBox.setValue(stage_x)
