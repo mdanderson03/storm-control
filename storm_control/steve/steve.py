@@ -84,6 +84,7 @@ class Window(QtWidgets.QMainWindow):
         self.mosaic.mosaic_view.mosaicViewDropEvent.connect(self.handleMosaicViewDropEvent)
         self.mosaic.mosaic_view.mosaicViewKeyPressEvent.connect(self.handleMosaicViewKeyPressEvent)
         self.mosaic.mosaic_view.mosaicViewSelectionChange.connect(self.handleMosaicViewSelectionChange)
+        self.mosaic.mosaicRequestPositions.connect(self.handleMosaicPositionRequest)
 
         # The objectives group box keeps track of the data for each objective. To
         # do this it needs HAL comm access. It also needs the item store so that
@@ -219,6 +220,14 @@ class Window(QtWidgets.QMainWindow):
             self.positions.loadPositions(positions_filename)
 
     @hdebug.debug
+    def handleMosaicPositionRequest(self, position_dict):
+        positions = imageCapture.createGrid(position_dict['x_grid'], position_dict['y_grid'], include_center=True)
+        for pos in positions:
+            x = position_dict['grid_spacing']*pos[0] + position_dict['x_center']
+            y = position_dict['grid_spacing']*pos[1] + position_dict['y_center']
+            self.positions.addPosition(coord.Point(float(x), float(y), "um"))
+
+    @hdebug.debug
     def handleMosaicViewContextMenuEvent(self, event, a_coord):
         for elt in self.modules:
             elt.setMosaicEventCoord(a_coord)
@@ -268,6 +277,11 @@ class Window(QtWidgets.QMainWindow):
         # Create section
         elif (event.key() == QtCore.Qt.Key_S):
             self.sections.handleAddSection(None)
+
+        # Record center for new positions grid
+        elif (event.key() == QtCore.Qt.Key_N):
+            self.mosaic.ui.posCenterSpinX.setValue(a_coord.x_um)
+            self.mosaic.ui.posCenterSpinY.setValue(a_coord.y_um)
 
         # Pass commands back to positions (to coordinate move/delete of selected positions)
         self.positions.keyPressEvent(event)

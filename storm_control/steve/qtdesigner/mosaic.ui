@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1093</width>
+    <width>902</width>
     <height>846</height>
    </rect>
   </property>
@@ -121,7 +121,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QDoubleSpinBox" name="positions_x_center">
+                <widget class="QDoubleSpinBox" name="posCenterSpinX">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -151,7 +151,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QDoubleSpinBox" name="positions_y_center">
+                <widget class="QDoubleSpinBox" name="posCenterSpinY">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -201,7 +201,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QSpinBox" name="positions_x_grid">
+                <widget class="QSpinBox" name="posGridSpinX">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -231,7 +231,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QSpinBox" name="positions_y_grid">
+                <widget class="QSpinBox" name="posGridSpinY">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -255,6 +255,19 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_11">
            <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
             <widget class="QLabel" name="label">
              <property name="text">
               <string>Spacing</string>
@@ -262,7 +275,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QDoubleSpinBox" name="position_grid_spacing">
+            <widget class="QDoubleSpinBox" name="positionGridSpacing">
              <property name="maximum">
               <double>2000.000000000000000</double>
              </property>
@@ -276,7 +289,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_24">
            <item>
-            <widget class="QPushButton" name="get_stage_pos_generate_pos_button">
+            <widget class="QPushButton" name="getStagePosPosButton">
              <property name="maximumSize">
               <size>
                <width>150</width>
@@ -302,7 +315,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QPushButton" name="generate_positions_button">
+            <widget class="QPushButton" name="genPosButton">
              <property name="maximumSize">
               <size>
                <width>150</width>
