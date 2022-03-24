@@ -111,7 +111,7 @@ class Positions(QtWidgets.QListView):
         self.position_list_model = QtGui.QStandardItemModel()
         self.setModel(self.position_list_model)
 
-        self.setToolTip("Use 'a','w','s','d' to move selected position, 'backspace' to delete.")
+        self.setToolTip("Use '4','8','2','6' to move selected position, 'delete' to delete.")
 
         # Set mosaic file loader. This handles loading PositionItems from a mosaic file.
         self.item_store.addLoader(PositionItem.data_type, PositionItemLoader())

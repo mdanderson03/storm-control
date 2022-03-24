@@ -250,8 +250,6 @@ class Window(QtWidgets.QMainWindow):
             elt.setMosaicEventCoord(a_coord)
             
         # Picture taking
-        #if (event.key() == QtCore.Qt.Key_Space):
-            #self.setCursor(QtCore.Qt.OpenHandCursor)
         if (event.key() == QtCore.Qt.Key_3):
             self.mosaic.handleTakeSpiral(3)
         elif (event.key() == QtCore.Qt.Key_5):
@@ -271,10 +269,7 @@ class Window(QtWidgets.QMainWindow):
         elif (event.key() == QtCore.Qt.Key_S):
             self.sections.handleAddSection(None)
 
-        # Delete current positions
-       # elif (event.key() == QtCore.Qt.Key_Delete):
-       #     self.positions.handleDeletePositions()
-       # If the key can be handled by positions than pass back to positions
+        # Pass commands back to positions (to coordinate move/delete of selected positions)
         self.positions.keyPressEvent(event)
 
     @hdebug.debug
