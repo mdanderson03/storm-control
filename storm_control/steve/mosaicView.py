@@ -86,7 +86,7 @@ class MosaicView(QtWidgets.QGraphicsView):
         self.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
         self.setInteractive(True)
         self.setRubberBandSelectionMode(QtCore.Qt.IntersectsItemShape)
-        self.setToolTip("Hot keys are 'space','3','5','7','9','g','p','s','h','y'")
+        self.setToolTip("Hot keys are 'space','3','5','7','9','g','p','s','h','y','n'")
 
         self.cursor_mode = 'Pointer' # The cursor mode controls how the mouse modifies the view. Possible values are Pointer, Drag, Select
 
@@ -143,6 +143,7 @@ class MosaicView(QtWidgets.QGraphicsView):
         's' Add the current cursor position to the list of sections.
         'h' Toggle drag mode
         'y' Toggle select mode
+        'n' Add current position to the center position for position generation
         """        
         event_pos = self.mapFromGlobal(QtGui.QCursor.pos())
         pointf = self.mapToScene(event_pos)

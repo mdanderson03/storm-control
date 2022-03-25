@@ -74,6 +74,8 @@ class Mosaic(steveModule.SteveModule):
         self.ui.ySpinBox.valueChanged.connect(self.handleXYSpinBox)
         self.ui.genPosButton.clicked.connect(self.handleGenPosButton)
         self.ui.getStagePosPosButton.clicked.connect(self.handleGetStagePosForPosButton)
+        self.ui.posGridSpinX.valueChanged.connect(self.handleXYGridSpinBox)
+        self.ui.posGridSpinY.valueChanged.connect(self.handleXYGridSpinBox)
 
         # Connect view signals.
         self.mosaic_view.extrapolateTakeMovie.connect(self.handleExtrapolateTakeMovie)
@@ -351,6 +353,15 @@ class Mosaic(steveModule.SteveModule):
     def handleXYSpinBox(self, ignored):
         self.image_capture.setGridSize([self.ui.xSpinBox.value(),
                                         self.ui.ySpinBox.value()])
+
+
+    def handleXYGridSpinBox(self, ignored):
+        x = self.ui.posGridSpinX.value()
+        if (x%2==0):
+            self.ui.posGridSpinX.setValue(x-1)
+        y = self.ui.posGridSpinY.value()
+        if (y%2==0):
+            self.ui.posGridSpinY.setValue(y-1)
 
     @hdebug.debug        
     def initializePopupMenu(self, menu_list):

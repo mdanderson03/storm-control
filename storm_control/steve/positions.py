@@ -98,7 +98,7 @@ class Positions(QtWidgets.QListView):
 
         self.item_store = item_store
         self.mosaic_event_coord = None
-        self.step_size = 10*parameters.get("step_size")
+        self.step_size = parameters.get("step_size")
         self.title_bar = None
 
         PositionItem.deselected_pen.setWidth(parameters.get("pen_width"))
