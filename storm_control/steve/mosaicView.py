@@ -185,8 +185,10 @@ class MosaicView(QtWidgets.QGraphicsView):
         otherwise the popup menu is displayed.
         """
         if event.button() == QtCore.Qt.LeftButton:                
-            #self.centerOn(self.mapToScene(event.pos()))
-            self.drag_start_pos = self.mapToScene(event.pos())
+            if self.cursor_mode == 'Pointer':
+                self.centerOn(self.mapToScene(event.pos()))
+            elif self.cursor_mode == 'Drag':
+                self.drag_start_pos = self.mapToScene(event.pos())
         elif event.button() == QtCore.Qt.RightButton:
             pointf = self.mapToScene(event.pos())
             a_coord = coord.Point(pointf.x(), pointf.y(), "pix")
