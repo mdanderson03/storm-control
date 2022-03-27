@@ -259,7 +259,9 @@ class Window(QtWidgets.QMainWindow):
             elt.setMosaicEventCoord(a_coord)
             
         # Picture taking
-        if (event.key() == QtCore.Qt.Key_3):
+        if (event.key() == QtCore.Qt.Key_Space):
+            self.mosaic.handleTakeMovie(None)
+        elif (event.key() == QtCore.Qt.Key_3):
             self.mosaic.handleTakeSpiral(3)
         elif (event.key() == QtCore.Qt.Key_5):
             self.mosaic.handleTakeSpiral(5)
