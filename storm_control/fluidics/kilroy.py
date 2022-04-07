@@ -87,6 +87,8 @@ class Kilroy(QtWidgets.QMainWindow):
 
         # Create GUI
         self.createGUI()
+        
+        # Update protocols
 
     # ----------------------------------------------------------------------------------------
     # Close
