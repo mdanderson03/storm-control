@@ -172,7 +172,9 @@ class PeristalticPumpControl(GenericPumpControl):
         self.mainWidgetLayout.addWidget(self.start_flow_button)
         self.mainWidgetLayout.addWidget(self.stop_flow_button)
         self.mainWidgetLayout.addStretch(1)
-
+        
+        self.menu_names = None
+        self.menu_items = None
     # ----------------------------------------------------------------------------------------
     # Display Status
     # ----------------------------------------------------------------------------------------
