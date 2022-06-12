@@ -2,7 +2,7 @@
 <config>
 
   <!-- The starting directory. -->
-  <directory type="directory">D:/Data/</directory>
+  <directory type="directory">C:/Data/</directory>
   
   <!-- The setup name -->
   <setup_name type="string">moffitt_merfish5</setup_name>
@@ -113,7 +113,7 @@
 		<module_name type="string">storm_control.hal4000.camera.pointgreyCameraControl</module_name>
 		<parameters>
 			<!-- Which camera to use -->
-			<camera_id type="string">19364947</camera_id>
+			<camera_id type="string">20232532</camera_id>
 			<!--<camera_id type="string">20232532</camera_id>-->
 
 			<!-- Preset values - camera specific values that are fixed -->
