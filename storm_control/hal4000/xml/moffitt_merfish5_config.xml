@@ -220,31 +220,31 @@
 				 message and "name" = "daq.xxx.yyy". -->
 			<ilm750>
 			  <do_task>
-				<source type="string">/Dev1/port0/line0</source>
+				<source type="string">/Dev1/port0/line1</source>
 			  </do_task>
 			</ilm750>
 
 			<ilm635>
 			  <do_task>
-				<source type="string">/Dev1/port0/line1</source>
+				<source type="string">/Dev1/port0/line2</source>
 			  </do_task>
 			</ilm635>
 
 			<ilm545>
 			  <do_task>
-				<source type="string">/Dev1/port0/line2</source>
+				<source type="string">/Dev1/port0/line3</source>
 			  </do_task>
 			</ilm545>
 
 			<ilm473>
 			  <do_task>
-				<source type="string">/Dev1/port0/line3</source>
+				<source type="string">/Dev1/port0/line5</source>
 			  </do_task>
 			</ilm473>
 
 			<ilm405>
 			  <do_task>
-				<source type="string">/Dev1/port0/line4</source>
+				<source type="string">/Dev1/port0/line6</source>
 			  </do_task>
 			</ilm405>
 
@@ -265,7 +265,7 @@
 		<class_name type="string">ZaberZController</class_name>
 		<configuration>
 			<baudrate type="int">115200</baudrate>
-			<port type="string">COM4</port>
+			<port type="string">COM3</port>
 			<debug type="boolean">False</debug>
 
 			<stage_id type="int">1</stage_id>
@@ -396,7 +396,7 @@
       <configuration>
 		<!-- communication parameters -->
 		<baudrate type="int">115200</baudrate>
-		<port type="string">COM5</port>
+		<port type="string">COM4</port>
 		
 		<!-- stage parameters -->
 		<stage_id type="int">2</stage_id>
@@ -475,7 +475,7 @@
       <class_name type="string">ZaberXFCR06CModule</class_name>
       <configuration>
 		<baudrate type="int">115200</baudrate>
-		<port type="string">COM3</port>
+		<port type="string">COM5</port>
 		<cube_names type="string">1:Celesta-DA/FI/TR/CY5/CY7-A,2:lumencore-440/510/590/691/823,3:50:50,4:empty,5:empty,6:empty</cube_names>
       </configuration>
     </dichroic_turret>
