@@ -100,9 +100,6 @@
     </timing>
  
     <!-- Camera control. -->
-    <!--
-	Note that the cameras must have the names "camera1", "camera2", etc..
-    -->
 
 	<camera1>
       <class_name type="string">Camera</class_name>
@@ -138,16 +135,6 @@
 			<flip_vertical type="boolean">False</flip_vertical>
 			<transpose type="boolean">True</transpose>
 			
-			<!--
-					  What value to use for Trigger Activation, 'RisingEdge' or
-					  'FallingEdge'. 'FallingEdge' is the default if not specified.
-				  -->
-		    <!--<trigger_activation type="string">RisingEdge</trigger_activation>
-		    <trigger_source type="string">Line0</trigger_source>
-			-->
-
-			<!-- These can be changed / editted. -->
-
 			<!-- This is the extension to use (if any) when saving data from this camera. -->
 			<extension type="string">c1</extension>
 	  
@@ -157,46 +144,6 @@
 		</parameters>
       </camera>
     </camera1>
-
-	<!--
-	<camera2>
-      <class_name type="string">Camera</class_name>
-      <module_name type="string">storm_control.hal4000.camera.camera</module_name>
-      <camera>
-		<master type="boolean">True</master>
-		<class_name type="string">PointGreyCameraControl</class_name>
-		<module_name type="string">storm_control.hal4000.camera.pointgreyCameraControl</module_name>
-		<parameters>
-			<camera_id type="string">21347367</camera_id>
-	  
-			<presets>
-				<PixelFormat type="string">Mono16</PixelFormat> 
-				<ExposureAuto type="string">Off</ExposureAuto>
-				<GainAuto type="string">Off</GainAuto>
-				<BlackLevelClampingEnable type="boolean">False</BlackLevelClampingEnable>
-		
-				<AcquisitionFrameRateEnable type="boolean">True</AcquisitionFrameRateEnable>
-
-				<CameraControlExposure type="boolean">False</CameraControlExposure>
-			</presets>
-	  
-			<default_max type="int">200</default_max> 
-			<default_min type="int">30</default_min>
-			<flip_horizontal type="boolean">False</flip_horizontal>
-			<flip_vertical type="boolean">False</flip_vertical>
-			<transpose type="boolean">True</transpose>
-			
-		    <trigger_activation type="string">RisingEdge</trigger_activation>
-		    <trigger_source type="string">Line3</trigger_source>
-			
-			<extension type="string">c2</extension>
-	  
-			<saved type="boolean">True</saved>
-
-		</parameters>
-      </camera>
-    </camera2>
-	-->
 
     <!-- DAQ control -->
     <daq>
@@ -310,7 +257,7 @@
       <configuration>
 		<ir_laser type="string">ldc_irlaser</ir_laser>
 		<ir_power type="int">10</ir_power>
-		<lock_modes type="string">NoLockMode,AlwaysOnLockMode,SoftwareConfigHardwareTrigZScanLockMode</lock_modes>
+		<lock_modes type="string">NoLockMode,AlwaysOnLockMode</lock_modes>
 		<qpd type="string">blackfly_autofocus</qpd>
 		<z_stage type="string">zaber_z.fine_focus</z_stage>
 		<parameters>
