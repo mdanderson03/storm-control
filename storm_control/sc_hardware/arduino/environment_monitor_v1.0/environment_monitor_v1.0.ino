@@ -115,7 +115,7 @@ void loop() {
       // Update display
       tempToDisplay = String(temp.temperature,1);
       display.print(tempToDisplay);
-      display.println(" C");
+      display.println("C");
       humidityToDisplay = String(humidity.relative_humidity,0);
       display.print(humidityToDisplay);
       display.println("%");
