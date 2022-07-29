@@ -33,7 +33,7 @@ class PointGreyCameraControl(cameraControl.HWCameraControl):
         spinnaker.pySpinInitialize(verbose = False)
 
         # Get the camera & set some defaults.
-        self.camera = spinnaker.getCamera(config.get("camera_id"))
+        self.camera = spinnaker.getCamera(config.get("camera_id"), is_color = config.get("is_color", False))   #### SHOULD THIS ALSO PACK BIT PACKING???
           
         # Set FLIR-specific camera properties to control relationship between
         # exposure time and frame rate: This dictionary will allow extension in the future if needed

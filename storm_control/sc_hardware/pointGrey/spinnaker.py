@@ -53,7 +53,7 @@ class SpinnakerExceptionValue(SpinnakerException):
 # Functions.
 #
 
-def getCamera(cam_id):
+def getCamera(cam_id, is_color = False):
     """
     Gets the camera specified by cam_id. This can be either an integer index
     into the list of cameras, or the camera serial number as a string.
@@ -65,7 +65,7 @@ def getCamera(cam_id):
     
     if isinstance(cam_id, int):
         n_active_cameras += 1
-        return SpinCamera(h_camera = camera_list[cam_id])
+        return SpinCamera(h_camera = camera_list[cam_id], is_color = is_color)
     elif isinstance(cam_id, str):
         for cam in camera_list:
             nodemap_tldevice = cam.GetTLDeviceNodeMap()
@@ -79,7 +79,7 @@ def getCamera(cam_id):
 
             if (device_serial_number == cam_id):
                 n_active_cameras += 1
-                return SpinCamera(h_camera = cam)
+                return SpinCamera(h_camera = cam, is_color = is_color)
         raise SpinnakerException("Cannot find camera with serial number " + cam_id)
 
     else:
@@ -182,13 +182,14 @@ class SpinCamera(object):
 
     2. It works with the node names, not their display names.
     """
-    def __init__(self, h_camera = None, **kwds):
+    def __init__(self, h_camera = None, is_color = False, **kwds):
         super().__init__(**kwds)
 
         self.frames = []
         self.frame_size = None
         self.h_camera = h_camera
         self.image_event_handler = None
+        self.is_color = False 
 
         # Initialize camera.
         self.h_camera.Init()
@@ -197,13 +198,13 @@ class SpinCamera(object):
         self.nodemap_applayer = self.h_camera.GetNodeMap()
 
         # Register for image events.
-        self.image_event_handler = SpinImageEventHandler(frame_buffer = self.frames)
+        self.image_event_handler = SpinImageEventHandler(frame_buffer = self.frames, is_color = self.is_color)   ### SHOULD THIS ALSO INCLUDE BIT PACKING TO ALLOW MORE NUIANCED CONTROL OVER BIT INFO
         if pyspin_version >=2:
             self.h_camera.RegisterEventHandler(self.image_event_handler)
         else:
             self.h_camera.RegisterEvent(self.image_event_handler)
                 
-        # Cached properties, these are called 'nodes' in Spinakker.
+        # Cached properties, these are called 'nodes' in Spinnaker.
         self.properties = {}
 
     def getFrames(self):
@@ -333,7 +334,7 @@ class SpinImageEventHandler(SpinImageEventClass):
     This handles a new image from the camera. It converts it to a SCamData
     object and adds the object to the cameras list of frames.
     """
-    def __init__(self, frame_buffer = None, **kwds):
+    def __init__(self, frame_buffer = None, is_color = False, **kwds):
         super().__init__(**kwds)
 
         self.acquiring = False
@@ -359,7 +360,13 @@ class SpinImageEventHandler(SpinImageEventClass):
         #
         # Values are in Spinnaker/include/SpinnakerDefs.h
         #
-        image_converted = image.Convert(PySpin.PixelFormat_Mono16, PySpin.NO_COLOR_PROCESSING)
+        #
+        
+        image_converted = image.Convert(PySpin.PixelFormat_BayerRG16, PySpin.NO_COLOR_PROCESSING)
+
+        # image_converted = image.Convert(PySpin.PixelFormat_Mono16, PySpin.NO_COLOR_PROCESSING)
+        print(image_converted)
+        print(image)
 
         # Release original image from camera.
         image.Release()
@@ -380,7 +387,10 @@ class SpinImageEventHandler(SpinImageEventClass):
         #    the image is garbage collected? Is the image garbage collected?
         #    This doesn't matter if we are also right shifting the array.
         #
+        print("HERE!")
+        print(image_converted.GetNDArray())
         np_array = image_converted.GetNDArray().flatten()
+        print(np_array.shape)
 
         # Spinnaker will return the image in the highest 16 bits. We shift
         # bits to the right under the assumption that we are dealing with a
@@ -553,7 +563,7 @@ if (__name__ == "__main__"):
     listCameras()
 
     # Get a camera.
-    cam = getCamera("17491681")
+    cam = getCamera("22131598")
 
     # Print all the camera properties and their values.
     if False:
@@ -563,18 +573,12 @@ if (__name__ == "__main__"):
     if True:
         pnames = ["DeviceModelName",
                   "AcquisitionFrameRate",
-                  "AcquisitionFrameRateAuto",
                   "BlackLevel",
                   "BlackLevelClampingEnable",
                   "ExposureTime",
                   "ExposureAuto",
                   "Gain",
-                  "GammaEnabled",
-                  "OnBoardColorProcessEnabled",
-                  "PixelFormat",
-                  "pgrDefectPixelCorrectionEnable",
-                  "SharpnessEnabled",
-                  "VideoMode"]        
+                  "PixelFormat"]        
         for pname in pnames:
             prop = cam.getProperty(pname)
             print(pname, prop.getValue())
@@ -584,11 +588,10 @@ if (__name__ == "__main__"):
     if True:
         
         # Set some properties of the camera.
-        cam.setProperty("VideoMode", "Mode7")
         cam.setProperty("AcquisitionMode", "Continuous")
         cam.setProperty("TriggerMode", "Off")
-        cam.setProperty("PixelFormat", "Mono12p")
-        cam.setProperty("AcquisitionFrameRateAuto", "Off")
+        cam.setProperty("PixelFormat", "BayerRG16")
+        #cam.setProperty("AcquisitionFrameRateAuto", "Off")
         cam.setProperty("AcquisitionFrameRate", 10.0)
         #cam.setProperty("ExposureTime", 99000.0)
         #cam.setProperty("BlackLevel", 5.0)
