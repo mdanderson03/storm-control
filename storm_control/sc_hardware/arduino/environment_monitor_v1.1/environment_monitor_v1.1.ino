@@ -1,12 +1,13 @@
 // Environment Monitor
-// v1.0
+// v1.1
 // Jeffrey Moffitt
-// July 2022
+// Started: July 2022
+// Updaet: August 2022
 // Children's Hospital Boston 2022
 
 // This code draws heavily from examples from Adafruit. Consult the adafruit website on the necessary Adafruit libraries
-// This environment monitor was built on a Feather M4, a SHX110 display, and a HTS211 sensor. It should be straightforward 
-//   to modify for other hardware choices
+// This environment monitor was built on a Feather M4, a SHX110 display, and a HTS211 or AHT20 sensor. It should be straightforward 
+// to modify for other hardware choices
 
 // Display Headers
 #include <SPI.h>
@@ -17,15 +18,23 @@
 // Sensor Headers
 #include <Adafruit_Sensor.h>
 #include <Adafruit_HTS221.h>
+#include <Adafruit_AHTX0.h>
 
 // Display definitions
 Adafruit_SH1107 display = Adafruit_SH1107(64, 128, &Wire);
 
 // Sensor definitions
 Adafruit_HTS221 hts;
+Adafruit_AHTX0 aht;
+
+//Define sensor constants
+const int NULL_SENSOR = 0;
+const int HTS221_SENSOR = 1;
+const int AHTX0_SENSOR = 2;
+int Sensor_Type = NULL_SENSOR;
 
 // Code definition
-String VERSION = "EMonitor_v1.0";
+String VERSION = "EMonitor_v1.1";
 
 void setup() {
 
@@ -46,23 +55,38 @@ void setup() {
   display.setTextColor(SH110X_WHITE);
   display.setCursor(0,0);
 
+  // Display Software version
+  display.println(VERSION);
+
   // Create the temperature and humidity sensor
-  if (!hts.begin_I2C()) {
-    display.println("ERROR: HTS NOT FOUND!");    
-    display.display();
+  if (Sensor_Type == NULL_SENSOR){
+    if (hts.begin_I2C()) {
+      display.println("HTS221 FOUND");
+      Sensor_Type = HTS221_SENSOR;
+      //Configure the device
+      hts.setDataRate(HTS221_RATE_1_HZ);
+      //Report on configuration
+      display.println("HTS211 Sample Rate:");
+      hts221_rate_t value;
+      value = hts.getDataRate();
+      display.print(" ");
+      display.println(value);
+    }
   }
-  else{
-    //Configure the device
-    hts.setDataRate(HTS221_RATE_1_HZ);
-    //Report on configuration
-    display.println(VERSION);
-    display.println("HTS211 Sample Rate:");
-    hts221_rate_t value;
-    value = hts.getDataRate();
-    display.print(" ");
-    display.println(value);
-    display.display();
+  if (Sensor_Type == NULL_SENSOR){
+    if (aht.begin()){
+      display.println("AHTX0 FOUND");
+      Sensor_Type = AHTX0_SENSOR;
+    }
   }
+  if (Sensor_Type == NULL_SENSOR){
+    display.println("ERROR! NO SENSOR!");
+  }
+
+  display.print("Sensor Type: ");
+  display.println(String(Sensor_Type));
+  
+  display.display();
 
   // Setup the serial port
   Serial.begin(115200);
@@ -110,8 +134,20 @@ void loop() {
       // Measure temperature and humidity
       sensors_event_t temp;
       sensors_event_t humidity;
-      hts.getEvent(&humidity, &temp);
-   
+
+      switch (Sensor_Type){
+        case HTS221_SENSOR:
+          hts.getEvent(&humidity, &temp);
+          break;
+        case AHTX0_SENSOR:
+          aht.getEvent(&humidity, &temp);
+          break;
+        case NULL_SENSOR:
+          display.println("NO SENSOR"); 
+          break;
+          
+      }
+
       // Update display
       tempToDisplay = String(temp.temperature,1);
       display.print(tempToDisplay);
