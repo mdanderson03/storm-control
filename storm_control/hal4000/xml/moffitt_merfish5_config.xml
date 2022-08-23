@@ -195,12 +195,12 @@
 			  </do_task>
 			</ilm405>
 
-			<ir_laser>
+			<!--<ir_laser>
 			  <ct_task>
 				<source type="string">/Dev1/ctr0</source>
 				<frequency type="float">50000</frequency>
 			  </ct_task>
-			</ir_laser>
+			</ir_laser>-->
 	
 		</configuration>
 
@@ -255,7 +255,8 @@
       <class_name type="string">FocusLock</class_name>
       <module_name type="string">storm_control.hal4000.focusLock.focusLock</module_name>
       <configuration>
-		<ir_laser type="string">ldc_irlaser</ir_laser>
+		<!--<ir_laser type="string">ldc_irlaser</ir_laser>-->
+		<ir_laser type="string">none_irlaser</ir_laser>
 		<ir_power type="int">10</ir_power>
 		<lock_modes type="string">NoLockMode,AlwaysOnLockMode</lock_modes>
 		<qpd type="string">blackfly_autofocus</qpd>
@@ -327,14 +328,24 @@
 	</illumination>
 
     <!-- Thorlabs LDC control -->
-    <ldc_irlaser>
+    <!--<ldc_irlaser>
       <module_name type="string">storm_control.sc_hardware.thorlabs.LDCModule</module_name>
       <class_name type="string">LDCIRLaserModule</class_name>
 
       <configuration>
 		<ct_fn_name type="string">daq.ir_laser.ct_task</ct_fn_name>
       </configuration>
-    </ldc_irlaser>
+    </ldc_irlaser>-->
+	
+	<!-- Manual control of ir laser only -->
+	<none_irlaser>
+      <module_name type="string">storm_control.sc_hardware.none.noneIRLaserModule</module_name>
+      <class_name type="string">NoneIRLaserModule</class_name>
+	  <configuration>
+		<display_controls type="boolean">False</display_controls>
+	  </configuration>
+    </none_irlaser>
+
 	
     <zaber_xy_stage>
       <module_name type="string">storm_control.sc_hardware.zaber.zaberXYModule</module_name>
