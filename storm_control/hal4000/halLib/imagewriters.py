@@ -32,9 +32,9 @@ def availableFileFormats(test_mode):
     #
 
     if test_mode:
-        return [".dax", ".tif", ".big.tif", ".test"]
+        return [".dax", ".tif", ".big.tif", ".z1.tif", ".test"]
     else:
-        return [".dax", ".tif", ".big.tif"]
+        return [".dax", ".tif", ".big.tif", ".z1.tif"]
 
 def createFileWriter(camera_functionality, film_settings):
     """
@@ -58,6 +58,12 @@ def createFileWriter(camera_functionality, film_settings):
     elif (ft == ".tif"):
         return TIFFile(camera_functionality = camera_functionality,
                        film_settings = film_settings)
+    elif (ft == '.z1.tif'):
+        return TIFFile(camera_functionality = camera_functionality,
+                       film_settings = film_settings,
+                       compression='zlib',
+                       compressionargs = {'level': 1})
+
     else:
         raise ImageWriterException("Unknown output file format '" + ft + "'")
 
@@ -207,18 +213,26 @@ class TIFFile(BaseFileWriter):
     """
     TIF file writing class. This supports both normal and 'big' tiff.
     """
-    def __init__(self, bigtiff = False, **kwds):
+    def __init__(self, bigtiff = False, compression = None, compressionargs = None, **kwds):
         super().__init__(**kwds)
         self.metadata = {'unit' : 'um'}
+        self.compression = compression
+        self.compressionargs = compressionargs
+        self.contiguous = True
         if bigtiff:
             self.resolution = (25400.0/self.film_settings.getPixelSize(),
                                25400.0/self.film_settings.getPixelSize())
             self.tif = tifffile.TiffWriter(self.filename,
                                            bigtiff = bigtiff)
-        else:
+        elif self.compression is None:
             self.resolution = (1.0/self.film_settings.getPixelSize(), 1.0/self.film_settings.getPixelSize())
             self.tif = tifffile.TiffWriter(self.filename,
                                            imagej = True)
+        else:
+            self.resolution = (1.0/self.film_settings.getPixelSize(), 1.0/self.film_settings.getPixelSize())
+            self.tif = tifffile.TiffWriter(self.filename,
+                                           imagej = False)
+            self.contiguous = False
 
     def closeWriter(self):
         super().closeWriter()
@@ -230,7 +244,9 @@ class TIFFile(BaseFileWriter):
         self.tif.save(image.reshape((frame.image_y, frame.image_x)),
                       metadata = self.metadata,
                       resolution = self.resolution, 
-                      contiguous = True)
+                      contiguous = self.contiguous,
+                      compression = self.compression,
+                      compressionargs = self.compressionargs)
 
 
 #
