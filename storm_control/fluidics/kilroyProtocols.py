@@ -15,10 +15,12 @@
 # ----------------------------------------------------------------------------------------
 import sys
 import os
+import datetime
 import xml.etree.ElementTree as elementTree
 from PyQt5 import QtCore, QtGui, QtWidgets
 from storm_control.fluidics.valves.valveCommands import ValveCommands
 from storm_control.fluidics.pumps.pumpCommands import PumpCommands
+
 
 # ----------------------------------------------------------------------------------------
 # KilroyProtocols Class Definition
@@ -124,6 +126,8 @@ class KilroyProtocols(QtWidgets.QMainWindow):
 
         self.elapsedTimeLabel = QtWidgets.QLabel()
         self.elapsedTimeLabel.setText("Elapsed Time: ")
+        self.totalTimeLabel = QtWidgets.QLabel()
+        self.totalTimeLabel.setText("Total Protocol Time: ")
 
         self.protocolDetailsList = QtWidgets.QListWidget()
         
@@ -141,6 +145,7 @@ class KilroyProtocols(QtWidgets.QMainWindow):
         self.mainWidgetLayout.addWidget(self.fileLabel)
         self.mainWidgetLayout.addWidget(self.protocolListWidget)
         self.mainWidgetLayout.addWidget(self.elapsedTimeLabel)
+        self.mainWidgetLayout.addWidget(self.totalTimeLabel)
         self.mainWidgetLayout.addWidget(self.protocolDetailsList)
         self.mainWidgetLayout.addWidget(self.startProtocolButton)
         self.mainWidgetLayout.addWidget(self.skipCommandButton)
@@ -516,6 +521,9 @@ class KilroyProtocols(QtWidgets.QMainWindow):
         current_protocol_name = self.protocol_names[protocol_ID]
         current_protocol_commands = self.protocol_commands[protocol_ID]
         current_protocol_durations = self.protocol_durations[protocol_ID]
+        current_protocol_total_duration = self.requiredTime(self.protocol_names[protocol_ID])
+        self.totalTimeLabel.setText(f"Total Protocol Duration: {datetime.timedelta(seconds=current_protocol_total_duration)} ({int(current_protocol_total_duration)} s)")
+        print(current_protocol_total_duration)
 
         self.protocolDetailsList.clear()
         for ID in range(len(current_protocol_commands)):
