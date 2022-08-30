@@ -523,7 +523,6 @@ class KilroyProtocols(QtWidgets.QMainWindow):
         current_protocol_durations = self.protocol_durations[protocol_ID]
         current_protocol_total_duration = self.requiredTime(self.protocol_names[protocol_ID])
         self.totalTimeLabel.setText(f"Total Protocol Duration: {datetime.timedelta(seconds=current_protocol_total_duration)} ({int(current_protocol_total_duration)} s)")
-        print(current_protocol_total_duration)
 
         self.protocolDetailsList.clear()
         for ID in range(len(current_protocol_commands)):
