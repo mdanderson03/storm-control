@@ -437,7 +437,7 @@ class Dave(QtWidgets.QMainWindow):
             
             # Update time remaining time estimate.
             est_time = self.ui.commandSequenceTreeView.getRemainingTime()
-            self.ui.remainingLabel.setText("Time Remaining: " + str(datetime.timedelta(seconds = est_time))[0:8])
+            self.ui.remainingLabel.setText("Time Remaining: " + str(datetime.timedelta(seconds = est_time)))
 
             # Check for requested pause.
             if self.running: 
