@@ -232,13 +232,13 @@ class QAFCamDisplay(QCamDisplay):
 
         # Draw image.
         y_start = self.display_pixmap.height()/2 - self.camera_image.height()/2
-        destination_rect = QtCore.QRect(0, y_start, self.camera_image.width(), self.camera_image.height())
+        destination_rect = QtCore.QRect(int(0), int(y_start), int(self.camera_image.width()), int(self.camera_image.height()))
         painter.drawImage(destination_rect, self.camera_image)
 
         # Draw bounding rectangle.
         if (w != h):
             pen = QtGui.QPen(QtGui.QColor(255,0,0))
-            pen.setWidth(self.display_pixmap.width()/self.width())
+            pen.setWidth(int(self.display_pixmap.width()/self.width()))
             painter.setPen(pen)
             painter.setBrush(QtGui.QColor(0,0,0,0))
             painter.drawRect(destination_rect)
@@ -276,14 +276,14 @@ class QAFCamDisplay(QCamDisplay):
         if self.display_pixmap:
 
             # Draw image.
-            destination_rect = QtCore.QRect(0, 0, self.width(), self.height())
+            destination_rect = QtCore.QRect(0, 0, int(self.width()), int(self.height()))
             painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
             painter.drawPixmap(destination_rect, self.display_pixmap)
 
             # Draw alignment line.
             if self.adjust_mode:
                 painter.setPen(QtGui.QColor(100,100,100))
-                painter.drawLine(0.0, 0.5*self.height(), self.width(), 0.5*self.height())
+                painter.drawLine(0, int(0.5*self.height()), int(self.width()), int(0.5*self.height()))
 
             # Draw focus lock feedback.
             #
@@ -357,13 +357,13 @@ class QQPDCamDisplay(QCamDisplay):
 
         # Draw image.
         y_start = self.display_pixmap.height()/2 - self.camera_image.height()/2
-        destination_rect = QtCore.QRect(0, y_start, self.camera_image.width(), self.camera_image.height())
+        destination_rect = QtCore.QRect(0, int(y_start), int(self.camera_image.width()), int(self.camera_image.height()))
         painter.drawImage(destination_rect, self.camera_image)
 
         # Draw bounding rectangle.
         if (w != h):
             pen = QtGui.QPen(QtGui.QColor(255,0,0))
-            pen.setWidth(self.display_pixmap.width()/self.width())
+            pen.setWidth(int(self.display_pixmap.width()/self.width()))
             painter.setPen(pen)
             painter.setBrush(QtGui.QColor(0,0,0,0))
             painter.drawRect(destination_rect)
@@ -372,7 +372,7 @@ class QQPDCamDisplay(QCamDisplay):
         if (self.zoom_im_x >= 0):
             self.zoom_image = QtGui.QImage(self.zoom_size, self.zoom_size, QtGui.QImage.Format_RGB32)
             painter = QtGui.QPainter(self.zoom_image)
-            painter.drawPixmap(0, 0, self.display_pixmap, self.zoom_im_x, self.zoom_im_y, self.zoom_size, self.zoom_size)
+            painter.drawPixmap(0, 0, self.display_pixmap, int(self.zoom_im_x), int(self.zoom_im_y), int(self.zoom_size), int(self.zoom_size))
         else:
             self.zoom_image = False
 
@@ -448,7 +448,7 @@ class QQPDCamDisplay(QCamDisplay):
         if self.display_pixmap:
 
             # Draw image.
-            destination_rect = QtCore.QRect(0, 0, self.width(), self.height())
+            destination_rect = QtCore.QRect(0, 0, int(self.width()), int(self.height()))
             painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
             painter.drawPixmap(destination_rect, self.display_pixmap)
 
@@ -456,12 +456,12 @@ class QQPDCamDisplay(QCamDisplay):
             if self.adjust_mode:
 
                 painter.setPen(QtGui.QColor(100,100,100))
-                painter.drawLine(0.0, 0.5*self.height(), self.width(), 0.5*self.height())
+                painter.drawLine(0, int(0.5*self.height()), int(self.width()), int(0.5*self.height()))
                 for mult in [0.25, 0.5, 0.75]:
-                    painter.drawLine(mult*self.width(), 0.0, mult*self.width(), self.height())
+                    painter.drawLine(int(mult*self.width()), 0, int(mult*self.width()), int(self.height()))
 
                 if self.zoom_image:
-                    destination_rect = QtCore.QRect(self.zoom_x, self.zoom_y, self.zoom_size, self.zoom_size)
+                    destination_rect = QtCore.QRect(int(self.zoom_x), int(self.zoom_y), int(self.zoom_size), int(self.zoom_size))
                     painter.drawImage(destination_rect, self.zoom_image)
                     painter.setPen(QtGui.QColor(200,200,200))
                     painter.setBrush(QtGui.QColor(0,0,0,0))
@@ -588,7 +588,7 @@ class QOffsetDisplay(QStatusDisplay):
             center_bar = int(0.5 * self.height())
             color = QtGui.QColor(50, 50, 50)
             painter.setPen(color)
-            painter.drawLine(0, center_bar, self.width(), center_bar)
+            painter.drawLine(0, int(center_bar), int(self.width()), int(center_bar))
 
         # Foreground.
         painter.setPen(self.bar_color)
@@ -622,8 +622,8 @@ class QQPDDisplay(QStatusDisplay):
         color = QtGui.QColor(50, 50, 50)
         center = self.convert(0.0) - 4
         painter.setPen(color)
-        painter.drawLine(0, center, self.width(), center)
-        painter.drawLine(center, 0, center, self.height())
+        painter.drawLine(0, int(center), int(self.width()), int(center))
+        painter.drawLine(int(center), 0, int(center), int(self.height()))
 
         # spot
         color = QtGui.QColor(0, 0, 0, 150)
