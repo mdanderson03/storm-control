@@ -258,7 +258,6 @@
 			  </do_task>
 			</ilm405>
 
-
 			<ir_laser>
 			  <ct_task>
 				<source type="string">/Dev1/ctr0</source>
