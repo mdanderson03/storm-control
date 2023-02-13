@@ -74,9 +74,9 @@
 
       <!-- List objectives available on this setup here. -->
       <parameters>
-		<flip_horizontal desc="Flip image horizontal (mosaic)" type="boolean">False</flip_horizontal>
-		<flip_vertical desc="Flip image vertical (mosaic)" type="boolean">False</flip_vertical>
-		<transpose desc="Transpose image (mosaic)" type="boolean">False</transpose>
+		<flip_horizontal desc="Flip image horizontal (mosaic)" type="boolean">True</flip_horizontal>
+		<flip_vertical desc="Flip image vertical (mosaic)" type="boolean">True</flip_vertical>
+		<transpose desc="Transpose image (mosaic)" type="boolean">Ture</transpose>
 
 		<objective desc="Current objective" type="string" values="obj1,obj2">obj1</objective>
 		<obj1 desc="Objective 1" type="custom">60x,0.1028,0.0,0.0</obj1>
@@ -158,7 +158,7 @@
 			<default_min type="int">30</default_min>
 			<flip_horizontal type="boolean">False</flip_horizontal>
 			<flip_vertical type="boolean">False</flip_vertical>
-			<transpose type="boolean">False</transpose>
+			<transpose type="boolean">True</transpose>
 			
 			<!--
 					  What value to use for Trigger Activation, 'RisingEdge' or
@@ -192,7 +192,7 @@
 			 camera fire pin. Other films will just use the camera fire pin directly.
 		-->
 		<timing>
-		  <camera_fire_pin type="string">/Dev1/PFI9</camera_fire_pin>
+		  <camera_fire_pin type="string">/Dev1/PFI8</camera_fire_pin>
 		  <counter type="string">/Dev1/ctr0</counter>
 		  <counter_out type="string">/Dev1/PFI12</counter_out>
 		</timing>
@@ -286,7 +286,7 @@
 		<z_stage type="string">mcl_zstage</z_stage>
 		<parameters>
 			<scan>
-				<offset_threshold type="float">250</offset_threshold><!-- This is in nanometers and get converted by Hal to microns-->
+				<offset_threshold type="float">500</offset_threshold><!-- This is in nanometers and get converted by Hal to microns-->
 			</scan>
 		  <find_sum>
 			<step_size type="float">1.0</step_size>
@@ -375,7 +375,9 @@
       </configuration>
     </ldc_irlaser>
 	
-    <!-- Marzhauzer stage -->
+    
+	<!-- Marzhauzer stage -->
+	<!--
     <marzhauser_stage>
       <module_name type="string">storm_control.sc_hardware.marzhauser.marzhauserModule</module_name>
       <class_name type="string">MarzhauserStage</class_name>
@@ -386,6 +388,25 @@
 		<velocity type="float">2.0</velocity>
       </configuration>
     </marzhauser_stage>
+	-->
+	
+    <zaber_xy_stage>
+      <module_name type="string">storm_control.sc_hardware.zaber.zaberXYModule</module_name>
+      <class_name type="string">ZaberXYStage</class_name>
+
+      <configuration>
+		<baudrate type="int">115200</baudrate>
+		<port type="string">COM6</port>
+		
+		<stage_id type="int">2</stage_id>
+		<unit_to_um type="float">0.15625</unit_to_um>
+		<velocity type="float">60000</velocity> <!--<in um/s default 60 mm/s>-->
+		<x_min type="float">45000</x_min>
+		<x_max type="float">56000</x_max>
+		<y_min type="float">52000</y_min>
+		<y_max type="float">67000</y_max>
+      </configuration>
+    </zaber_xy_stage>
 
     <!-- Mad City Labs Z piezo -->
     <mcl_zstage>
@@ -411,7 +432,7 @@
       <class_name type="string">Stage</class_name>
       <module_name type="string">storm_control.hal4000.stage.stage</module_name>
       <configuration>
-		<stage_functionality type="string">marzhauser_stage</stage_functionality>
+		<stage_functionality type="string">zaber_xy_stage</stage_functionality>
       </configuration>
     </stage>
 
