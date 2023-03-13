@@ -74,7 +74,7 @@
 
       <!-- List objectives available on this setup here. -->
       <parameters>
-		<flip_horizontal desc="Flip image horizontal (mosaic)" type="boolean">False</flip_horizontal>
+		<flip_horizontal desc="Flip image horizontal (mosaic)" type="boolean">True</flip_horizontal>
 		<flip_vertical desc="Flip image vertical (mosaic)" type="boolean">False</flip_vertical>
 		<transpose desc="Transpose image (mosaic)" type="boolean">False</transpose>
 
