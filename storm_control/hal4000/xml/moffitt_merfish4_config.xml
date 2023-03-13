@@ -136,7 +136,7 @@
 		<module_name type="string">storm_control.hal4000.camera.pointgreyCameraControl</module_name>
 		<parameters>
 			<!-- Which camera to use -->
-			<camera_id type="string">20232538</camera_id>
+			<camera_id type="string">20232532</camera_id>
 	  
 			<!-- Preset values - camera specific values that are fixed -->
 			<presets>
