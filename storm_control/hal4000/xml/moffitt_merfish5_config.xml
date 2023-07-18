@@ -110,7 +110,7 @@
 		<module_name type="string">storm_control.hal4000.camera.pointgreyCameraControl</module_name>
 		<parameters>
 			<!-- Which camera to use -->
-			<camera_id type="string">20232532</camera_id>
+			<camera_id type="string">20190898</camera_id>
 			<!--<camera_id type="string">20232532</camera_id>-->
 
 			<!-- Preset values - camera specific values that are fixed -->
@@ -157,9 +157,9 @@
 				 camera fire pin. Other films will just use the camera fire pin directly.
 			-->
 			<timing>
-			  <camera_fire_pin type="string">/Dev1/PFI9</camera_fire_pin>
-			  <counter type="string">/Dev1/ctr0</counter>
-			  <counter_out type="string">/Dev1/PFI12</counter_out>
+			  <camera_fire_pin type="string">/Dev4/PFI9</camera_fire_pin>
+			  <counter type="string">/Dev4/ctr0</counter>
+			  <counter_out type="string">/Dev4/PFI12</counter_out>
 			</timing>
 			
 			<!-- These are the things that we provide DAQ functionality for.
@@ -167,37 +167,37 @@
 				 message and "name" = "daq.xxx.yyy". -->
 			<ilm750>
 			  <do_task>
-				<source type="string">/Dev1/port0/line1</source>
+				<source type="string">/Dev4/port0/line1</source>
 			  </do_task>
 			</ilm750>
 
 			<ilm635>
 			  <do_task>
-				<source type="string">/Dev1/port0/line2</source>
+				<source type="string">/Dev4/port0/line2</source>
 			  </do_task>
 			</ilm635>
 
 			<ilm545>
 			  <do_task>
-				<source type="string">/Dev1/port0/line3</source>
+				<source type="string">/Dev4/port0/line3</source>
 			  </do_task>
 			</ilm545>
 
 			<ilm473>
 			  <do_task>
-				<source type="string">/Dev1/port0/line5</source>
+				<source type="string">/Dev4/port0/line5</source>
 			  </do_task>
 			</ilm473>
 
 			<ilm405>
 			  <do_task>
-				<source type="string">/Dev1/port0/line6</source>
+				<source type="string">/Dev4/port0/line6</source>
 			  </do_task>
 			</ilm405>
 
 			<!--<ir_laser>
 			  <ct_task>
-				<source type="string">/Dev1/ctr0</source>
+				<source type="string">/Dev4/ctr0</source>
 				<frequency type="float">50000</frequency>
 			  </ct_task>
 			</ir_laser>-->
@@ -434,7 +434,7 @@
       <configuration>
 		<baudrate type="int">115200</baudrate>
 		<port type="string">COM5</port>
-		<cube_names type="string">1:Celesta-DA/FI/TR/CY5/CY7-A,2:lumencore-440/510/590/691/823,3:50:50,4:empty,5:empty,6:empty</cube_names>
+		<cube_names type="string">1:Celesta-DA/FI/TR/CY5/CY7-A,2:lumencor-440/510/590/691/823,3:50:50,4:empty,5:empty,6:empty</cube_names>
       </configuration>
     </dichroic_turret>
 	

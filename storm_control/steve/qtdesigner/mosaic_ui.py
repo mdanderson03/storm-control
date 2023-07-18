@@ -73,7 +73,7 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.posCenterSpinX.sizePolicy().hasHeightForWidth())
         self.posCenterSpinX.setSizePolicy(sizePolicy)
         self.posCenterSpinX.setMinimum(-50000.0)
-        self.posCenterSpinX.setMaximum(50000.0)
+        self.posCenterSpinX.setMaximum(500000.0)
         self.posCenterSpinX.setObjectName("posCenterSpinX")
         self.horizontalLayout_20.addWidget(self.posCenterSpinX)
         self.verticalLayout_6.addLayout(self.horizontalLayout_20)
