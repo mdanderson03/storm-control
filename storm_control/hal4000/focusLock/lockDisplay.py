@@ -252,7 +252,7 @@ class QAFCamDisplay(QCamDisplay):
         # Draw bounding rectangle.
         if (w != h):
             pen = QtGui.QPen(QtGui.QColor(255,0,0))
-            pen.setWidth(self.display_pixmap.width()/self.width())
+            pen.setWidth(int(self.display_pixmap.width()/self.width()))
             painter.setPen(pen)
             painter.setBrush(QtGui.QColor(0,0,0,0))
             painter.drawRect(destination_rect)
@@ -384,7 +384,7 @@ class QQPDCamDisplay(QCamDisplay):
         # Draw bounding rectangle.
         if (w != h):
             pen = QtGui.QPen(QtGui.QColor(255,0,0))
-            pen.setWidth(self.display_pixmap.width()/self.width())
+            pen.setWidth(int(self.display_pixmap.width()/self.width()))
             painter.setPen(pen)
             painter.setBrush(QtGui.QColor(0,0,0,0))
             painter.drawRect(destination_rect)
@@ -601,7 +601,7 @@ class QQPDAxiconCamDisplay(QCamDisplay):
         # Draw bounding rectangle.
         if (w != h):
             pen = QtGui.QPen(QtGui.QColor(255,0,0))
-            pen.setWidth(self.display_pixmap.width()/self.width())
+            pen.setWidth(int(self.display_pixmap.width()/self.width()))
             painter.setPen(pen)
             painter.setBrush(QtGui.QColor(0,0,0,0))
             painter.drawRect(destination_rect)
