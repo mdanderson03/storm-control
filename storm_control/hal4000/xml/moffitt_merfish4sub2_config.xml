@@ -5,7 +5,7 @@
   <directory type="directory">C:/Data/</directory>
   
   <!-- The setup name -->
-  <setup_name type="string">moffitt_merfish5</setup_name>
+  <setup_name type="string">moffitt_merfish4a</setup_name>
 
   <!-- The ui type, this is 'classic' or 'detached' -->
   <ui_type type="string">detached</ui_type>
@@ -462,7 +462,7 @@
 		  <sum_minimum type="float">50.0</sum_minimum>
 		  <sum_warning_low type="float">10000.0</sum_warning_low>
 		</parameters>
-		<use_storm_analysis type="boolean">False</use_storm_analysis>
+		<use_storm_analysis type="boolean">True</use_storm_analysis>
 		<background type="int">0</background>
 		<camera_id type="int">1</camera_id>
 		<ini_file type="string">uc480_settings.ini</ini_file>
