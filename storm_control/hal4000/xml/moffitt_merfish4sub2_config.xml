@@ -193,7 +193,7 @@
 		-->
 		<timing>
 		  <!--<camera_fire_pin type="string">/Dev1/PFI9</camera_fire_pin>-->
-		  <camera_fire_pin type="string">/Dev1/PFI8</camera_fire_pin>
+		  <camera_fire_pin type="string">/Dev1/PFI9</camera_fire_pin>
 		  <counter type="string">/Dev1/ctr0</counter>
 		  <counter_out type="string">/Dev1/PFI12</counter_out>
 		</timing>
@@ -280,7 +280,8 @@
       <class_name type="string">FocusLock</class_name>
       <module_name type="string">storm_control.hal4000.focusLock.focusLock</module_name>
       <configuration>
-		<ir_laser type="string">ldc_irlaser</ir_laser>
+		<!--<ir_laser type="string">ldc_irlaser</ir_laser>-->
+		<ir_laser type="string">none_irlaser</ir_laser>
 		<ir_power type="int">10</ir_power>
 		<lock_modes type="string">NoLockMode,AutoLockMode,AlwaysOnLockMode,HardwareZScanLockMode,OptimalLockMode,CalibrationLockMode</lock_modes>
 		<qpd type="string">uc480_camera</qpd>
@@ -367,6 +368,7 @@
 	</illumination>
 
     <!-- Thorlabs LDC control -->
+	<!--
     <ldc_irlaser>
       <module_name type="string">storm_control.sc_hardware.thorlabs.LDCModule</module_name>
       <class_name type="string">LDCIRLaserModule</class_name>
@@ -375,6 +377,18 @@
 		<ct_fn_name type="string">daq.ir_laser.ct_task</ct_fn_name>
       </configuration>
     </ldc_irlaser>
+	-->
+	
+	<!-- Manual control of ir laser only -->
+	<none_irlaser>
+      <module_name type="string">storm_control.sc_hardware.none.noneIRLaserModule</module_name>
+      <class_name type="string">NoneIRLaserModule</class_name>
+	  <configuration>
+		<display_controls type="boolean">False</display_controls>
+	  </configuration>
+    </none_irlaser>
+
+	
 	
     <!-- Marzhauzer stage -->
 	<!--
