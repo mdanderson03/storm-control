@@ -25,7 +25,7 @@ import os
 import signal
 import time
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
 
 import storm_control.sc_library.halExceptions as halExceptions
 import storm_control.sc_library.hdebug as hdebug
@@ -733,7 +733,8 @@ if (__name__ == "__main__"):
     args = parser.parse_args()
     
     # Start..
-    app = QtWidgets.QApplication(sys.argv)
+    #QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_ShareOpenGLContexts)
+    app = QtWidgets.QApplication(sys.argv + ['--no-sandbox'])
 
     # This keeps Qt from closing everything if a message box is displayed
     # before HAL's main window is shown.
