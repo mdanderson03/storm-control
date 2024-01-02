@@ -34,9 +34,12 @@ class FocusLockControl(QtCore.QObject):
 
         self.aflIp = configuration.get("url")
         self.last_status = {}
+        self.lock_movie_i = 0
+        self.lock_movie_name = None
         self.offset_fp = None
         self.parameters = params.StormXMLObject()
         self.status = {}
+        self.recording = configuration.get("record", True)
         self.timing_functionality = None
         
         # Qt timer for checking focus lock
@@ -85,6 +88,11 @@ class FocusLockControl(QtCore.QObject):
             headers = ["frame", "offset", "power", "stage-z", "good-offset"]
             self.offset_fp.write(" ".join(headers) + "\n")
 
+        if self.recording:
+            self.lock_movie_name = "movie_{0:04d}.tif".format(self.lock_movie_i%9000)
+            self.command("record", params = {"filename" : self.lock_movie_name, "frames" : 40})
+            self.lock_movie_i += 1
+            
             # Pass waveform to focus lock.
             #waveform = self.lock_mode.getWaveform()
             #if waveform is not None:
@@ -101,11 +109,12 @@ class FocusLockControl(QtCore.QObject):
 
         lock_status = {"good_lock" : bool(int(self.status["lock quality"])>0),
                        "lock_mode" : self.status["mode"],
+                       "lock_movie" : str(self.lock_movie_name),
                        "lock_sum" : float(self.status["sum"]),
                        "lock_target" : 0.0}
         
         if (len(self.status["lock target"]) > 0):
-            lock_status = float(self.status["lock target"])
+            lock_status['lock_target'] = float(self.status["lock target"])
 
         return lock_status
 
@@ -126,7 +135,7 @@ class FocusLockView(halDialog.HalDialog):
         layout.addWidget(self.lock_display)
 
         self.lock_display.load(QtCore.QUrl(configuration.get("url")))
-        self.setFixedSize(900, 450)
+        self.setFixedSize(900, 455)
         self.setEnabled(True)
 
     def show(self):
@@ -201,11 +210,13 @@ class FocusLock(halModule.HalModule):
 
             good_lock = params.ParameterSetBoolean(name = "good_lock", value = lock_status["good_lock"])
             lock_mode = params.ParameterString(name = "lock_mode", value = lock_status["lock_mode"])
+            lock_movie = params.ParameterString(name = "lock_movie", value = lock_status["lock_movie"])
             lock_sum = params.ParameterFloat(name = "lock_sum", value = lock_status["lock_sum"])
             lock_target = params.ParameterFloat(name = "lock_target", value = lock_status["lock_target"])
             message.addResponse(halMessage.HalMessageResponse(source = self.module_name,
                                                               data = {"acquisition" : [good_lock,
                                                                                        lock_mode,
+                                                                                       lock_movie,
                                                                                        lock_sum,
                                                                                        lock_target]}))
 
