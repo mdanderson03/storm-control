@@ -257,7 +257,7 @@
       <class_name type="string">FocusLock</class_name>
       <module_name type="string">storm_control.sc_hardware.axiconFl.focusLock</module_name>
       <configuration>
-	<url type="string">http://axiconfl-nuc:5000/axicon</url>
+	<url type="string">http://10.42.0.1:5000/axicon</url>
       </configuration>
     </focuslock>
     
