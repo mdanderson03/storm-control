@@ -68,6 +68,7 @@ class FocusLockControl(QtCore.QObject):
         self.scan_for_sum_timer.timeout.connect(self.handleScanForSum)
 
     def cleanUp(self):
+        self.command("unlock")
         self.command("setLaserPower", {"value" : 0})
         
     def command(self, cmd, params = {}):
@@ -291,10 +292,10 @@ class FocusLockControl(QtCore.QObject):
         lock_status = {"good_lock" : bool(int(self.status["lock quality"])>0),
                        "lock_mode" : self.status["mode"],
                        "lock_movie" : str(self.lock_movie_name),
-                       "lock_sum" : float(self.status["sum"]),
+                       "lock_sum" : float(self.status["signal quality"]),
                        "lock_target" : 0.0}
         
-        if (len(self.status["lock target"]) > 0):
+        if (len(str(self.status["lock target"])) > 0):
             lock_status['lock_target'] = float(self.status["lock target"])
 
         if self.last_lock_target is not None:
