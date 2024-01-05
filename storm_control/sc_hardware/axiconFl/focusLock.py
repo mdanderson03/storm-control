@@ -305,8 +305,6 @@ class FocusLockControl(QtCore.QObject):
 
 
 class FocusLockView(halDialog.HalDialog):
-    """
-    """
 
     def __init__(self, configuration = None, **kwds):
         super().__init__(**kwds)
