@@ -156,9 +156,9 @@ class FocusLockControl(QtCore.QObject):
         if self.offset_fp is not None:
             self.offset_fp.write("{0:d} {1:.6f} {2:.6f} {3:.6f} {4:0d}\n".format(frame.frame_number + 1,
                                                                                  float(self.status["offset"]),
-                                                                                 float(self.status["sum"]),
+                                                                                 float(self.status["signal quality"]),
                                                                                  float(self.status["z position"]),
-                                                                                 int(self.status['lock quality'])))
+                                                                                 int(self.status["lock quality"])))
 
     def handleScanForSum(self):
         status = self.getStatus()
