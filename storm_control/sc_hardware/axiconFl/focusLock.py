@@ -31,7 +31,7 @@ def isLocked(status):
     
 class FocusLockControl(QtCore.QObject):
 
-    def __init__(self, configuration = None, **kwds):    
+    def __init__(self, configuration = None, qt_settings = None, **kwds):
         super().__init__(**kwds)
 
         self.aflIp = configuration.get("url")
@@ -40,7 +40,7 @@ class FocusLockControl(QtCore.QObject):
         self.hzs_zstring = None
         self.last_lock_target = None
         self.last_status = {}
-        self.lock_movie_i = 0
+        self.lock_movie_i = int(qt_settings.value("axiconfl.lock_movie_i", 0))
         self.lock_movie_name = None
         self.offset_fp = None
         self.parameters = params.StormXMLObject()
@@ -67,9 +67,10 @@ class FocusLockControl(QtCore.QObject):
         self.scan_for_sum_timer.setSingleShot(True)
         self.scan_for_sum_timer.timeout.connect(self.handleScanForSum)
 
-    def cleanUp(self):
+    def cleanUp(self, qt_settings):
         self.command("unlock")
         self.command("setLaserPower", {"value" : 0})
+        qt_settings.setValue("axiconfl.lock_movie_i", self.lock_movie_i)
         
     def command(self, cmd, params = {}):
         r = requests.get(f"{self.aflIp}/command", params = {"cmd" : cmd} | params)
@@ -332,7 +333,8 @@ class FocusLock(halModule.HalModule):
         super().__init__(**kwds)
         self.configuration = module_params.get("configuration")
 
-        self.control = FocusLockControl(configuration = module_params.get("configuration"))
+        self.control = FocusLockControl(configuration = module_params.get("configuration"),
+                                        qt_settings = qt_settings)
         self.view = FocusLockView(module_name = self.module_name,
                                   configuration = module_params.get("configuration"))
         self.view.halDialogInit(qt_settings,
@@ -345,7 +347,7 @@ class FocusLock(halModule.HalModule):
                                            "resp" : None})
         
     def cleanUp(self, qt_settings):
-        self.control.cleanUp()
+        self.control.cleanUp(qt_settings)
         self.view.cleanUp(qt_settings)
 
     def handleControlMessage(self, message):
