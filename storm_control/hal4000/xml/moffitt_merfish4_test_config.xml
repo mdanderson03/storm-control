@@ -5,7 +5,7 @@
   <directory type="directory">C:/Data/</directory>
   
   <!-- The setup name -->
-  <setup_name type="string">moffitt_merfish6</setup_name>
+  <setup_name type="string">moffitt_merfish4_test</setup_name>
 
   <!-- The ui type, this is 'classic' or 'detached' -->
   <ui_type type="string">detached</ui_type>
@@ -136,7 +136,7 @@
 		<module_name type="string">storm_control.hal4000.camera.pointgreyCameraControl</module_name>
 		<parameters>
 			<!-- Which camera to use -->
-			<camera_id type="string">21347367</camera_id>
+			<camera_id type="string">20232538</camera_id>
 	  
 			<!-- Preset values - camera specific values that are fixed -->
 			<presets>
@@ -193,7 +193,7 @@
 		-->
 		<timing>
 		  <!--<camera_fire_pin type="string">/Dev1/PFI9</camera_fire_pin>-->
-		  <camera_fire_pin type="string">/Dev1/PFI0</camera_fire_pin>
+		  <camera_fire_pin type="string">/Dev1/PFI8</camera_fire_pin>
 		  <counter type="string">/Dev1/ctr0</counter>
 		  <counter_out type="string">/Dev1/PFI12</counter_out>
 		</timing>
@@ -218,19 +218,19 @@
 	
 			<ilm750>
 			  <do_task>
-				<source type="string">/Dev1/port0/line1</source>
+				<source type="string">/Dev1/port0/line7</source>
 			  </do_task>
 			</ilm750>
 
 			<ilm635>
 			  <do_task>
-				<source type="string">/Dev1/port0/line2</source>
+				<source type="string">/Dev1/port0/line6</source>
 			  </do_task>
 			</ilm635>
 
 			<ilm545>
 			  <do_task>
-				<source type="string">/Dev1/port0/line3</source>
+				<source type="string">/Dev1/port0/line5</source>
 			  </do_task>
 			</ilm545>
 
@@ -242,19 +242,19 @@
 
 			<ilm473>
 			  <do_task>
-				<source type="string">/Dev1/port0/line5</source>
+				<source type="string">/Dev1/port0/line2</source>
 			  </do_task>
 			</ilm473>
 
 			<ilm445>
 			  <do_task>
-				<source type="string">/Dev1/port0/line0</source>
+				<source type="string">/Dev1/port0/line1</source>
 			  </do_task>
 			</ilm445>
 
 			<ilm405>
 			  <do_task>
-				<source type="string">/Dev1/port0/line6</source>
+				<source type="string">/Dev1/port0/line0</source>
 			  </do_task>
 			</ilm405>
 
@@ -334,21 +334,36 @@
 			  </digital_modulation>
 			</ch3>
 			<ch4>
+			  <gui_name type="string">518</gui_name>
+			  <color type="string">0,128,128</color>
+			  <digital_modulation>
+				<hw_fn_name type="string">daq.ilm518.do_task</hw_fn_name>
+			  </digital_modulation>
+			</ch4>
+			<ch5>
 			  <gui_name type="string">473</gui_name>
 			  <color type="string">0,128,255</color>
 			  
 			  <digital_modulation>
 				<hw_fn_name type="string">daq.ilm473.do_task</hw_fn_name>
 			  </digital_modulation>
-			</ch4>
-			<ch5>
+			</ch5>
+			<ch6>
+			  <gui_name type="string">445</gui_name>
+			  <color type="string">0,0,255</color>
+			  
+			  <digital_modulation>
+				<hw_fn_name type="string">daq.ilm445.do_task</hw_fn_name>
+			  </digital_modulation>
+			</ch6>
+			<ch7>
 			  <gui_name type="string">405</gui_name>
 			  <color type="string">255,0,255</color>
 			  
 			  <digital_modulation>
 				<hw_fn_name type="string">daq.ilm405.do_task</hw_fn_name>
 			  </digital_modulation>
-			</ch5>
+			</ch7>
 		</configuration>
 	</illumination>
 
@@ -394,15 +409,15 @@
 
       <configuration>
 		<baudrate type="int">115200</baudrate>
-		<port type="string">COM9</port>
+		<port type="string">COM8</port>
 		
-		<stage_id type="int">1</stage_id>
+		<stage_id type="int">2</stage_id>
 		<unit_to_um type="float">0.15625</unit_to_um>
 		<velocity type="float">60000</velocity> <!-- in um/s default 60 mm/s -->
-		<x_min type="float">43000</x_min>
+		<x_min type="float">45000</x_min>
 		<x_max type="float">56000</x_max>
-		<y_min type="float">43000</y_min>
-		<y_max type="float">70000</y_max>
+		<y_min type="float">52000</y_min>
+		<y_max type="float">67000</y_max>
       </configuration>
     </zaber_xy_stage>
 	
@@ -463,10 +478,10 @@
 		<background type="int">0</background>
 		<camera_id type="int">1</camera_id>
 		<ini_file type="string">uc480_settings.ini</ini_file>
-		<offset_file type="string">C:\Users\MERFISH6\Code\storm-control\storm_control\hal4000\cam_offsets_moffitt_merfish6.txt</offset_file>
+		<offset_file type="string">C:\Users\MERFISH6\Code\storm-control\storm_control\hal4000\cam_offsets_moffitt_merfish4_test.txt</offset_file>
 		<sigma type="float">3.0</sigma>
 		<uc480_dll type="string">c:/windows/system32/uc480_64.dll</uc480_dll>
-		<x_width type="int">500</x_width>
+		<x_width type="int">360</x_width>
 		<!--<y_width type="int">250</y_width>-->
 		<y_width type="int">100</y_width>
 		<units_to_microns type="float">-0.6</units_to_microns>
