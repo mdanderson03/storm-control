@@ -13,6 +13,7 @@
 // Display definitions
 Adafruit_SH1107 display = Adafruit_SH1107(64, 128, &Wire);
 
+float const _VERSION = 0.4; // Version ID
 int val = 0;
 
 int loop_time = 0; // Loop timer
@@ -51,7 +52,7 @@ void setup() {
   display.setCursor(0,0);
 
   // Print properties
-  display.println("DEBOUNCE v0.4");
+  display.println("DEBOUNCE " + String(_VERSION));
   display.println("");
   display.println("Debounce pin: " + String(12));
   display.println("Cycle time: " + String(pause_us_length) + "us");
