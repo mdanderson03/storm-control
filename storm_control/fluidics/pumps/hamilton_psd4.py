@@ -75,7 +75,7 @@ class APump():
         message = "/1?21000R\r"
         self.write(message)
         response = self.read()
-        
+
         if len(response) < 2:
             assert False
         
@@ -87,6 +87,7 @@ class APump():
                           '6': 6}
         
         self.num_ports = num_ports_dict[chr(response[3])]
+        print('When queried, I said: ', response, ' I pull the third chr: ', chr(response[3]), ' I have ', self.num_ports, ' ports') 
                 
         # Set the resolution
         if self.high_res_mode:
@@ -96,6 +97,7 @@ class APump():
             
         self.write(message)
         response = self.read()
+        print('this is the response: ', response)
         if len(response) < 2:
             assert False
 

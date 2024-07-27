@@ -469,7 +469,7 @@
 		<x_width type="int">500</x_width>
 		<!--<y_width type="int">250</y_width>-->
 		<y_width type="int">100</y_width>
-		<units_to_microns type="float">-0.6</units_to_microns>
+		<units_to_microns type="float">-0.3</units_to_microns>
 	  </configuration>
     </uc480_camera>
 
