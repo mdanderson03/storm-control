@@ -29,10 +29,10 @@ class Crosshair(QtWidgets.QGraphicsItem):
         self.setZValue(1001.0)
 
     def boundingRect(self):
-        return QtCore.QRectF(-self.r_size,
-                              -self.r_size,
-                              2.0 * self.r_size,
-                              2.0 * self.r_size)
+        return QtCore.QRectF(int(-self.r_size),
+                              int(-self.r_size),
+                              int(2.0 * self.r_size),
+                              int(2.0 * self.r_size))
 
     def paint(self, painter, options, widget):
         painter.setRenderHint(QtGui.QPainter.Antialiasing)

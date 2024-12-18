@@ -236,14 +236,14 @@ class QAFCamDisplay(QCamDisplay):
         painter.drawRect(0, 0, w, w)
 
         # Draw image.
-        y_start = self.display_pixmap.height()/2 - self.camera_image.height()/2
-        destination_rect = QtCore.QRect(0, y_start, self.camera_image.width(), self.camera_image.height())
+        y_start = int(round(self.display_pixmap.height()/2 - self.camera_image.height()/2))
+        destination_rect = QtCore.QRect(0, y_start, int(self.camera_image.width()), int(self.camera_image.height()))
         painter.drawImage(destination_rect, self.camera_image)
 
         # Draw bounding rectangle.
         if (w != h):
             pen = QtGui.QPen(QtGui.QColor(255,0,0))
-            pen.setWidth(self.display_pixmap.width()/self.width())
+            pen.setWidth(int(self.display_pixmap.width()/self.width()))
             painter.setPen(pen)
             painter.setBrush(QtGui.QColor(0,0,0,0))
             painter.drawRect(destination_rect)
@@ -281,7 +281,7 @@ class QAFCamDisplay(QCamDisplay):
         if self.display_pixmap:
 
             # Draw image.
-            destination_rect = QtCore.QRect(0, 0, self.width(), self.height())
+            destination_rect = QtCore.QRect(0, 0, int(self.width()), int(self.height()))
             painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
             painter.drawPixmap(destination_rect, self.display_pixmap)
 
@@ -361,14 +361,14 @@ class QQPDCamDisplay(QCamDisplay):
         painter.drawRect(0, 0, w, w)
 
         # Draw image.
-        y_start = self.display_pixmap.height()/2 - self.camera_image.height()/2
-        destination_rect = QtCore.QRect(0, y_start, self.camera_image.width(), self.camera_image.height())
+        y_start = int(round(self.display_pixmap.height()/2 - self.camera_image.height()/2))
+        destination_rect = QtCore.QRect(0, y_start, int(self.camera_image.width()), int(self.camera_image.height()))
         painter.drawImage(destination_rect, self.camera_image)
 
         # Draw bounding rectangle.
         if (w != h):
             pen = QtGui.QPen(QtGui.QColor(255,0,0))
-            pen.setWidth(self.display_pixmap.width()/self.width())
+            pen.setWidth(int(self.display_pixmap.width()/self.width()))
             painter.setPen(pen)
             painter.setBrush(QtGui.QColor(0,0,0,0))
             painter.drawRect(destination_rect)
@@ -453,7 +453,7 @@ class QQPDCamDisplay(QCamDisplay):
         if self.display_pixmap:
 
             # Draw image.
-            destination_rect = QtCore.QRect(0, 0, self.width(), self.height())
+            destination_rect = QtCore.QRect(0, 0, int(self.width()), int(self.height()))
             painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
             painter.drawPixmap(destination_rect, self.display_pixmap)
 
@@ -466,7 +466,7 @@ class QQPDCamDisplay(QCamDisplay):
                     painter.drawLine(mult*self.width(), 0.0, mult*self.width(), self.height())
 
                 if self.zoom_image:
-                    destination_rect = QtCore.QRect(self.zoom_x, self.zoom_y, self.zoom_size, self.zoom_size)
+                    destination_rect = QtCore.QRect(int(self.zoom_x), int(self.zoom_y), int(self.zoom_size), int(self.zoom_size))
                     painter.drawImage(destination_rect, self.zoom_image)
                     painter.setPen(QtGui.QColor(200,200,200))
                     painter.setBrush(QtGui.QColor(0,0,0,0))

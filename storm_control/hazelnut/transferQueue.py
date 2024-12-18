@@ -58,10 +58,10 @@ class TransferQueueListViewDelegate(QtWidgets.QStyledItemDelegate):
 
             num_divisions = int(total_divisions * 0.01 * tq_item.getProgress())
             for i in range(num_divisions):
-                progress_rect = QtCore.QRect(pr_left + step*i,
-                                             pr_top,
-                                             pr_width,
-                                             pr_height)
+                progress_rect = QtCore.QRect(int(pr_left + step*i),
+                                             int(pr_top),
+                                             int(pr_width),
+                                             int(pr_height))
             
                 painter.drawRoundedRect(progress_rect, 2.0, 2.0)
                         
