@@ -302,7 +302,37 @@ class AValveChain(AbstractValve):
 
         # Configure Device
         self.autoDetectValves()
-    
+
+    # ------------------------------------------------------------------------------------
+    # Choose vial from vial diagram to be connected to output, chains 2 valves together
+    # ------------------------------------------------------------------------------------
+
+    def vialChoose(self, vial_ID, valve1_ID, valve2_ID):
+        '''
+        Coded for 2 in series hamilton 8-5 valves. This coordinates the movement of both valves to
+        select desired vial number being connected to output path.
+        :param vial_ID(int): number between 1-15 that corresponds to vial ID chart
+        :param valve1_ID: found in autoDetectValves method
+        :param valve2_ID: found in autoDetectValves method
+        :return:
+        '''
+
+        if 1 <= vial_ID <= 8:
+            valve1_port_ID = vial_ID
+            valve2_port_ID = 1
+
+            changePort(self, valve1_ID, valve1_port_ID, direction=0, wait_until_done=True)
+            changePort(self, valve2_ID, valve2_port_ID, direction=0, wait_until_done=True)
+
+        elif 9 <= vial_ID <= 15:
+            valve2_port_ID = vial_ID - 7
+            changePort(self, valve2_ID, valve2_port_ID, direction=0, wait_until_done=True)
+
+        elif vial_ID > 15:
+            print('error: vial_ID out of range. Please select option between 1-15')
+
+        return
+
     # ------------------------------------------------------------------------------------
     # Halt Hamilton Class Until Movement is Finished
     # ------------------------------------------------------------------------------------
